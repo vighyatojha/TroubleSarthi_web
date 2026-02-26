@@ -1,0 +1,1299 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - Trouble Sarthi</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <style>
+        /* ─── CSS Variables for Light / Dark Theme ─── */
+        :root {
+            --bg-page:      #f5f6f5;
+            --bg-header:    rgba(255,255,255,0.95);
+            --bg-sidebar:   #ffffff;
+            --bg-card:      #ffffff;
+            --bg-table-hdr: #fafafa;
+            --bg-row-hover: #f8f9fa;
+            --bg-tbl-th:    #fafafa;
+            --text-primary: #1a1a1a;
+            --text-muted:   #666;
+            --text-nav:     #2d5a3d;
+            --border-color: #f0f0f0;
+            --shadow-sm:    0 4px 15px rgba(0,0,0,0.08);
+            --shadow-md:    0 8px 25px rgba(0,0,0,0.12);
+            --shadow-hdr:   0 4px 20px rgba(0,0,0,0.10);
+            --input-border: #e0e0e0;
+            --input-bg:     #ffffff;
+            --toggle-bg:    #e2e8f0;
+            --toggle-knob:  #2d5a3d;
+        }
+
+        /* ══════════════════════════════════════════════
+           DARK THEME — deep black + purple (ref image)
+        ══════════════════════════════════════════════ */
+        [data-theme="dark"] {
+            /* Page / structure */
+            --bg-page:      #09091a;
+            --bg-header:    rgba(6,6,18,0.97);
+            --bg-sidebar:   #06060f;          /* near-black, gradient applied separately */
+            --bg-card:      #0f0f1e;
+            --bg-table-hdr: #0c0c1c;
+            --bg-row-hover: #14143000;
+            --bg-tbl-th:    #0c0c1c;
+
+            /* Text */
+            --text-primary: #e0e0ff;
+            --text-muted:   #7070a0;
+            --text-nav:     #b39ddb;          /* soft purple */
+
+            /* Borders & shadows */
+            --border-color: #1e1e45;
+            --shadow-sm:    0 4px 20px rgba(0,0,0,0.6);
+            --shadow-md:    0 8px 30px rgba(0,0,0,0.75);
+            --shadow-hdr:   0 4px 20px rgba(0,0,0,0.65);
+
+            /* Inputs */
+            --input-border: #2a2a58;
+            --input-bg:     #0d0d20;
+
+            /* Toggle */
+            --toggle-bg:    #3d1f7a;
+            --toggle-knob:  #9c6fe4;
+        }
+
+        /* Reset and Base */
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body {
+            font-family: 'Inter', sans-serif;
+            line-height: 1.7;
+            color: var(--text-primary);
+            background: var(--bg-page);
+            overflow-x: hidden;
+            transition: background 0.3s ease, color 0.3s ease;
+        }
+
+        /* Dark body: full purple-black gradient like the ref image */
+        [data-theme="dark"] body {
+            background: linear-gradient(135deg, #09091a 0%, #0e0a24 40%, #09091a 100%);
+            min-height: 100vh;
+        }
+
+        @font-face {
+            font-family: 'SAMAN___';
+            src: url('font/SAMAN___.TTF');
+            font-display: swap;
+        }
+
+        /* ── Header ── */
+        header {
+            position: fixed; top:0; left:0; right:0;
+            background: var(--bg-header);
+            backdrop-filter: blur(12px);
+            z-index: 1000;
+            padding: 0.7rem 0;
+            box-shadow: var(--shadow-hdr);
+            transition: background 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        [data-theme="dark"] header {
+            background: rgba(6,6,18,0.97);
+            border-bottom: 1px solid #1e1e45;
+        }
+
+        nav {
+            max-width: 1280px; margin: 0 auto;
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 0 2rem;
+        }
+
+        .logo {
+            font-size: 1.8rem; font-weight: 700; color: #2d5a3d;
+            font-family: 'SAMAN___', sans-serif; text-decoration: none;
+            letter-spacing: 0.5px; transition: color 0.3s ease;
+        }
+
+        [data-theme="dark"] .logo {
+            color: #9c6fe4;
+            text-shadow: 0 0 18px rgba(156,111,228,0.45);
+        }
+
+        .nav-center { display:flex; list-style:none; gap:2rem; }
+        .nav-center a {
+            text-decoration:none; color:var(--text-nav); font-weight:500;
+            font-size:0.95rem; transition:color 0.3s ease;
+        }
+        .nav-center a:hover { color:#7cb342; }
+        [data-theme="dark"] .nav-center a:hover { color:#b39ddb; }
+
+        /* ─── Theme Toggle ─── */
+        .theme-toggle {
+            position:relative; width:52px; height:28px;
+            background:var(--toggle-bg); border:none; border-radius:50px;
+            cursor:pointer; transition:background 0.3s ease;
+            display:flex; align-items:center; padding:3px;
+            margin-right:0.5rem; flex-shrink:0;
+        }
+        .theme-toggle .toggle-knob {
+            width:22px; height:22px; background:var(--toggle-knob); border-radius:50%;
+            transition: transform 0.3s cubic-bezier(0.68,-0.55,0.265,1.55), background 0.3s ease;
+            display:flex; align-items:center; justify-content:center;
+            font-size:0.7rem; color:#fff; box-shadow:0 2px 6px rgba(0,0,0,0.2);
+        }
+        [data-theme="dark"] .theme-toggle .toggle-knob { transform:translateX(24px); }
+
+        .nav-right { display:flex; align-items:center; gap:0.75rem; }
+
+        /* ── User Dropdown ── */
+        .user-dropdown { position:relative; margin-left:0.25rem; }
+        .user-dropdown .user-btn {
+            padding:0.5rem 1.4rem; border:2px solid #2d5a3d; border-radius:50px;
+            background:transparent; color:var(--text-nav); font-weight:600;
+            cursor:pointer; transition:all 0.3s ease; font-size:0.9rem;
+            display:inline-flex; align-items:center; gap:0.5rem;
+        }
+        [data-theme="dark"] .user-dropdown .user-btn { border-color:#6b3fa0; color:#b39ddb; }
+        .user-dropdown .user-btn:hover { background:#2d5a3d; color:#fff; }
+        [data-theme="dark"] .user-dropdown .user-btn:hover {
+            background:linear-gradient(135deg,#6b3fa0,#9c6fe4);
+            border-color:#9c6fe4; color:#fff;
+        }
+        .user-dropdown-content {
+            position:absolute; right:0; top:calc(100% + 8px);
+            background:var(--bg-card); min-width:180px;
+            box-shadow:var(--shadow-md); border-radius:12px;
+            z-index:1001; opacity:0; visibility:hidden;
+            transform:translateY(-10px);
+            transition:all 0.3s cubic-bezier(0.68,-0.55,0.265,1.55); overflow:hidden;
+        }
+        [data-theme="dark"] .user-dropdown-content { border:1px solid #1e1e45; }
+        .user-dropdown:hover .user-dropdown-content { opacity:1; visibility:visible; transform:translateY(0); }
+        .user-dropdown-content a {
+            color:var(--text-nav); padding:1rem 1.5rem; text-decoration:none;
+            display:block; font-weight:500; font-size:0.9rem; transition:all 0.2s ease;
+        }
+        .user-dropdown-content a:hover { background:var(--bg-row-hover); transform:translateX(5px); }
+        .user-dropdown-content::before {
+            content:''; position:absolute; top:-6px; right:20px;
+            width:12px; height:12px; background:var(--bg-card);
+            transform:rotate(45deg); box-shadow:-2px -2px 5px rgba(0,0,0,0.1); z-index:-1;
+        }
+
+        /* ── Mobile ── */
+        .mobile-menu-toggle { display:none; background:none; border:none; font-size:1.5rem; cursor:pointer; color:var(--text-nav); }
+        .mobile-menu {
+            display:none; position:absolute; top:100%; left:0; right:0;
+            background:var(--bg-header); backdrop-filter:blur(10px);
+            box-shadow:0 5px 20px rgba(0,0,0,0.1); padding:1.5rem 0; z-index:999;
+        }
+        .mobile-menu.active { display:block; }
+        .mobile-menu ul { list-style:none; }
+        .mobile-menu li { padding:1rem 2rem; border-bottom:1px solid var(--border-color); }
+        .mobile-menu a { color:var(--text-primary); text-decoration:none; font-weight:500; font-size:1rem; }
+
+        /* ── Layout ── */
+        .admin-layout { display:flex; min-height:100vh; padding-top:80px; }
+
+        /* ── Sidebar ── */
+        .sidebar {
+            width:280px; background:var(--bg-sidebar);
+            box-shadow:2px 0 10px rgba(0,0,0,0.1);
+            position:fixed; left:0; top:80px; bottom:0;
+            overflow-y:auto; z-index:100;
+            transition:transform 0.3s ease, background 0.3s ease;
+        }
+
+        /* Dark sidebar: the blue-to-purple gradient from the reference image */
+        [data-theme="dark"] .sidebar {
+            background: linear-gradient(180deg,
+                #0d0d2b 0%,
+                #12103a 30%,
+                #180f40 60%,
+                #1a0d3d 100%);
+            border-right: 1px solid #2a1f55;
+            box-shadow: 4px 0 25px rgba(0,0,0,0.7);
+        }
+
+        .sidebar-header {
+            padding:2rem 1.5rem 1rem;
+            border-bottom:1px solid var(--border-color);
+        }
+        [data-theme="dark"] .sidebar-header { border-bottom-color:#2a1f55; }
+        .sidebar-header h2 { color:var(--text-nav); font-size:1.4rem; font-weight:600; margin-bottom:0.5rem; }
+        .sidebar-header p  { color:var(--text-muted); font-size:0.9rem; }
+        [data-theme="dark"] .sidebar-header h2 { color:#c4a8f5; text-shadow:0 0 12px rgba(196,168,245,0.3); }
+
+        .sidebar-nav { padding:1rem 0; }
+        .sidebar-nav ul { list-style:none; }
+        .sidebar-nav li { margin:0.2rem 0; }
+        .sidebar-nav a {
+            display:flex; align-items:center;
+            padding:1rem 1.5rem; color:var(--text-muted); text-decoration:none;
+            font-weight:500; font-size:0.95rem; transition:all 0.3s ease;
+            border-left:3px solid transparent;
+        }
+        .sidebar-nav a:hover { background:var(--bg-row-hover); color:#2d5a3d; border-left-color:#7cb342; }
+        [data-theme="dark"] .sidebar-nav a { color:#9090c0; }
+        [data-theme="dark"] .sidebar-nav a:hover {
+            background:rgba(156,111,228,0.12);
+            color:#c4a8f5;
+            border-left-color:#9c6fe4;
+        }
+        .sidebar-nav a.active { background:linear-gradient(135deg,rgba(124,179,66,0.12),rgba(139,195,74,0.10)); color:#2d5a3d; border-left-color:#7cb342; font-weight:600; }
+        [data-theme="dark"] .sidebar-nav a.active {
+            background:linear-gradient(135deg,rgba(107,63,160,0.35),rgba(156,111,228,0.20));
+            color:#c4a8f5;
+            border-left-color:#9c6fe4;
+        }
+        .sidebar-nav .nav-icon { margin-right:1rem; font-size:1.2rem; width:20px; text-align:center; }
+
+        /* ── Main Content ── */
+        .main-content {
+            flex:1; margin-left:280px; padding:2rem;
+            min-height:calc(100vh - 80px);
+            transition:margin-left 0.3s ease;
+        }
+        .content-section { display:none; animation:fadeInUp 0.5s ease; }
+        .content-section.active { display:block; }
+        .section-header { margin-bottom:2rem; padding-bottom:1rem; border-bottom:2px solid var(--border-color); }
+        .section-title { font-size:2.2rem; font-weight:700; color:var(--text-nav); margin-bottom:0.5rem; }
+        .section-subtitle { color:var(--text-muted); font-size:1rem; }
+        [data-theme="dark"] .section-title { color:#c4a8f5; }
+
+        /* ── Dashboard Cards ── */
+        .dashboard-cards {
+            display:grid; grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
+            gap:2rem; margin-bottom:3rem;
+        }
+
+        .dashboard-card {
+            background:var(--bg-card);
+            padding:2rem; border-radius:15px;
+            box-shadow:var(--shadow-sm);
+            transition:all 0.3s ease; cursor:pointer;
+            position:relative; overflow:hidden;
+        }
+
+        /* Dark cards: near-black base + colorful top stripe + subtle inner glow */
+        [data-theme="dark"] .dashboard-card {
+            background:#0b0b1e;
+            border:1px solid #1e1e45;
+        }
+
+        /* Colored top-border stripe per card */
+        [data-theme="dark"] .dashboard-card::before {
+            content:''; position:absolute; top:0; left:0; right:0; height:3px;
+            border-radius:15px 15px 0 0;
+        }
+        [data-theme="dark"] .dashboard-card:nth-child(1)::before { background:linear-gradient(90deg,#6366f1,#818cf8); }
+        [data-theme="dark"] .dashboard-card:nth-child(2)::before { background:linear-gradient(90deg,#ec4899,#f472b6); }
+        [data-theme="dark"] .dashboard-card:nth-child(3)::before { background:linear-gradient(90deg,#f59e0b,#fbbf24); }
+        [data-theme="dark"] .dashboard-card:nth-child(4)::before { background:linear-gradient(90deg,#10b981,#34d399); }
+        [data-theme="dark"] .dashboard-card:nth-child(5)::before { background:linear-gradient(90deg,#f97316,#fb923c); }
+        [data-theme="dark"] .dashboard-card:nth-child(6)::before { background:linear-gradient(90deg,#9c6fe4,#c4a8f5); }
+
+        /* Card icon colors in dark mode */
+        [data-theme="dark"] .dashboard-card:nth-child(1) .card-icon { background:linear-gradient(135deg,#4f46e5,#6366f1); box-shadow:0 4px 15px rgba(99,102,241,0.45); }
+        [data-theme="dark"] .dashboard-card:nth-child(2) .card-icon { background:linear-gradient(135deg,#db2777,#ec4899); box-shadow:0 4px 15px rgba(236,72,153,0.45); }
+        [data-theme="dark"] .dashboard-card:nth-child(3) .card-icon { background:linear-gradient(135deg,#d97706,#f59e0b); box-shadow:0 4px 15px rgba(245,158,11,0.45); }
+        [data-theme="dark"] .dashboard-card:nth-child(4) .card-icon { background:linear-gradient(135deg,#059669,#10b981); box-shadow:0 4px 15px rgba(16,185,129,0.45); }
+        [data-theme="dark"] .dashboard-card:nth-child(5) .card-icon { background:linear-gradient(135deg,#ea580c,#f97316); box-shadow:0 4px 15px rgba(249,115,22,0.45); }
+        [data-theme="dark"] .dashboard-card:nth-child(6) .card-icon { background:linear-gradient(135deg,#7c3aed,#9c6fe4); box-shadow:0 4px 15px rgba(156,111,228,0.45); }
+
+        .dashboard-card:hover { transform:translateY(-5px); box-shadow:var(--shadow-md); }
+        [data-theme="dark"] .dashboard-card:hover {
+            border-color:#2e2e65;
+            box-shadow:0 12px 35px rgba(0,0,0,0.8);
+        }
+
+        .card-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:1rem; }
+        .card-icon {
+            width:50px; height:50px; border-radius:12px;
+            display:flex; align-items:center; justify-content:center;
+            font-size:1.5rem; color:#fff;
+        }
+        /* Light mode icon colours unchanged */
+        .card-icon.users    { background:linear-gradient(45deg,#7cb342,#8bc34a); }
+        .card-icon.bookings { background:linear-gradient(45deg,#ff6b35,#f7931e); }
+        .card-icon.revenue  { background:linear-gradient(45deg,#11998e,#38ef7d); }
+        .card-icon.helpers  { background:linear-gradient(45deg,#7cb342,#8bc34a); }
+        .card-icon.messages { background:linear-gradient(45deg,#2196F3,#03A9F4); }
+        .card-icon.rating   { background:linear-gradient(45deg,#FF9800,#FFC107); }
+        .card-icon.pending  { background:linear-gradient(45deg,#9E9E9E,#607D8B); }
+
+        .card-value { font-size:2.5rem; font-weight:700; color:var(--text-nav); margin-bottom:0.5rem; }
+        .card-label { color:var(--text-muted); font-size:0.9rem; font-weight:500; }
+        [data-theme="dark"] .card-value { color:#e0e0ff; }
+
+        /* ── Tables ── */
+        .data-table {
+            background:var(--bg-card); border-radius:15px;
+            box-shadow:var(--shadow-sm); overflow:hidden;
+            margin-bottom:2rem; transition:background 0.3s ease;
+        }
+        [data-theme="dark"] .data-table {
+            background:#0b0b1e;
+            border:1px solid #1e1e45;
+        }
+
+        .table-header {
+            padding:1.5rem 2rem; background:var(--bg-table-hdr);
+            border-bottom:1px solid var(--border-color);
+            display:flex; justify-content:space-between; align-items:center;
+        }
+        [data-theme="dark"] .table-header {
+            background:#0d0d24;
+            border-bottom-color:#1e1e45;
+        }
+        .table-header h3 { color:var(--text-nav); font-size:1.4rem; font-weight:600; }
+        [data-theme="dark"] .table-header h3 { color:#c4a8f5; }
+
+        .table-wrapper { overflow-x:auto; }
+        table { width:100%; border-collapse:collapse; }
+        th, td { padding:1rem 1.5rem; text-align:left; border-bottom:1px solid var(--border-color); color:var(--text-primary); }
+        [data-theme="dark"] th, [data-theme="dark"] td { border-bottom-color:#161635; }
+
+        th {
+            background:var(--bg-tbl-th); color:var(--text-nav);
+            font-weight:600; font-size:0.9rem; text-transform:uppercase; letter-spacing:0.5px;
+        }
+        [data-theme="dark"] th { background:#0d0d24; color:#9c6fe4; }
+
+        tr:hover td { background:var(--bg-row-hover); }
+        [data-theme="dark"] tr:hover td { background:rgba(156,111,228,0.07); }
+
+        /* ── Buttons ── */
+        .action-buttons { display:flex; gap:0.5rem; }
+        .btn { padding:0.5rem 1rem; border:none; border-radius:8px; font-weight:500; cursor:pointer; transition:all 0.3s ease; font-size:0.85rem; }
+
+        .btn-primary { background:#7cb342; color:#fff; }
+        .btn-primary:hover { background:#8bc34a; transform:translateY(-2px); }
+        [data-theme="dark"] .btn-primary {
+            background:linear-gradient(135deg,#6b3fa0,#9c6fe4);
+            box-shadow:0 4px 12px rgba(107,63,160,0.4);
+        }
+        [data-theme="dark"] .btn-primary:hover {
+            background:linear-gradient(135deg,#5c2d91,#8a5cd0);
+            transform:translateY(-2px);
+            box-shadow:0 6px 16px rgba(107,63,160,0.55);
+        }
+
+        .btn-secondary { background:var(--bg-table-hdr); color:var(--text-muted); }
+        .btn-secondary:hover { background:var(--border-color); transform:translateY(-2px); }
+        [data-theme="dark"] .btn-secondary { background:#151535; color:#8080b0; border:1px solid #252555; }
+        [data-theme="dark"] .btn-secondary:hover { background:#1e1e48; color:#b39ddb; }
+
+        .btn-danger { background:#f44336; color:#fff; }
+        .btn-danger:hover { background:#d32f2f; transform:translateY(-2px); }
+        [data-theme="dark"] .btn-danger { background:linear-gradient(135deg,#b91c1c,#ef4444); box-shadow:0 4px 12px rgba(185,28,28,0.35); }
+
+        .btn-large { padding:1rem 2rem; font-size:1rem; border-radius:50px; margin-bottom:2rem; }
+        .btn-sm    { padding:0.375rem 0.75rem; font-size:0.8rem; }
+
+        /* ── Badges ── */
+        .badge, .status-badge {
+            padding:0.25rem 0.75rem; border-radius:20px;
+            font-size:0.8rem; font-weight:500; text-transform:capitalize; display:inline-block;
+        }
+        .badge-active, .status-badge.active       { background:#d4edda; color:#155724; }
+        .badge-inactive, .status-badge.inactive   { background:#f8d7da; color:#721c24; }
+        .badge-blocked, .status-badge.blocked     { background:#f8d7da; color:#721c24; }
+        .badge-pending, .status-badge.pending     { background:#fff3cd; color:#856404; }
+        .badge-completed, .status-badge.completed { background:#d1ecf1; color:#0c5460; }
+        .badge-rejected, .status-badge.rejected   { background:#f8d7da; color:#721c24; }
+        .badge-user   { background:#e3f2fd; color:#0d47a1; }
+        .badge-admin  { background:#fce4ec; color:#880e4f; }
+
+        [data-theme="dark"] .badge-active    { background:#1a3d2b; color:#52c98a; }
+        [data-theme="dark"] .badge-inactive  { background:#2e1212; color:#f08080; }
+        [data-theme="dark"] .badge-blocked   { background:#2e1212; color:#f08080; }
+        [data-theme="dark"] .badge-pending   { background:#2e2200; color:#f0b429; }
+        [data-theme="dark"] .badge-completed { background:#0a2530; color:#38d9b0; }
+        [data-theme="dark"] .badge-rejected  { background:#2e1212; color:#f08080; }
+        [data-theme="dark"] .badge-user      { background:#151545; color:#818cf8; }
+        [data-theme="dark"] .badge-admin     { background:#2a1050; color:#c4a8f5; }
+
+        /* ── Modal ── */
+        .modal {
+            display:none; position:fixed; top:0; left:0;
+            width:100%; height:100%;
+            background:rgba(0,0,0,0.6); z-index:2000;
+            backdrop-filter:blur(5px); overflow-y:auto;
+        }
+        .modal-content {
+            background:var(--bg-card); padding:1.5rem; border-radius:15px;
+            width:90%; max-width:500px; margin:3rem auto; position:relative;
+            box-shadow:0 20px 40px rgba(0,0,0,0.15); max-height:80vh; overflow-y:auto;
+        }
+        [data-theme="dark"] .modal-content {
+            background:#0d0d20;
+            border:1px solid #2a1f55;
+            box-shadow:0 20px 50px rgba(0,0,0,0.85), 0 0 0 1px rgba(156,111,228,0.08);
+        }
+        .modal-content h2 { color:var(--text-nav); margin-bottom:1rem; }
+        [data-theme="dark"] .modal-content h2 { color:#c4a8f5; }
+
+        .close { position:absolute; top:1rem; right:1.5rem; font-size:1.8rem; cursor:pointer; color:var(--text-muted); transition:color 0.3s ease; }
+        .close:hover { color:var(--text-primary); }
+
+        .form-group { margin-bottom:1rem; }
+        .form-group label { display:block; color:var(--text-nav); margin-bottom:0.5rem; font-weight:500; }
+        [data-theme="dark"] .form-group label { color:#b39ddb; }
+
+        .form-group input, .form-group select, .form-group textarea {
+            width:100%; padding:0.6rem 0.8rem;
+            border:2px solid var(--input-border); border-radius:8px;
+            font-size:0.9rem; background:var(--input-bg); color:var(--text-primary);
+            transition:border-color 0.3s ease, background 0.3s ease;
+        }
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus { outline:none; border-color:#7cb342; }
+        [data-theme="dark"] .form-group input:focus,
+        [data-theme="dark"] .form-group select:focus,
+        [data-theme="dark"] .form-group textarea:focus {
+            border-color:#9c6fe4;
+            box-shadow:0 0 0 3px rgba(156,111,228,0.2);
+        }
+        [data-theme="dark"] .form-group select option { background:#0d0d20; color:#e0e0ff; }
+
+        /* ── Status Message ── */
+        #statusMessage { display:none; padding:1rem 1.5rem; border-radius:10px; margin-bottom:1.5rem; border-left:4px solid; font-weight:500; }
+
+        /* ── Empty State ── */
+        .empty-state { text-align:center; padding:2rem; color:var(--text-muted); }
+
+        /* ── Sidebar Toggle ── */
+        .sidebar-toggle {
+            display:none; position:fixed; top:90px; left:1rem; z-index:1001;
+            background:#7cb342; color:#fff; border:none; border-radius:50%;
+            width:50px; height:50px; font-size:1.2rem; cursor:pointer;
+            box-shadow:0 4px 15px rgba(124,179,66,0.3); transition:all 0.3s ease;
+        }
+        [data-theme="dark"] .sidebar-toggle { background:linear-gradient(135deg,#6b3fa0,#9c6fe4); box-shadow:0 4px 15px rgba(107,63,160,0.45); }
+
+        /* ── Loader ── */
+        #pageLoader {
+            position:fixed; inset:0; background:var(--bg-page);
+            display:flex; flex-direction:column; align-items:center; justify-content:center; z-index:9999;
+        }
+        [data-theme="dark"] #pageLoader {
+            background:linear-gradient(135deg,#09091a 0%,#0e0a24 100%);
+        }
+        .ld-logo { font-size:2rem; font-weight:700; color:#2d5a3d; margin-bottom:1.5rem; }
+        [data-theme="dark"] .ld-logo { color:#9c6fe4; text-shadow:0 0 20px rgba(156,111,228,0.55); }
+        .ld-spin {
+            width:40px; height:40px;
+            border:3px solid var(--border-color);
+            border-top-color:#7cb342;
+            border-radius:50%; animation:spin 0.8s linear infinite;
+        }
+        [data-theme="dark"] .ld-spin { border-top-color:#9c6fe4; }
+        @keyframes spin { to { transform:rotate(360deg); } }
+
+        #adminApp { display:none; }
+
+        /* ── Responsive ── */
+        @media (max-width:768px) {
+            .nav-center { display:none; }
+            .mobile-menu-toggle { display:block; }
+            .sidebar { transform:translateX(-100%); }
+            .sidebar.active { transform:translateX(0); }
+            .sidebar-toggle { display:block; }
+            .main-content { margin-left:0; padding:1rem; }
+            .dashboard-cards { grid-template-columns:1fr; }
+            .table-wrapper { font-size:0.85rem; }
+            .modal-content { margin:2rem auto; padding:1rem; max-height:70vh; }
+            .action-buttons { flex-direction:column; gap:0.25rem; }
+            .action-buttons .btn { font-size:0.75rem; padding:0.25rem 0.5rem; }
+        }
+
+        @keyframes fadeInUp { from{opacity:0;transform:translateY(30px)} to{opacity:1;transform:translateY(0)} }
+        .card-animate { opacity:0; transform:translateY(20px); transition:opacity 0.5s ease,transform 0.5s ease; }
+        .card-animate.in { opacity:1; transform:translateY(0); }
+    </style>
+</head>
+<body>
+
+<div id="pageLoader">
+    <div class="ld-logo">Trouble Sarthi</div>
+    <div class="ld-spin"></div>
+</div>
+
+<div id="adminApp">
+
+<!-- HEADER -->
+<header>
+    <nav>
+        <a href="#" class="logo">Trouble Sarthi</a>
+        <ul class="nav-center">
+            <li><a href="index.html">Home</a></li>
+            <li><a href="index.html#services">Services</a></li>
+            <li><a href="index.html#about">About</a></li>
+            <li><a href="contact.html">Contact</a></li>
+        </ul>
+        <div class="nav-right">
+            <button class="theme-toggle" id="themeToggle" title="Toggle dark/light mode" aria-label="Toggle theme">
+                <span class="toggle-knob">
+                    <i class="fa-solid fa-moon" id="toggleIcon"></i>
+                </span>
+            </button>
+            <div class="user-dropdown">
+                <button class="user-btn" id="adminUsernameBtn">Admin ▼</button>
+                <div class="user-dropdown-content">
+                    <a href="#" onclick="doLogout();return false;"><i class="fa-solid fa-right-from-bracket" style="margin-right:0.5rem;"></i>Logout</a>
+                </div>
+            </div>
+        </div>
+        <button class="mobile-menu-toggle" onclick="toggleMobileMenu()"><i class="fa-solid fa-bars"></i></button>
+    </nav>
+    <div class="mobile-menu" id="mobileMenu">
+        <ul>
+            <li><a href="#" onclick="showSection('dashboard');closeMobileMenu();">📊 Dashboard</a></li>
+            <li><a href="#" onclick="showSection('users');closeMobileMenu();">👥 Users</a></li>
+            <li><a href="#" onclick="showSection('helpers');closeMobileMenu();">🔧 Helpers</a></li>
+            <li><a href="#" onclick="showSection('bookings');closeMobileMenu();">📅 Bookings</a></li>
+            <li><a href="#" onclick="showSection('contacts');closeMobileMenu();">✉️ Messages</a></li>
+            <li><a href="#" onclick="doLogout();return false;" style="color:#e74c3c;">🚪 Logout</a></li>
+        </ul>
+    </div>
+</header>
+
+<button class="sidebar-toggle" onclick="toggleSidebar()"><i class="fa-solid fa-bars"></i></button>
+
+<div class="admin-layout">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <h2>Admin Panel</h2>
+            <p>Manage your platform</p>
+        </div>
+        <nav class="sidebar-nav">
+            <ul>
+                <li>
+                    <a href="#" onclick="showSection('dashboard');return false;" class="active" data-section="dashboard">
+                        <span class="nav-icon"><i class="fa-solid fa-gauge-high"></i></span> Dashboard
+                    </a>
+                </li>
+                <li>
+                    <a href="#" onclick="showSection('users');return false;" data-section="users">
+                        <span class="nav-icon"><i class="fa-solid fa-users"></i></span> Users Management
+                    </a>
+                </li>
+                <li>
+                    <a href="#" onclick="showSection('helpers');return false;" data-section="helpers">
+                        <span class="nav-icon"><i class="fa-solid fa-screwdriver-wrench"></i></span> Helper Management
+                    </a>
+                </li>
+                <li>
+                    <a href="#" onclick="showSection('bookings');return false;" data-section="bookings">
+                        <span class="nav-icon"><i class="fa-solid fa-calendar-check"></i></span> Bookings
+                    </a>
+                </li>
+                <li>
+                    <a href="#" onclick="showSection('contacts');return false;" data-section="contacts">
+                        <span class="nav-icon"><i class="fa-solid fa-envelope"></i></span> Messages
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="main-content">
+
+        <div id="statusMessage"></div>
+
+        <!-- DASHBOARD -->
+        <div id="dashboard" class="content-section active">
+            <div class="section-header">
+                <h1 class="section-title">Dashboard</h1>
+                <p class="section-subtitle">Overview of your platform metrics</p>
+            </div>
+            <div class="dashboard-cards">
+                <div class="dashboard-card card-animate" onclick="showSection('users')">
+                    <div class="card-header"><div class="card-icon users"><i class="fa-solid fa-users"></i></div></div>
+                    <div class="card-value" id="d_users">—</div>
+                    <div class="card-label">Total Users</div>
+                </div>
+                <div class="dashboard-card card-animate" onclick="showSection('helpers')">
+                    <div class="card-header"><div class="card-icon helpers"><i class="fa-solid fa-screwdriver-wrench"></i></div></div>
+                    <div class="card-value" id="d_helpers">—</div>
+                    <div class="card-label">Active Helpers</div>
+                </div>
+                <div class="dashboard-card card-animate" onclick="showSection('bookings')">
+                    <div class="card-header"><div class="card-icon bookings"><i class="fa-solid fa-calendar-check"></i></div></div>
+                    <div class="card-value" id="d_bookings">—</div>
+                    <div class="card-label">Total Bookings</div>
+                </div>
+                <div class="dashboard-card card-animate" onclick="showSection('contacts')">
+                    <div class="card-header"><div class="card-icon messages"><i class="fa-solid fa-envelope"></i></div></div>
+                    <div class="card-value" id="d_msgs">—</div>
+                    <div class="card-label">New Messages</div>
+                </div>
+                <div class="dashboard-card card-animate">
+                    <div class="card-header"><div class="card-icon rating"><i class="fa-solid fa-star"></i></div></div>
+                    <div class="card-value" id="d_rating">—</div>
+                    <div class="card-label">Avg Helper Rating</div>
+                </div>
+                <div class="dashboard-card card-animate">
+                    <div class="card-header"><div class="card-icon pending"><i class="fa-solid fa-clock"></i></div></div>
+                    <div class="card-value" id="d_inactive">—</div>
+                    <div class="card-label">Inactive Helpers</div>
+                </div>
+            </div>
+            <div class="data-table">
+                <div class="table-header">
+                    <h3>Recent Helpers</h3>
+                    <button class="btn btn-primary btn-sm" onclick="showSection('helpers')">View All</button>
+                </div>
+                <div class="table-wrapper">
+                    <table>
+                        <thead><tr><th>Name</th><th>Phone</th><th>Service</th><th>Status</th><th>Rating</th><th>Action</th></tr></thead>
+                        <tbody id="recentHelpers"><tr><td colspan="6" class="empty-state"><i class="fa-solid fa-spinner fa-spin"></i> Loading...</td></tr></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- USERS -->
+        <div id="users" class="content-section">
+            <div class="section-header">
+                <h1 class="section-title">User Management</h1>
+                <p class="section-subtitle">Manage platform users</p>
+            </div>
+            <button class="btn btn-primary btn-large" onclick="openModal('addUserModal')"><i class="fa-solid fa-plus"></i> Add New User</button>
+            <div class="data-table">
+                <div class="table-header">
+                    <h3>All Users <span id="usersCount" style="font-size:0.85rem;font-weight:400;color:var(--text-muted);"></span></h3>
+                </div>
+                <div class="table-wrapper">
+                    <table>
+                        <thead><tr><th>ID</th><th>Name</th><th>Email</th><th>Phone</th><th>Role</th><th>Status</th><th>Joined</th><th>Actions</th></tr></thead>
+                        <tbody id="usersTable"><tr><td colspan="8" class="empty-state"><i class="fa-solid fa-spinner fa-spin"></i> Loading...</td></tr></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- HELPERS -->
+        <div id="helpers" class="content-section">
+            <div class="section-header">
+                <h1 class="section-title">Helper Management</h1>
+                <p class="section-subtitle">Manage service providers</p>
+            </div>
+            <button class="btn btn-primary btn-large" onclick="openModal('addHelperModal')"><i class="fa-solid fa-plus"></i> Add New Helper</button>
+            <div class="data-table">
+                <div class="table-header"><h3>All Helpers</h3></div>
+                <div class="table-wrapper">
+                    <table>
+                        <thead><tr><th>ID</th><th>Name</th><th>Email</th><th>Phone</th><th>Location</th><th>Service</th><th>Status</th><th>Rating</th><th>Actions</th></tr></thead>
+                        <tbody id="helpersTable"><tr><td colspan="9" class="empty-state"><i class="fa-solid fa-spinner fa-spin"></i> Loading...</td></tr></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- BOOKINGS -->
+        <div id="bookings" class="content-section">
+            <div class="section-header">
+                <h1 class="section-title">Booking Management</h1>
+                <p class="section-subtitle">Manage service bookings</p>
+            </div>
+            <div class="data-table">
+                <div class="table-header"><h3>All Bookings</h3></div>
+                <div class="table-wrapper">
+                    <table>
+                        <thead><tr><th>Booking ID</th><th>Helper / EmpID</th><th>Service</th><th>Date</th><th>Status</th><th>Payment</th><th>Actions</th></tr></thead>
+                        <tbody id="bookingsTable"><tr><td colspan="7" class="empty-state"><i class="fa-solid fa-spinner fa-spin"></i> Loading...</td></tr></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- CONTACTS -->
+        <div id="contacts" class="content-section">
+            <div class="section-header">
+                <h1 class="section-title">Contact Messages</h1>
+                <p class="section-subtitle">Messages from website visitors</p>
+            </div>
+            <div class="data-table">
+                <div class="table-header"><h3>All Messages</h3></div>
+                <div class="table-wrapper">
+                    <table>
+                        <thead><tr><th>Name</th><th>Email</th><th>Phone</th><th>Message</th><th>Status</th><th>Date</th><th>Actions</th></tr></thead>
+                        <tbody id="contactsTable"><tr><td colspan="7" class="empty-state"><i class="fa-solid fa-spinner fa-spin"></i> Loading...</td></tr></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+    </main>
+</div>
+
+<!-- MODALS -->
+<!-- ADD HELPER -->
+<div id="addHelperModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeModal('addHelperModal')">&times;</span>
+        <h2><i class="fa-solid fa-plus" style="color:#7cb342;margin-right:0.5rem;"></i>Add New Helper</h2>
+        <div class="form-group"><label>Name *</label><input type="text" id="ah_name" placeholder="Full name"></div>
+        <div class="form-group"><label>Phone *</label><input type="tel" id="ah_phone" placeholder="10-digit number" maxlength="10"></div>
+        <div class="form-group"><label>Email</label><input type="email" id="ah_email" placeholder="helper@email.com"></div>
+        <div class="form-group"><label>Location *</label><input type="text" id="ah_location" placeholder="e.g. Surat, Gujarat"></div>
+        <div class="form-group">
+            <label>Service Category *</label>
+            <select id="ah_service"><option value="">Select Service</option>
+                <option>Cleaning</option><option>Plumbing</option><option>Electrical</option>
+                <option>Home Repairs</option><option>Gardening</option><option>Painting</option>
+                <option>Cooking</option><option>Tutoring</option><option>Pet Care</option>
+                <option>Moving</option><option>IT Support</option><option>Photography</option>
+                <option>Carpentry</option><option>Beauty</option><option>Fitness</option>
+            </select>
+        </div>
+        <div class="form-group"><label>Description</label><textarea id="ah_desc" rows="3" placeholder="Brief description..."></textarea></div>
+        <div class="form-group"><label>Rating (0–5)</label><input type="number" id="ah_rating" min="0" max="5" step="0.1" value="4.0"></div>
+        <div class="form-group"><label>Experience</label><input type="text" id="ah_exp" placeholder="e.g. 3 years"></div>
+        <div class="form-group"><label>Price Per Hour (₹)</label><input type="number" id="ah_price" min="0" placeholder="e.g. 200"></div>
+        <div class="form-group"><label>Skills (comma-separated)</label><input type="text" id="ah_skills" placeholder="e.g. Deep cleaning, Sanitization"></div>
+        <div style="display:flex;gap:0.5rem;justify-content:flex-end;margin-top:1rem;">
+            <button class="btn btn-secondary" onclick="closeModal('addHelperModal')">Cancel</button>
+            <button class="btn btn-primary"   onclick="addHelper()">Add Helper</button>
+        </div>
+    </div>
+</div>
+
+<!-- EDIT HELPER -->
+<div id="editHelperModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeModal('editHelperModal')">&times;</span>
+        <h2><i class="fa-solid fa-pen" style="color:#7cb342;margin-right:0.5rem;"></i>Edit Helper</h2>
+        <input type="hidden" id="eh_id">
+        <div class="form-group"><label>Name *</label><input type="text" id="eh_name"></div>
+        <div class="form-group"><label>Phone *</label><input type="tel" id="eh_phone"></div>
+        <div class="form-group"><label>Email</label><input type="email" id="eh_email"></div>
+        <div class="form-group"><label>Location *</label><input type="text" id="eh_location"></div>
+        <div class="form-group">
+            <label>Service Category *</label>
+            <select id="eh_service"><option value="">Select Service</option>
+                <option>Cleaning</option><option>Plumbing</option><option>Electrical</option>
+                <option>Home Repairs</option><option>Gardening</option><option>Painting</option>
+                <option>Cooking</option><option>Tutoring</option><option>Pet Care</option>
+                <option>Moving</option><option>IT Support</option><option>Photography</option>
+                <option>Carpentry</option><option>Beauty</option><option>Fitness</option>
+            </select>
+        </div>
+        <div class="form-group"><label>Description</label><textarea id="eh_desc" rows="3"></textarea></div>
+        <div class="form-group"><label>Rating (0–5)</label><input type="number" id="eh_rating" min="0" max="5" step="0.1"></div>
+        <div class="form-group"><label>Experience</label><input type="text" id="eh_exp"></div>
+        <div class="form-group"><label>Price Per Hour (₹)</label><input type="number" id="eh_price" min="0"></div>
+        <div class="form-group"><label>Skills (comma-separated)</label><input type="text" id="eh_skills"></div>
+        <div style="display:flex;gap:0.5rem;justify-content:flex-end;margin-top:1rem;">
+            <button class="btn btn-secondary" onclick="closeModal('editHelperModal')">Cancel</button>
+            <button class="btn btn-primary"   onclick="updateHelper()">Update Helper</button>
+        </div>
+    </div>
+</div>
+
+<!-- ADD USER -->
+<div id="addUserModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeModal('addUserModal')">&times;</span>
+        <h2><i class="fa-solid fa-user-plus" style="color:#7cb342;margin-right:0.5rem;"></i>Add New User</h2>
+        <div class="form-group"><label>Full Name *</label><input type="text" id="au_name" placeholder="Full name"></div>
+        <div class="form-group"><label>Email *</label><input type="email" id="au_email" placeholder="user@email.com"></div>
+        <div class="form-group"><label>Phone *</label><input type="tel" id="au_phone" placeholder="10-digit number" maxlength="10"></div>
+        <div class="form-group"><label>Password *</label><input type="password" id="au_pw" placeholder="Min 6 characters"></div>
+        <div style="display:flex;gap:0.5rem;justify-content:flex-end;margin-top:1rem;">
+            <button class="btn btn-secondary" onclick="closeModal('addUserModal')">Cancel</button>
+            <button class="btn btn-primary"   onclick="addUser()">Add User</button>
+        </div>
+    </div>
+</div>
+
+<!-- EDIT USER -->
+<div id="editUserModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeModal('editUserModal')">&times;</span>
+        <h2><i class="fa-solid fa-user-pen" style="color:#7cb342;margin-right:0.5rem;"></i>Edit User</h2>
+        <input type="hidden" id="eu_id">
+        <div class="form-group"><label>Full Name *</label><input type="text" id="eu_name"></div>
+        <div class="form-group"><label>Email *</label><input type="email" id="eu_email"></div>
+        <div class="form-group"><label>Phone *</label><input type="tel" id="eu_phone"></div>
+        <div class="form-group"><label>New Password <small style="color:var(--text-muted);">(leave blank to keep)</small></label><input type="password" id="eu_pw" placeholder="Leave blank to keep current"></div>
+        <div style="display:flex;gap:0.5rem;justify-content:flex-end;margin-top:1rem;">
+            <button class="btn btn-secondary" onclick="closeModal('editUserModal')">Cancel</button>
+            <button class="btn btn-primary"   onclick="updateUser()">Update User</button>
+        </div>
+    </div>
+</div>
+
+</div><!-- /adminApp -->
+
+
+<!-- ═══════════════════ FIREBASE BACKEND (unchanged) ═══════════════════ -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import {
+    getAuth, onAuthStateChanged, signOut,
+    createUserWithEmailAndPassword, updateProfile
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import {
+    getFirestore, collection, getDocs, doc, getDoc,
+    addDoc, setDoc, updateDoc, deleteDoc, serverTimestamp
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+const firebaseConfig = {
+    apiKey:            "AIzaSyBTyz4ZSHFKtg9Eq-eZ2rD5fPcapNRyQyo",
+    authDomain:        "trouble-sarthi.firebaseapp.com",
+    projectId:         "trouble-sarthi",
+    storageBucket:     "trouble-sarthi.firebasestorage.app",
+    messagingSenderId: "241665118590",
+    appId:             "1:241665118590:web:e705c3ca12324b8c25632f"
+};
+
+const app  = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db   = getFirestore(app);
+
+let currentAdmin = null;
+let allHelpers=[], allUsers=[], allBookings=[], allContacts=[];
+
+onAuthStateChanged(auth, async (user) => {
+    const loader = document.getElementById('pageLoader');
+    const app_el = document.getElementById('adminApp');
+
+    if (!user) { window.location.replace('login.html'); return; }
+
+    const adminSnap = await getDoc(doc(db, 'admins', user.uid));
+    if (!adminSnap.exists()) { window.location.replace('dashboard.html'); return; }
+
+    currentAdmin = user;
+    const d = adminSnap.data();
+    document.getElementById('adminUsernameBtn').textContent =
+        `${d.username || d.fullName || 'Admin'} ▼`;
+
+    loader.style.display = 'none';
+    app_el.style.display = 'block';
+    animateCards();
+
+    await Promise.all([loadHelpers(), loadUsers(), loadBookings(), loadContacts()]);
+    updateDashboard();
+});
+
+/* HELPERS */
+async function loadHelpers() {
+    try {
+        const snap = await getDocs(collection(db,'helpers'));
+        allHelpers = snap.docs.map(d=>({id:d.id,...d.data()}));
+        allHelpers.sort((a,b)=>{
+            if(a.isAvailable!==b.isAvailable) return a.isAvailable?-1:1;
+            return (a.name||'').localeCompare(b.name||'');
+        });
+        renderHelpers();
+        renderRecentHelpers();
+    } catch(e) { console.error('loadHelpers',e); }
+}
+
+function renderRecentHelpers() {
+    const tbody = document.getElementById('recentHelpers');
+    const rows  = allHelpers.slice(0,5);
+    if (!rows.length) { tbody.innerHTML = '<tr><td colspan="6" class="empty-state"><i class="fa-solid fa-inbox"></i> No helpers yet.</td></tr>'; return; }
+    tbody.innerHTML = rows.map(h=>`
+    <tr>
+        <td><strong>${esc(h.name||'')}</strong></td>
+        <td>${esc(h.phoneNumber||'')}</td>
+        <td>${esc(h.serviceType||'')}</td>
+        <td><span class="badge badge-${h.isAvailable?'active':'inactive'}">${h.isAvailable?'Active':'Inactive'}</span></td>
+        <td>${parseFloat(h.rating||0).toFixed(1)}/5</td>
+        <td><button class="btn btn-secondary btn-sm" onclick="editHelper('${h.id}')">Edit</button></td>
+    </tr>`).join('');
+}
+
+function renderHelpers() {
+    const tbody = document.getElementById('helpersTable');
+    if (!allHelpers.length) { tbody.innerHTML = '<tr><td colspan="9" class="empty-state"><i class="fa-solid fa-inbox"></i> No helpers. Click "+ Add New Helper".</td></tr>'; return; }
+    tbody.innerHTML = allHelpers.map(h=>{
+        const statusBtn = h.isAvailable
+            ? `<button class="btn btn-secondary btn-sm" onclick="toggleHelper('${h.id}',false)">Deactivate</button>`
+            : `<button class="btn btn-primary   btn-sm" onclick="toggleHelper('${h.id}',true)">Activate</button>`;
+        return `<tr>
+        <td style="font-size:0.75rem;color:var(--text-muted);">${h.id.slice(0,8)}</td>
+        <td><strong>${esc(h.name||'')}</strong></td>
+        <td>${esc(h.email||'—')}</td>
+        <td>${esc(h.phoneNumber||'')}</td>
+        <td>${esc(h.location||'N/A')}</td>
+        <td>${esc(h.serviceType||'')}</td>
+        <td><span class="badge badge-${h.isAvailable?'active':'inactive'}">${h.isAvailable?'Active':'Inactive'}</span></td>
+        <td>${parseFloat(h.rating||0).toFixed(1)}/5</td>
+        <td><div class="action-buttons">
+            <button class="btn btn-secondary btn-sm" onclick="editHelper('${h.id}')">Edit</button>
+            ${statusBtn}
+            <button class="btn btn-danger    btn-sm" onclick="deleteHelper('${h.id}')">Delete</button>
+        </div></td>
+        </tr>`;
+    }).join('');
+}
+
+window.addHelper = async () => {
+    const name=g('ah_name'), phone=g('ah_phone'), email=g('ah_email');
+    const loc=g('ah_location'), svc=g('ah_service');
+    if (!name||!phone||!svc||!loc) { showStatus('All required fields must be filled','error'); return; }
+    try {
+        await addDoc(collection(db,'helpers'),{
+            name, phoneNumber:phone, email:email||null, location:loc, serviceType:svc,
+            description:g('ah_desc')||null, rating:parseFloat(g('ah_rating')||4),
+            experience:g('ah_exp')||'1 year', pricePerHour:parseFloat(g('ah_price')||0),
+            skills:g('ah_skills').split(',').map(s=>s.trim()).filter(Boolean),
+            isAvailable:false, completedJobs:0,
+            employeeId:`TS-EMP-${Math.floor(100+Math.random()*900)}`,
+            createdAt:serverTimestamp()
+        });
+        showStatus('Helper added successfully','success');
+        closeModal('addHelperModal');
+        clearFields(['ah_name','ah_phone','ah_email','ah_location','ah_service','ah_desc','ah_rating','ah_exp','ah_price','ah_skills']);
+        await loadHelpers(); updateDashboard();
+    } catch(e) { showStatus('Error: '+e.message,'error'); }
+};
+
+window.editHelper = id => {
+    const h = allHelpers.find(x=>x.id===id); if(!h) return;
+    s('eh_id',id); s('eh_name',h.name||''); s('eh_phone',h.phoneNumber||'');
+    s('eh_email',h.email||''); s('eh_location',h.location||'');
+    s('eh_desc',h.description||''); s('eh_rating',h.rating||4);
+    s('eh_exp',h.experience||''); s('eh_price',h.pricePerHour||'');
+    s('eh_skills',(h.skills||[]).join(', '));
+    const sel=document.getElementById('eh_service'); if(sel) sel.value=h.serviceType||'';
+    openModal('editHelperModal');
+};
+
+window.updateHelper = async () => {
+    const id=g('eh_id'), name=g('eh_name'), phone=g('eh_phone'), loc=g('eh_location'), svc=g('eh_service');
+    if(!name||!phone||!svc||!loc){ showStatus('All required fields must be filled','error'); return; }
+    try {
+        await updateDoc(doc(db,'helpers',id),{
+            name, phoneNumber:phone, email:g('eh_email')||null, location:loc, serviceType:svc,
+            description:g('eh_desc')||null, rating:parseFloat(g('eh_rating')||4),
+            experience:g('eh_exp')||'', pricePerHour:parseFloat(g('eh_price')||0),
+            skills:g('eh_skills').split(',').map(s=>s.trim()).filter(Boolean)
+        });
+        showStatus('Helper updated successfully','success');
+        closeModal('editHelperModal');
+        await loadHelpers(); updateDashboard();
+    } catch(e) { showStatus('Error: '+e.message,'error'); }
+};
+
+window.toggleHelper = async (id,active) => {
+    if(!confirm(`${active?'Activate':'Deactivate'} this helper?`)) return;
+    try {
+        await updateDoc(doc(db,'helpers',id),{isAvailable:active});
+        showStatus(`Helper ${active?'activated':'deactivated'}`,'success');
+        await loadHelpers(); updateDashboard();
+    } catch(e) { showStatus('Error: '+e.message,'error'); }
+};
+
+window.deleteHelper = async id => {
+    if(!confirm('Delete this helper permanently?')) return;
+    try {
+        await deleteDoc(doc(db,'helpers',id));
+        showStatus('Helper deleted','success');
+        await loadHelpers(); updateDashboard();
+    } catch(e) { showStatus('Error: '+e.message,'error'); }
+};
+
+/* USERS */
+async function loadUsers() {
+    try {
+        const snap = await getDocs(collection(db,'users'));
+        allUsers = snap.docs.map(d=>({id:d.id,...d.data()}));
+        allUsers.sort((a,b)=>(a.fullName||'').localeCompare(b.fullName||''));
+        document.getElementById('usersCount').textContent=`(${allUsers.filter(u=>u.role!=='admin').length} total)`;
+        renderUsers();
+    } catch(e) { console.error('loadUsers',e); }
+}
+
+function renderUsers() {
+    const tbody=document.getElementById('usersTable');
+    if(!allUsers.length){ tbody.innerHTML='<tr><td colspan="8" class="empty-state"><i class="fa-solid fa-inbox"></i> No users found.</td></tr>'; return; }
+    tbody.innerHTML=allUsers.map(u=>{
+        const joined=u.createdAt?.toDate?u.createdAt.toDate().toLocaleDateString('en-IN',{year:'numeric',month:'short',day:'numeric'}):'N/A';
+        const blocked=u.status==='blocked';
+        return `<tr>
+        <td style="font-size:0.75rem;color:var(--text-muted);">${u.id.slice(0,8)}</td>
+        <td><strong>${esc(u.fullName||u.username||'')}</strong></td>
+        <td>${esc(u.email||'')}</td>
+        <td>${esc((u.phone||'').replace('+91',''))}</td>
+        <td><span class="badge badge-${u.role==='admin'?'admin':'user'}">${cap(u.role||'user')}</span></td>
+        <td><span class="badge badge-${blocked?'blocked':'active'}">${blocked?'Blocked':'Active'}</span></td>
+        <td>${joined}</td>
+        <td><div class="action-buttons">
+            <button class="btn btn-secondary btn-sm" onclick="editUser('${u.id}')">Edit</button>
+            ${blocked
+                ? `<button class="btn btn-primary btn-sm" onclick="blockUser('${u.id}',false)">Unblock</button>`
+                : `<button class="btn btn-danger  btn-sm" onclick="blockUser('${u.id}',true)">Block</button>`}
+            <button class="btn btn-danger btn-sm" onclick="deleteUser('${u.id}')">Delete</button>
+        </div></td>
+        </tr>`;
+    }).join('');
+}
+
+window.addUser = async () => {
+    const name=g('au_name'), email=g('au_email'), phone=g('au_phone'), pw=g('au_pw');
+    if(!name||!email||!phone||!pw){ showStatus('All fields are required','error'); return; }
+    try {
+        const cred=await createUserWithEmailAndPassword(auth,email,pw);
+        await updateProfile(cred.user,{displayName:name});
+        await setDoc(doc(db,'users',cred.user.uid),{
+            uid:cred.user.uid, fullName:name,
+            username:name.toLowerCase().replace(/\s+/g,'_').slice(0,30),
+            email, phone:phone.startsWith('+91')?phone:`+91${phone.replace(/\D/g,'')}`,
+            photoUrl:null, provider:'email', dob:null, gender:null, emergencyContact:null,
+            profileComplete:false, locationEnabled:false, address:null,
+            role:'user', status:'active',
+            createdAt:serverTimestamp(), updatedAt:serverTimestamp()
+        });
+        showStatus('User added successfully','success');
+        closeModal('addUserModal');
+        clearFields(['au_name','au_email','au_phone','au_pw']);
+        await loadUsers(); updateDashboard();
+    } catch(e) {
+        showStatus(e.code==='auth/email-already-in-use'?'Email already exists':'Error: '+e.message,'error');
+    }
+};
+
+window.editUser = id => {
+    const u=allUsers.find(x=>x.id===id); if(!u) return;
+    s('eu_id',id); s('eu_name',u.fullName||''); s('eu_email',u.email||'');
+    s('eu_phone',(u.phone||'').replace('+91','')); s('eu_pw','');
+    openModal('editUserModal');
+};
+
+window.updateUser = async () => {
+    const id=g('eu_id'), name=g('eu_name'), email=g('eu_email'), phone=g('eu_phone');
+    if(!name||!email||!phone){ showStatus('All required fields must be filled','error'); return; }
+    try {
+        await updateDoc(doc(db,'users',id),{
+            fullName:name, email,
+            phone:phone.startsWith('+91')?phone:`+91${phone.replace(/\D/g,'')}`,
+            updatedAt:serverTimestamp()
+        });
+        showStatus('User updated successfully','success');
+        closeModal('editUserModal');
+        await loadUsers();
+    } catch(e) { showStatus('Error: '+e.message,'error'); }
+};
+
+window.blockUser = async (id,block) => {
+    if(!confirm(`${block?'Block':'Unblock'} this user?`)) return;
+    try {
+        await updateDoc(doc(db,'users',id),{status:block?'blocked':'active',updatedAt:serverTimestamp()});
+        showStatus(`User ${block?'blocked':'unblocked'} successfully`,'success');
+        await loadUsers();
+    } catch(e) { showStatus('Error: '+e.message,'error'); }
+};
+
+window.deleteUser = async id => {
+    if(id===currentAdmin?.uid){ showStatus('Cannot delete your own account!','error'); return; }
+    if(!confirm('Delete this user permanently?')) return;
+    try {
+        await deleteDoc(doc(db,'users',id));
+        showStatus('User deleted','success');
+        await loadUsers(); updateDashboard();
+    } catch(e) { showStatus('Error: '+e.message,'error'); }
+};
+
+/* BOOKINGS */
+async function loadBookings() {
+    try {
+        const snap=await getDocs(collection(db,'bookings'));
+        allBookings=snap.docs.map(d=>({id:d.id,...d.data()}));
+        allBookings.sort((a,b)=>{
+            const ta=a.createdAt?.toMillis?a.createdAt.toMillis():0;
+            const tb=b.createdAt?.toMillis?b.createdAt.toMillis():0;
+            return tb-ta;
+        });
+        renderBookings();
+    } catch(e) { console.error('loadBookings',e); }
+}
+
+function renderBookings() {
+    const tbody=document.getElementById('bookingsTable');
+    if(!allBookings.length){ tbody.innerHTML='<tr><td colspan="7" class="empty-state"><i class="fa-solid fa-inbox"></i> No bookings yet.</td></tr>'; return; }
+    tbody.innerHTML=allBookings.map(b=>{
+        const dt=b.scheduledAt?.toDate?b.scheduledAt.toDate().toLocaleDateString('en-IN',{year:'numeric',month:'short',day:'numeric'})
+            :(b.createdAt?.toDate?b.createdAt.toDate().toLocaleDateString('en-IN'):'N/A');
+        const st=(b.status||'pending').toLowerCase();
+        let btns='';
+        if(st==='pending')   btns+=`<button class="btn btn-primary  btn-sm" onclick="updateBooking('${b.id}','confirmed')">Confirm</button>`;
+        if(st==='confirmed') btns+=`<button class="btn btn-primary  btn-sm" onclick="updateBooking('${b.id}','ongoing')">Start</button>`;
+        if(st==='ongoing')   btns+=`<button class="btn btn-primary  btn-sm" onclick="updateBooking('${b.id}','completed')">Complete</button>`;
+        if(st!=='cancelled'&&st!=='completed') btns+=`<button class="btn btn-danger btn-sm" onclick="updateBooking('${b.id}','cancelled')">Cancel</button>`;
+        return `<tr>
+        <td style="font-size:0.75rem;color:var(--text-muted);">#${b.id.slice(0,8)}</td>
+        <td><strong>${esc(b.helperName||'N/A')}</strong>${b.helperEmployeeId?`<br><small style="color:var(--text-muted);">${esc(b.helperEmployeeId)}</small>`:''}</td>
+        <td>${esc(b.serviceName||b.serviceId||'N/A')}</td>
+        <td>${dt}</td>
+        <td><span class="badge badge-${st}">${cap(st)}</span></td>
+        <td>${cap(b.paymentMode||'cash')} / <span class="badge badge-${b.paymentStatus==='paid'?'active':'pending'}">${cap(b.paymentStatus||'pending')}</span></td>
+        <td><div class="action-buttons">${btns||'<span style="color:var(--text-muted);font-size:0.8rem;">No action</span>'}</div></td>
+        </tr>`;
+    }).join('');
+}
+
+window.updateBooking = async (id,status) => {
+    if(!confirm(`Set booking status to "${status}"?`)) return;
+    const upd={status};
+    if(status==='completed') upd.completedAt=serverTimestamp();
+    try {
+        await updateDoc(doc(db,'bookings',id),upd);
+        showStatus(`Booking marked as ${status}`,'success');
+        await loadBookings(); updateDashboard();
+    } catch(e) { showStatus('Error: '+e.message,'error'); }
+};
+
+/* CONTACTS */
+async function loadContacts() {
+    try {
+        const snap=await getDocs(collection(db,'contact_messages'));
+        allContacts=snap.docs.map(d=>({id:d.id,...d.data()}));
+        allContacts.sort((a,b)=>{
+            const ta=a.created_at?.toMillis?a.created_at.toMillis():0;
+            const tb=b.created_at?.toMillis?b.created_at.toMillis():0;
+            return tb-ta;
+        });
+        renderContacts();
+    } catch(e) { console.error('loadContacts',e); }
+}
+
+function renderContacts() {
+    const tbody=document.getElementById('contactsTable');
+    if(!allContacts.length){ tbody.innerHTML='<tr><td colspan="7" class="empty-state"><i class="fa-solid fa-inbox"></i> No messages yet.</td></tr>'; return; }
+    tbody.innerHTML=allContacts.map(c=>{
+        const dt=c.created_at?.toDate?c.created_at.toDate().toLocaleDateString('en-IN'):'N/A';
+        const st=(c.status||'new').toLowerCase();
+        return `<tr>
+        <td><strong>${esc(c.full_name||c.fullName||'')}</strong></td>
+        <td>${esc(c.email||'')}</td>
+        <td>${esc(c.phone||'N/A')}</td>
+        <td>${esc((c.message||'').slice(0,70))}${(c.message||'').length>70?'…':''}</td>
+        <td><span class="badge badge-${st}">${cap(st)}</span></td>
+        <td>${dt}</td>
+        <td><div class="action-buttons">
+            ${st==='new'?`<button class="btn btn-primary btn-sm" onclick="markRead('${c.id}')">Mark Read</button>`:''}
+            <button class="btn btn-danger btn-sm" onclick="deleteContact('${c.id}')">Delete</button>
+        </div></td>
+        </tr>`;
+    }).join('');
+}
+
+window.markRead = async id => {
+    try {
+        await updateDoc(doc(db,'contact_messages',id),{status:'read'});
+        showStatus('Message marked as read','success');
+        await loadContacts(); updateDashboard();
+    } catch(e) { showStatus('Error: '+e.message,'error'); }
+};
+
+window.deleteContact = async id => {
+    if(!confirm('Delete this message permanently?')) return;
+    try {
+        await deleteDoc(doc(db,'contact_messages',id));
+        showStatus('Message deleted','success');
+        await loadContacts(); updateDashboard();
+    } catch(e) { showStatus('Error: '+e.message,'error'); }
+};
+
+/* DASHBOARD */
+function updateDashboard() {
+    document.getElementById('d_users').textContent   = allUsers.filter(u=>u.role!=='admin').length;
+    document.getElementById('d_helpers').textContent = allHelpers.filter(h=>h.isAvailable).length;
+    document.getElementById('d_bookings').textContent= allBookings.length;
+    document.getElementById('d_msgs').textContent    = allContacts.filter(c=>!c.status||c.status==='new').length;
+    document.getElementById('d_inactive').textContent= allHelpers.filter(h=>!h.isAvailable).length;
+    const av = allHelpers.filter(h=>h.isAvailable);
+    document.getElementById('d_rating').textContent  = av.length
+        ? (av.reduce((s,h)=>s+(parseFloat(h.rating)||0),0)/av.length).toFixed(1)
+        : '0.0';
+}
+
+/* UI HELPERS */
+window.doLogout = async () => { await signOut(auth); window.location.replace('login.html'); };
+
+window.showSection = name => {
+    document.querySelectorAll('.content-section').forEach(s=>s.classList.remove('active'));
+    document.getElementById(name)?.classList.add('active');
+    document.querySelectorAll('.sidebar-nav a[data-section]').forEach(a=>a.classList.remove('active'));
+    document.querySelector(`[data-section="${name}"]`)?.classList.add('active');
+    window.scrollTo({top:0,behavior:'smooth'});
+};
+
+window.openModal  = id => { document.getElementById(id).style.display='block'; document.body.style.overflow='hidden'; };
+window.closeModal = id => { document.getElementById(id).style.display='none';  document.body.style.overflow='auto'; };
+
+document.addEventListener('click', e => {
+    if (e.target.classList.contains('modal')) {
+        e.target.style.display='none';
+        document.body.style.overflow='auto';
+    }
+});
+
+window.showStatus = (msg,type) => {
+    const el=document.getElementById('statusMessage');
+    el.textContent=msg;
+    el.style.background      = type==='success'?'#d4edda':'#f8d7da';
+    el.style.color           = type==='success'?'#155724':'#721c24';
+    el.style.borderLeftColor = type==='success'?'#28a745':'#dc3545';
+    el.style.display='block';
+    el.scrollIntoView({behavior:'smooth',block:'nearest'});
+    clearTimeout(el._t);
+    el._t=setTimeout(()=>{ el.style.display='none'; },4000);
+};
+
+function g(id)    { return document.getElementById(id)?.value?.trim()||''; }
+function s(id,v)  { const el=document.getElementById(id); if(el) el.value=v; }
+function esc(str) { return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function cap(str) { return String(str).charAt(0).toUpperCase()+String(str).slice(1); }
+function clearFields(ids){ ids.forEach(id=>{ const el=document.getElementById(id); if(el) el.value=''; }); }
+</script>
+
+<!-- UI-only JS -->
+<script>
+function toggleSidebar()   { document.getElementById('sidebar').classList.toggle('active'); }
+function toggleMobileMenu(){ document.getElementById('mobileMenu').classList.toggle('active'); }
+function closeMobileMenu() { document.getElementById('mobileMenu').classList.remove('active'); }
+
+function animateCards() {
+    document.querySelectorAll('.card-animate').forEach((c,i)=>{
+        setTimeout(()=>c.classList.add('in'), i*80);
+    });
+}
+
+const html       = document.documentElement;
+const toggleBtn  = document.getElementById('themeToggle');
+const toggleIcon = document.getElementById('toggleIcon');
+
+const saved = localStorage.getItem('ts_theme') || 'light';
+html.setAttribute('data-theme', saved);
+updateToggleIcon(saved);
+
+toggleBtn.addEventListener('click', () => {
+    const current = html.getAttribute('data-theme');
+    const next    = current === 'dark' ? 'light' : 'dark';
+    html.setAttribute('data-theme', next);
+    localStorage.setItem('ts_theme', next);
+    updateToggleIcon(next);
+});
+
+function updateToggleIcon(theme) {
+    toggleIcon.className = theme === 'dark' ? 'fa-solid fa-sun' : 'fa-solid fa-moon';
+}
+
+window.addEventListener('resize',()=>{
+    if(window.innerWidth>768){
+        document.getElementById('sidebar')?.classList.remove('active');
+        document.getElementById('mobileMenu')?.classList.remove('active');
+    }
+});
+</script>
+
+</body>
+</html>

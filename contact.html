@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact Us - Trouble Sarthi</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Page styles (exact Contact.php CSS) -->
+    <link rel="stylesheet" href="css/contact.css">
+</head>
+<body>
+
+<!-- ══════════════ HEADER ══════════════ -->
+<header>
+    <nav>
+        <a href="index.html" class="logo">Trouble Sarthi</a>
+        <ul class="nav-center">
+            <li><a href="index.html">Home</a></li>
+            <li><a href="index.html#services">Services</a></li>
+            <li><a href="index.html#about">About</a></li>
+            <li><a href="contact.html">Contact</a></li>
+        </ul>
+        <div class="nav-auth">
+            <a href="login.html" class="auth-btn login-btn">Login</a>
+            <a href="login.html" class="auth-btn signup-btn">Sign Up</a>
+        </div>
+        <button class="mobile-menu-toggle" onclick="toggleMobileMenu()">☰</button>
+    </nav>
+    <div class="mobile-menu" id="mobileMenu">
+        <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="index.html#services">Services</a></li>
+            <li><a href="index.html#about">About</a></li>
+            <li><a href="contact.html">Contact</a></li>
+        </ul>
+        <div class="mobile-auth">
+            <a href="login.html" class="auth-btn login-btn">Login</a>
+            <a href="login.html" class="auth-btn signup-btn">Sign Up</a>
+        </div>
+    </div>
+</header>
+
+<!-- ══════════════ CONTACT SECTION ══════════════ -->
+<section class="contact-section">
+    <div class="container">
+        <div class="contact-wrapper">
+
+            <!-- Left: Info Panel -->
+            <div class="contact-info">
+                <h2>Get in Touch</h2>
+                <p>We're here to help you with all your service needs. Reach out through any of the following channels.</p>
+
+                <div class="contact-item">
+                    <div class="contact-icon">📍</div>
+                    <div class="contact-details">
+                        <h3>Location</h3>
+                        <p>Surat, Gujarat, India<br>Available citywide</p>
+                    </div>
+                </div>
+
+                <div class="contact-item">
+                    <div class="contact-icon">📞</div>
+                    <div class="contact-details">
+                        <h3>Phone</h3>
+                        <p>+91 8320868360<br>+91 9904331532</p>
+                    </div>
+                </div>
+
+                <div class="contact-item">
+                    <div class="contact-icon">🕒</div>
+                    <div class="contact-details">
+                        <h3>Hours</h3>
+                        <p>Mon – Sat: 9:00 AM – 5:00 PM<br>Sun: 10:00 AM – 2:00 PM</p>
+                    </div>
+                </div>
+
+                <div class="contact-item">
+                    <div class="contact-icon">📧</div>
+                    <div class="contact-details">
+                        <h3>Email</h3>
+                        <p>
+                            <a href="mailto:info@troublesarthi.com">info@troublesarthi.com</a><br>
+                            <a href="mailto:support@troublesarthi.com">support@troublesarthi.com</a>
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right: Contact Form -->
+            <div class="contact-form">
+                <h2 class="form-title">Contact Form</h2>
+                <p class="form-subtitle">Send us a message and we'll get back to you within 24 hours</p>
+
+                <form id="contactForm">
+                    <div class="form-group">
+                        <label for="fullName">Full Name <span style="color:#e53e3e">*</span></label>
+                        <input type="text" id="fullName" name="fullName"
+                               class="form-input" placeholder="Enter your full name" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="email">Email <span style="color:#e53e3e">*</span></label>
+                        <input type="email" id="email" name="email"
+                               class="form-input" placeholder="Enter your email" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="phone">Phone Number</label>
+                        <input type="tel" id="phone" name="phone"
+                               class="form-input" placeholder="10-digit phone number" maxlength="10">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="message">Message <span style="color:#e53e3e">*</span></label>
+                        <textarea id="message" name="message"
+                                  class="form-input textarea"
+                                  placeholder="Tell us about your requirements..." required></textarea>
+                    </div>
+
+                    <button type="submit" class="submit-btn">Submit</button>
+                </form>
+            </div>
+
+        </div>
+    </div>
+</section>
+
+<!-- ══════════════ FOOTER ══════════════ -->
+<footer>
+    <div class="footer-content">
+        <p>&copy; 2024 Trouble Sarthi. All rights reserved. | Connecting Communities, Solving Problems</p>
+    </div>
+</footer>
+
+<!-- Firebase logic (saves messages to Firestore) -->
+<script type="module" src="js/contact.js"></script>
+<!-- Pure UI (header scroll, mobile menu, scroll-to-top) -->
+<script type="module" src="js/contact-ui.js"></script>
+
+</body>
+</html>
