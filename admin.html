@@ -484,6 +484,11 @@
         .send-btn.sending .fa-spinner { display:inline; }
         .support-indicator { display:inline-flex; align-items:center; gap:0.35rem; font-size:0.72rem; color:var(--warning); font-weight:600; background:rgba(245,158,11,0.1); padding:0.15rem 0.5rem; border-radius:6px; }
 
+        /* ══ MIGRATION TOAST ══ */
+        #migrationToast { position:fixed; bottom:1.5rem; left:50%; transform:translateX(-50%); background:#2d5a3d; color:#fff; padding:0.6rem 1.4rem; border-radius:50px; font-size:0.8rem; font-weight:600; z-index:9998; display:none; align-items:center; gap:0.5rem; box-shadow:0 4px 20px rgba(45,90,61,0.4); animation:toastIn 0.3s ease; }
+        [data-theme="dark"] #migrationToast { background:linear-gradient(135deg,#6b3fa0,#9c6fe4); box-shadow:0 4px 20px rgba(156,111,228,0.5); }
+        @keyframes toastIn { from{opacity:0;transform:translateX(-50%) translateY(10px)} to{opacity:1;transform:translateX(-50%) translateY(0)} }
+
         @keyframes fadeInUp { from{opacity:0;transform:translateY(25px)} to{opacity:1;transform:translateY(0)} }
 
         /* ══ DASHBOARD GRID ══ */
@@ -566,6 +571,9 @@
     </style>
 </head>
 <body>
+
+<!-- Migration Toast -->
+<div id="migrationToast"><i class="fa-solid fa-rotate" style="animation:spin 1s linear infinite;"></i> Syncing helper data…</div>
 
 <div id="pageLoader">
     <div class="ld-logo">Trouble Sarthi</div>
@@ -1090,7 +1098,7 @@ import { initializeApp }        from "https://www.gstatic.com/firebasejs/10.12.2
 import { getAuth, onAuthStateChanged, signOut, createUserWithEmailAndPassword, updateProfile }
     from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import { getFirestore, collection, getDocs, doc, getDoc, addDoc, setDoc, updateDoc,
-         deleteDoc, serverTimestamp, query, orderBy, onSnapshot }
+         deleteDoc, serverTimestamp, query, orderBy, onSnapshot, writeBatch, deleteField }
     from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 import { getDatabase, ref, push, onValue, off, update, remove }
     from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
@@ -1117,6 +1125,103 @@ let activeSuppKey  = null;
 let allUserConvs   = [], allSuppConvs = [];
 let msgUnsub=null, suppMsgUnsub=null, userConvUnsub=null, suppConvUnsub=null;
 
+// ── AUTO MIGRATION ──
+// Runs silently in the background on every admin login.
+// Fixes helper documents that were created with broken/old field names.
+// Safe to run repeatedly — only updates docs that actually need changes.
+async function migrateHelperDocuments() {
+    const toast = document.getElementById('migrationToast');
+    try {
+        const snapshot = await getDocs(collection(db, 'helpers'));
+        if (!snapshot.size) return;
+
+        let needsFix = false;
+        // Quick check: does any doc need migration?
+        for (const docSnap of snapshot.docs) {
+            const d = docSnap.data();
+            if (!d.kycStatus || (d.kycData && !d.kycDocuments) || (d.phone && !d.phoneNumber) || (d.area && !d.location) || (d.services && !d.serviceType)) {
+                needsFix = true; break;
+            }
+        }
+        if (!needsFix) return; // All docs already clean — skip silently
+
+        // Show toast only if actual work needs to be done
+        toast.style.display = 'flex';
+
+        const BATCH_LIMIT = 400;
+        let ops = [];
+
+        for (const docSnap of snapshot.docs) {
+            const data = docSnap.data();
+            const reff = docSnap.ref;
+            const updates = {};
+
+            // Fix 1: Add kycStatus field if missing
+            if (!data.kycStatus) {
+                updates.kycStatus = (data.kycData && Object.keys(data.kycData).length > 0)
+                    ? 'pending'
+                    : 'not_submitted';
+            }
+
+            // Fix 2: Rename kycData → kycDocuments
+            if (data.kycData && !data.kycDocuments) {
+                updates.kycDocuments = data.kycData;
+                updates.kycData = deleteField();
+            }
+
+            // Fix 3: Add phoneNumber alias from phone
+            if (data.phone && !data.phoneNumber) {
+                updates.phoneNumber = data.phone;
+            }
+
+            // Fix 4: Add location alias from area
+            if (data.area && !data.location) {
+                updates.location = data.area;
+            }
+
+            // Fix 5: Add serviceType from services array
+            if (data.services && Array.isArray(data.services) && !data.serviceType) {
+                updates.serviceType = data.services[0] || '';
+            }
+
+            // Fix 6: Add kycSubmittedAt timestamp if missing
+            if (data.kycDocuments && !data.kycSubmittedAt) {
+                updates.kycSubmittedAt = serverTimestamp();
+            }
+
+            if (Object.keys(updates).length > 0) {
+                ops.push({ ref: reff, updates });
+            }
+
+            // Flush in batches
+            if (ops.length >= BATCH_LIMIT) {
+                const b = writeBatch(db);
+                ops.forEach(({ ref: r, updates: u }) => b.update(r, u));
+                await b.commit();
+                ops = [];
+            }
+        }
+
+        // Final batch
+        if (ops.length > 0) {
+            const b = writeBatch(db);
+            ops.forEach(({ ref: r, updates: u }) => b.update(r, u));
+            await b.commit();
+        }
+
+        console.log('✅ Helper document migration complete');
+
+        // Reload helpers to reflect fixed data
+        await loadHelpers();
+        updateDashboard();
+
+    } catch(e) {
+        console.warn('Migration skipped (non-critical):', e.message);
+    } finally {
+        setTimeout(() => { toast.style.display = 'none'; }, 1500);
+    }
+}
+
 let _redir = false;
 onAuthStateChanged(auth, async (user) => {
     if (_redir) return;
@@ -1133,6 +1238,7 @@ onAuthStateChanged(auth, async (user) => {
         await Promise.all([loadHelpers(),loadUsers(),loadBookings(),loadContacts(),loadRequests()]);
         updateDashboard();
         setupRTDBListeners();
+        migrateHelperDocuments(); // auto-migration runs silently in background
     } catch(e) {
         console.error(e); _redir=false;
         document.getElementById('pageLoader').style.display='none';
