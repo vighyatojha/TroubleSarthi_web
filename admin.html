@@ -475,7 +475,7 @@
         .icon-btn:hover { border-color:var(--conv-active-l); color:var(--conv-active-l); }
 
         /* ══ CHAT MESSAGES — FIXED BUBBLE ══ */
-        .chat-msgs { flex:1; overflow-y:auto; padding:1.1rem 1.3rem; display:flex; flex-direction:column; gap:0.5rem; scroll-behavior:smooth; }
+        .chat-msgs { flex:1; overflow-y:auto; padding:1.1rem 1.3rem; display:flex; flex-direction:column; gap:0.5rem; /* scroll-behavior handled per-action in JS */ }
         .date-chip { text-align:center; margin:0.7rem 0 0.35rem; }
         .date-chip span { background:var(--date-chip-bg); color:var(--date-chip-text); font-size:0.68rem; font-weight:600; padding:0.22rem 0.85rem; border-radius:20px; }
         .msg-row {
@@ -1211,6 +1211,38 @@ let allUserConvs   = [], allSuppConvs = [];
 let msgUnsub=null, suppMsgUnsub=null, userConvUnsub=null, suppConvUnsub=null;
 // Firestore real-time unsubscribers
 let helpersUnsub=null, usersUnsub=null, bookingsUnsub=null;
+// Track first render per conversation so we always scroll to bottom on open
+let _firstRenderUser=true, _firstRenderSupp=true;
+
+// ═══════════════════════════════════════
+//  AUTO-DETECT FIREBASE PATH FOR MESSAGES
+//  Some helper apps store msgs at:
+//    support_chats/{key}/messages/{msgId}   ← standard
+//    support_chats/{key}/{msgId}            ← flat (no /messages subpath)
+//  This function checks both.
+// ═══════════════════════════════════════
+async function detectMsgsPath(basePath) {
+    return new Promise(resolve => {
+        // Try /messages subpath first
+        const msgsRef = ref(rtdb, basePath + '/messages');
+        onValue(msgsRef, snap => {
+            off(msgsRef);
+            if (snap.exists()) {
+                // Check if children look like message objects (have a 'text' or 'timestamp' field)
+                let looksLikeMsgs = false;
+                snap.forEach(child => {
+                    const v = child.val();
+                    if (v && typeof v === 'object' && (v.text !== undefined || v.timestamp !== undefined)) {
+                        looksLikeMsgs = true;
+                    }
+                });
+                resolve(looksLikeMsgs ? basePath + '/messages' : basePath);
+            } else {
+                resolve(basePath + '/messages'); // default, empty is fine
+            }
+        }, { onlyOnce: true });
+    });
+}
 
 // ═══════════════════════════════════════
 //  LOADING BUTTON UTILITIES
@@ -1473,35 +1505,86 @@ window.filterUserConvs = q => { const f=allUserConvs.filter(c=>(c.userName||'').
 window.filterSuppConvs = q => { const f=allSuppConvs.filter(c=>(c.helperName||c.senderName||'').toLowerCase().includes(q.toLowerCase())); renderSuppConvList(f); };
 
 window.openUserConv = (convKey,name,email,phone) => {
-    activeConvKey=convKey; renderUserConvList(allUserConvs);
+    // ── Detach previous listener properly ──
+    if (msgUnsub) { msgUnsub(); msgUnsub=null; }
+
+    activeConvKey=convKey; _firstRenderUser=true; renderUserConvList(allUserConvs);
     document.getElementById('chatHdrAv').innerHTML=`${initials(name)}<div class="live-dot"></div>`;
     document.getElementById('chatHdrName').textContent=name;
     document.getElementById('chatHdrSub').textContent=email||'User';
     document.getElementById('chatEmpty').style.display='none';
     document.getElementById('chatActive').style.display='flex';
+    // Clear stale messages immediately
+    document.getElementById('chatMsgs').innerHTML='';
     document.getElementById('chatInput').focus();
     update(ref(rtdb,`chatMeta/${convKey}`),{unreadAdmin:0}).catch(()=>{});
-    if(msgUnsub) off(ref(rtdb,`messages/${convKey}/messages`));
-    msgUnsub=onValue(ref(rtdb,`messages/${convKey}/messages`),snap=>{
-        const msgs=[]; snap.forEach(child=>msgs.push({key:child.key,...child.val()}));
-        renderChatMsgs(msgs,'user');
+
+    detectMsgsPath(`messages/${convKey}`).then(resolvedPath => {
+        console.log('[User Chat] resolved msgs path:', resolvedPath);
+        if (activeConvKey !== convKey) return;
+        const msgsRef = ref(rtdb, resolvedPath);
+        msgUnsub = onValue(msgsRef, snap => {
+            const msgs=[];
+            if (snap.exists()) {
+                snap.forEach(child => {
+                    const val = child.val();
+                    if (val && typeof val === 'object' &&
+                        (val.text !== undefined || val.timestamp !== undefined || val.senderId !== undefined)) {
+                        msgs.push({key:child.key, ...val});
+                    }
+                });
+            }
+            msgs.sort((a,b) => (a.timestamp||0) - (b.timestamp||0));
+            console.log('[User Chat] msgs count:', msgs.length);
+            renderChatMsgs(msgs,'user');
+        }, err => {
+            console.error('[User Chat] listener error:', err);
+        });
     });
+
     if(window.innerWidth<=768){document.getElementById('convPanel').classList.add('mob-conv-hidden');document.getElementById('chatPanel').classList.add('mob-chat-open');}
 };
 
 window.openSuppConv = (convKey,name) => {
-    activeSuppKey=convKey; renderSuppConvList(allSuppConvs);
+    // ── Detach previous listener properly (suppMsgUnsub IS the unsubscribe fn) ──
+    if (suppMsgUnsub) { suppMsgUnsub(); suppMsgUnsub=null; }
+
+    activeSuppKey=convKey; _firstRenderSupp=true; renderSuppConvList(allSuppConvs);
     document.getElementById('suppChatHdrAv').innerHTML=`${initials(name)}<div class="live-dot"></div>`;
     document.getElementById('suppChatHdrName').textContent=name;
     document.getElementById('suppChatEmpty').style.display='none';
     document.getElementById('suppChatActive').style.display='flex';
+    // Clear stale messages immediately so old conv never flashes
+    document.getElementById('suppChatMsgs').innerHTML='';
     document.getElementById('suppChatInput').focus();
     update(ref(rtdb,`support_chats/${convKey}`),{unreadAdmin:0}).catch(()=>{});
-    if(suppMsgUnsub) off(ref(rtdb,`support_chats/${convKey}/messages`));
-    suppMsgUnsub=onValue(ref(rtdb,`support_chats/${convKey}/messages`),snap=>{
-        const msgs=[]; snap.forEach(child=>msgs.push({key:child.key,...child.val()}));
-        renderChatMsgs(msgs,'support');
+
+    // Auto-detect correct path: /messages subpath or flat
+    detectMsgsPath(`support_chats/${convKey}`).then(resolvedPath => {
+        console.log('[Support Chat] resolved msgs path:', resolvedPath);
+        // Guard: user may have switched conv while we were detecting
+        if (activeSuppKey !== convKey) return;
+        const msgsRef = ref(rtdb, resolvedPath);
+        suppMsgUnsub = onValue(msgsRef, snap => {
+            const msgs=[];
+            if (snap.exists()) {
+                snap.forEach(child => {
+                    const val = child.val();
+                    if (val && typeof val === 'object' &&
+                        (val.text !== undefined || val.timestamp !== undefined || val.senderId !== undefined)) {
+                        msgs.push({key:child.key, ...val});
+                    }
+                });
+            }
+            // Sort by timestamp so messages always appear in correct order
+            msgs.sort((a,b) => (a.timestamp||0) - (b.timestamp||0));
+            console.log('[Support Chat] msgs count:', msgs.length, msgs.map(m=>m.text));
+            renderChatMsgs(msgs,'support');
+        }, err => {
+            console.error('[Support Chat] listener error:', err);
+        });
     });
+
     if(window.innerWidth<=768){document.getElementById('suppConvPanel').classList.add('mob-conv-hidden');document.getElementById('suppChatPanel').classList.add('mob-chat-open');}
 };
 
@@ -1517,7 +1600,23 @@ window.closeMobChat = type => {
 // ═══════════════════════════════════════
 function renderChatMsgs(msgs, type) {
     const container = document.getElementById(type==='user' ? 'chatMsgs' : 'suppChatMsgs');
-    const wasAtBottom = container.scrollTop + container.clientHeight >= container.scrollHeight - 40;
+    if (!container) return;
+
+    const isFirst = type==='user' ? _firstRenderUser : _firstRenderSupp;
+
+    // Capture whether user was near the bottom BEFORE we replace innerHTML
+    // Irrelevant on first open — we always scroll to bottom then.
+    const prevScrollTop    = container.scrollTop;
+    const prevClientHeight = container.clientHeight;
+    const prevScrollHeight = container.scrollHeight;
+    const wasAtBottom      = !isFirst && (prevScrollTop + prevClientHeight >= prevScrollHeight - 60);
+
+    // ── Build message HTML ──
+    if (!msgs.length) {
+        container.innerHTML = '<div class="conv-empty" style="margin:auto;"><i class="fa-solid fa-comment-slash" style="font-size:2rem;opacity:0.15;display:block;margin-bottom:0.5rem;"></i><p style="font-size:0.82rem;">No messages yet</p></div>';
+        return;
+    }
+
     let lastDate = null;
     let html = '';
 
@@ -1539,7 +1638,6 @@ function renderChatMsgs(msgs, type) {
             return;
         }
 
-        // ── FIXED: wrap controls max-width; bubble sizes to content ──
         html += `
         <div class="msg-row ${isOut ? 'out' : 'in'}">
             <div class="msg-av ${avCls}">${init}</div>
@@ -1552,9 +1650,33 @@ function renderChatMsgs(msgs, type) {
 
     container.innerHTML = html;
 
-    // Auto-scroll only if user was already near bottom
-    if (wasAtBottom || msgs.length <= 1) {
-        container.scrollTop = container.scrollHeight;
+    // ── SCROLL FIX ──
+    // Three-layer approach to handle:
+    //   1. scroll-behavior CSS (override with 'auto')
+    //   2. Layout not settled yet (double rAF)
+    //   3. Flex height resolution (setTimeout fallback)
+    if (isFirst || wasAtBottom) {
+        if (type==='user') _firstRenderUser=false;
+        else               _firstRenderSupp=false;
+
+        const snapToBottom = () => {
+            container.style.scrollBehavior = 'auto';   // bypass CSS smooth-scroll
+            container.scrollTop = container.scrollHeight;
+            // Restore smooth after snap
+            setTimeout(() => { container.style.scrollBehavior = ''; }, 100);
+        };
+
+        // Attempt 1: after first paint
+        requestAnimationFrame(() => {
+            snapToBottom();
+            // Attempt 2: after second paint (flex children fully laid out)
+            requestAnimationFrame(() => {
+                snapToBottom();
+            });
+        });
+        // Attempt 3: 80ms later — handles cases where display:none→flex
+        // transitions take extra time for the browser to resolve flex heights
+        setTimeout(snapToBottom, 80);
     }
 }
 
