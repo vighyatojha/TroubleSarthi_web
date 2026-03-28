@@ -7,9 +7,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <style>
-        /* ══════════════════════════════════════════════
-           CSS VARIABLES — Doc 1 palette (green light / purple dark)
-        ══════════════════════════════════════════════ */
         :root {
             --bg-page:        #f5f6f5;
             --bg-header:      rgba(255,255,255,0.95);
@@ -36,7 +33,6 @@
             --danger:         #f44336;
             --warning:        #f59e0b;
             --info:           #2196F3;
-            /* Messages */
             --msg-sidebar:    #f8f9fa;
             --msg-chat-bg:    #ffffff;
             --msg-border:     #eaecef;
@@ -234,7 +230,7 @@
         .card-change.warn { background:#fff3cd; color:#856404; }
         [data-theme="dark"] .card-change.up   { background:#1a3d2b; color:#52c98a; }
         [data-theme="dark"] .card-change.warn { background:#2e2200; color:#f0b429; }
-        .card-value { font-size:2.2rem; font-weight:700; color:var(--text-nav); line-height:1; margin-bottom:0.4rem; }
+        .card-value { font-size:2.2rem; font-weight:700; color:var(--text-nav); line-height:1; margin-bottom:0.4rem; transition:all 0.3s; }
         .card-label { color:var(--text-muted); font-size:0.78rem; font-weight:500; text-transform:uppercase; letter-spacing:0.4px; }
         [data-theme="dark"] .card-value { color:#e0e0ff; }
 
@@ -259,32 +255,41 @@
         tr:last-child td { border-bottom:none; }
         tr:hover td { background:var(--bg-row-hover); }
         [data-theme="dark"] tr:hover td { background:rgba(156,111,228,0.07); }
+        /* Row fade-out animation for deletes */
+        tr.removing { animation:fadeOut 0.35s ease forwards; pointer-events:none; }
+        @keyframes fadeOut { to { opacity:0; transform:translateX(-20px); max-height:0; padding:0; } }
+        /* Row highlight for updates */
+        tr.updated { animation:rowPulse 0.6s ease; }
+        @keyframes rowPulse { 0%,100%{background:transparent} 40%{background:rgba(124,179,66,0.12)} }
 
         /* ══ BUTTONS ══ */
         .action-buttons { display:flex; gap:0.4rem; flex-wrap:wrap; }
-        .btn { padding:0.5rem 1rem; border:none; border-radius:8px; font-weight:500; cursor:pointer; transition:all 0.3s; font-size:0.85rem; font-family:inherit; touch-action:manipulation; display:inline-flex; align-items:center; gap:0.4rem; }
+        .btn { padding:0.5rem 1rem; border:none; border-radius:8px; font-weight:500; cursor:pointer; transition:all 0.25s; font-size:0.85rem; font-family:inherit; touch-action:manipulation; display:inline-flex; align-items:center; gap:0.4rem; position:relative; overflow:hidden; }
+        .btn:disabled { opacity:0.55; cursor:not-allowed; pointer-events:none; }
+        .btn.loading { pointer-events:none; }
+        .btn.loading::after { content:''; width:12px; height:12px; border:2px solid rgba(255,255,255,0.4); border-top-color:#fff; border-radius:50%; animation:spin 0.7s linear infinite; margin-left:4px; }
         .btn-primary { background:#7cb342; color:#fff; }
-        .btn-primary:hover { background:#8bc34a; }
+        .btn-primary:hover { background:#8bc34a; transform:translateY(-1px); box-shadow:0 4px 12px rgba(124,179,66,0.35); }
         [data-theme="dark"] .btn-primary { background:linear-gradient(135deg,#6b3fa0,#9c6fe4); box-shadow:0 4px 15px rgba(107,63,160,0.45); }
         [data-theme="dark"] .btn-primary:hover { background:linear-gradient(135deg,#5c2d91,#8a5cd0); }
         .btn-success { background:#16a34a; color:#fff; }
-        .btn-success:hover { background:#15803d; }
+        .btn-success:hover { background:#15803d; transform:translateY(-1px); }
         .btn-warning { background:#d97706; color:#fff; }
-        .btn-warning:hover { background:#b45309; }
+        .btn-warning:hover { background:#b45309; transform:translateY(-1px); }
         .btn-secondary { background:var(--bg-table-hdr); color:var(--text-muted); border:1px solid var(--border-color); }
         .btn-secondary:hover { background:var(--border-color); }
         [data-theme="dark"] .btn-secondary { background:#151535; color:#8080b0; border:1px solid #252555; }
         .btn-danger { background:#f44336; color:#fff; }
-        .btn-danger:hover { background:#d32f2f; }
+        .btn-danger:hover { background:#d32f2f; transform:translateY(-1px); }
         [data-theme="dark"] .btn-danger { background:linear-gradient(135deg,#b91c1c,#ef4444); }
         .btn-info { background:#2196F3; color:#fff; }
-        .btn-info:hover { background:#1976D2; }
+        .btn-info:hover { background:#1976D2; transform:translateY(-1px); }
         [data-theme="dark"] .btn-info { background:linear-gradient(135deg,#0e7490,#22d3ee); color:#000; }
         .btn-large { padding:0.9rem 1.8rem; font-size:0.95rem; border-radius:50px; margin-bottom:1.25rem; }
         .btn-sm { padding:0.3rem 0.65rem; font-size:0.78rem; border-radius:6px; }
 
         /* ══ BADGES ══ */
-        .badge { padding:0.25rem 0.7rem; border-radius:20px; font-size:0.75rem; font-weight:600; text-transform:capitalize; display:inline-block; white-space:nowrap; }
+        .badge { padding:0.25rem 0.7rem; border-radius:20px; font-size:0.75rem; font-weight:600; text-transform:capitalize; display:inline-block; white-space:nowrap; transition:all 0.3s; }
         .badge-active,.badge-open     { background:#d4edda; color:#155724; }
         .badge-inactive,.badge-closed { background:#f8d7da; color:#721c24; }
         .badge-pending                { background:#fff3cd; color:#856404; }
@@ -317,9 +322,10 @@
         .tab-pane.active { display:block; }
 
         /* ══ KYC SECTION ══ */
-        .kyc-card { background:var(--bg-card); border:1px solid var(--border-color); border-radius:15px; padding:1.4rem; margin-bottom:0.9rem; box-shadow:var(--shadow-sm); transition:box-shadow 0.2s; }
+        .kyc-card { background:var(--bg-card); border:1px solid var(--border-color); border-radius:15px; padding:1.4rem; margin-bottom:0.9rem; box-shadow:var(--shadow-sm); transition:box-shadow 0.2s,opacity 0.3s; }
         [data-theme="dark"] .kyc-card { background:#0b0b1e; border-color:#1e1e45; }
         .kyc-card:hover { box-shadow:var(--shadow-md); }
+        .kyc-card.removing { animation:fadeOut 0.35s ease forwards; }
         .kyc-header { display:flex; align-items:center; gap:1rem; margin-bottom:1rem; }
         .kyc-avatar { width:50px; height:50px; border-radius:12px; background:linear-gradient(135deg,#2d5a3d,#7cb342); color:#fff; font-size:1.1rem; font-weight:700; display:flex; align-items:center; justify-content:center; flex-shrink:0; text-transform:uppercase; }
         [data-theme="dark"] .kyc-avatar { background:linear-gradient(135deg,#6b3fa0,#9c6fe4); }
@@ -337,8 +343,9 @@
         .kyc-empty i { font-size:2.5rem; opacity:0.2; display:block; margin-bottom:0.8rem; }
 
         /* ══ REQUEST CARDS ══ */
-        .request-card { background:var(--bg-card); border:1px solid var(--border-color); border-radius:13px; padding:1.2rem; margin-bottom:0.75rem; box-shadow:var(--shadow-sm); }
+        .request-card { background:var(--bg-card); border:1px solid var(--border-color); border-radius:13px; padding:1.2rem; margin-bottom:0.75rem; box-shadow:var(--shadow-sm); transition:opacity 0.3s; }
         [data-theme="dark"] .request-card { background:#0b0b1e; border-color:#1e1e45; }
+        .request-card.removing { animation:fadeOut 0.35s ease forwards; }
         .request-header { display:flex; align-items:flex-start; justify-content:space-between; gap:0.75rem; margin-bottom:0.7rem; }
         .request-meta { display:flex; flex-wrap:wrap; gap:0.4rem; font-size:0.74rem; color:var(--text-muted); margin-top:0.25rem; }
         .request-meta span { display:flex; align-items:center; gap:0.3rem; }
@@ -354,13 +361,14 @@
         .activity-dot.blue   { background:#3b82f6; }
         .activity-dot.orange { background:#f59e0b; }
         .activity-dot.red    { background:#ef4444; }
-        [data-theme="dark"] .activity-dot.green  { background:#9c6fe4; }
+        [data-theme="dark"] .activity-dot.green { background:#9c6fe4; }
         .activity-text { font-size:0.83rem; color:var(--text-primary); font-weight:500; }
         .activity-time { font-size:0.72rem; color:var(--text-muted); margin-top:0.1rem; }
 
         /* ══ MODAL ══ */
         .modal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); z-index:2000; backdrop-filter:blur(5px); overflow-y:auto; }
-        .modal-content { background:var(--bg-card); padding:1.8rem; border-radius:15px; width:90%; max-width:560px; margin:3rem auto; position:relative; box-shadow:var(--shadow-md); border:1px solid var(--border-color); max-height:88vh; overflow-y:auto; }
+        .modal-content { background:var(--bg-card); padding:1.8rem; border-radius:15px; width:90%; max-width:560px; margin:3rem auto; position:relative; box-shadow:var(--shadow-md); border:1px solid var(--border-color); max-height:88vh; overflow-y:auto; animation:modalIn 0.3s cubic-bezier(0.34,1.56,0.64,1); }
+        @keyframes modalIn { from{opacity:0;transform:scale(0.92) translateY(-10px)} to{opacity:1;transform:scale(1) translateY(0)} }
         [data-theme="dark"] .modal-content { background:#0d0d20; border:1px solid #2a1f55; box-shadow:0 20px 50px rgba(0,0,0,0.85); }
         .modal-content h2 { color:var(--text-nav); margin-bottom:1.2rem; font-size:1.15rem; font-weight:700; display:flex; align-items:center; gap:0.6rem; }
         [data-theme="dark"] .modal-content h2 { color:#c4a8f5; }
@@ -376,7 +384,22 @@
         .form-row { display:grid; grid-template-columns:1fr 1fr; gap:0.75rem; }
         .modal-footer { display:flex; gap:0.5rem; justify-content:flex-end; margin-top:1.2rem; padding-top:1rem; border-top:1px solid var(--border-color); }
 
-        #statusMessage { display:none; padding:0.9rem 1.2rem; border-radius:10px; margin-bottom:1rem; border-left:4px solid; font-weight:500; font-size:0.88rem; }
+        /* ══ STATUS TOAST ══ */
+        #statusMessage {
+            position:fixed; top:calc(var(--header-h) + 10px); right:1.2rem;
+            z-index:3000; display:none; min-width:280px; max-width:380px;
+            padding:0.9rem 1.2rem 0.9rem 1rem; border-radius:12px;
+            border-left:4px solid; font-weight:500; font-size:0.88rem;
+            box-shadow:var(--shadow-md); backdrop-filter:blur(10px);
+            animation:toastSlide 0.35s cubic-bezier(0.34,1.56,0.64,1);
+            display:flex; gap:0.65rem; align-items:flex-start;
+        }
+        #statusMessage.hidden { display:none !important; }
+        #statusMessage .toast-icon { font-size:1rem; flex-shrink:0; margin-top:1px; }
+        #statusMessage .toast-text { flex:1; line-height:1.4; }
+        #statusMessage .toast-close { background:none; border:none; cursor:pointer; color:inherit; opacity:0.6; font-size:0.9rem; padding:0; flex-shrink:0; }
+        #statusMessage .toast-close:hover { opacity:1; }
+        @keyframes toastSlide { from{opacity:0;transform:translateX(30px)} to{opacity:1;transform:translateX(0)} }
         .empty-state { text-align:center; padding:2rem; color:var(--text-muted); }
         .empty-state i { font-size:1.8rem; opacity:0.25; display:block; margin-bottom:0.4rem; }
 
@@ -390,8 +413,17 @@
         @keyframes spin { to { transform:rotate(360deg); } }
         #adminApp { display:none; }
 
-        /* ══ MESSAGES & SUPPORT CHAT ══ */
-        .msg-wrapper { display:flex; height:calc(100vh - var(--header-h) - 3.5rem); border-radius:16px; overflow:hidden; border:1px solid var(--msg-border); box-shadow:var(--shadow-md); }
+        /* ══════════════════════════════════════════════
+           CHAT BUBBLE — COMPLETE REWRITE
+           Fix: bubbles were collapsing to character-width
+        ══════════════════════════════════════════════ */
+        .msg-wrapper {
+            display:flex;
+            height:calc(100vh - var(--header-h) - 3.5rem);
+            border-radius:16px; overflow:hidden;
+            border:1px solid var(--msg-border);
+            box-shadow:var(--shadow-md);
+        }
         [data-theme="dark"] .msg-wrapper { border-color:#1a1a3a; box-shadow:0 8px 40px rgba(0,0,0,0.7); }
         .conv-panel { width:310px; flex-shrink:0; background:var(--msg-sidebar); border-right:1px solid var(--msg-border); display:flex; flex-direction:column; }
         [data-theme="dark"] .conv-panel { background:#0a0a1c; border-right-color:#1a1a3a; }
@@ -441,26 +473,82 @@
         .chat-hdr-actions { display:flex; gap:0.4rem; }
         .icon-btn { width:33px; height:33px; border-radius:50%; background:transparent; border:1.5px solid var(--msg-border); color:var(--text-muted); cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:0.82rem; transition:all 0.2s; }
         .icon-btn:hover { border-color:var(--conv-active-l); color:var(--conv-active-l); }
-        .chat-msgs { flex:1; overflow-y:auto; padding:1.1rem 1.3rem; display:flex; flex-direction:column; gap:0.3rem; }
+
+        /* ══ CHAT MESSAGES — FIXED BUBBLE ══ */
+        .chat-msgs { flex:1; overflow-y:auto; padding:1.1rem 1.3rem; display:flex; flex-direction:column; gap:0.5rem; scroll-behavior:smooth; }
         .date-chip { text-align:center; margin:0.7rem 0 0.35rem; }
         .date-chip span { background:var(--date-chip-bg); color:var(--date-chip-text); font-size:0.68rem; font-weight:600; padding:0.22rem 0.85rem; border-radius:20px; }
-        .msg-row { display:flex; align-items:flex-end; gap:0.5rem; animation:msgPop 0.2s ease; }
+        .msg-row {
+            display:flex;
+            align-items:flex-end;
+            gap:0.5rem;
+            animation:msgPop 0.22s ease;
+            /* No max-width here — let the .msg-wrap control it */
+        }
         .msg-row.out { flex-direction:row-reverse; }
-        @keyframes msgPop { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:translateY(0)} }
-        .msg-av { width:27px; height:27px; border-radius:50%; font-size:0.62rem; font-weight:700; display:flex; align-items:center; justify-content:center; flex-shrink:0; text-transform:uppercase; }
+        @keyframes msgPop { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+        .msg-av {
+            width:28px; height:28px; border-radius:50%;
+            font-size:0.62rem; font-weight:700;
+            display:flex; align-items:center; justify-content:center;
+            flex-shrink:0; text-transform:uppercase;
+            /* Fixed width — never shrink, never grow */
+        }
         .msg-av.user-av { background:linear-gradient(135deg,#e8f5e9,#c8e6c9); color:#2d5a3d; }
         [data-theme="dark"] .msg-av.user-av { background:linear-gradient(135deg,#1a1a3a,#2a2060); color:#b39ddb; }
         .msg-av.admin-av { background:linear-gradient(135deg,#2d5a3d,#7cb342); color:#fff; }
         [data-theme="dark"] .msg-av.admin-av { background:linear-gradient(135deg,#0e7490,#22d3ee); color:#000; }
         .msg-av.helper-av { background:linear-gradient(135deg,#d97706,#f59e0b); color:#fff; }
-        .msg-bubble { max-width:62%; padding:0.65rem 0.95rem; border-radius:16px; font-size:0.87rem; line-height:1.5; word-break:break-word; }
-        .msg-row.in  .msg-bubble { background:var(--msg-in-bg); color:var(--msg-in-text); border-bottom-left-radius:4px; }
-        .msg-row.out .msg-bubble { background:var(--msg-out-bg); color:var(--msg-out-text); border-bottom-right-radius:4px; }
+
+        /* KEY FIX: msg-wrap holds the max-width constraint */
+        .msg-wrap {
+            max-width:68%;            /* constrain the whole bubble+time group */
+            display:flex;
+            flex-direction:column;
+            min-width:0;              /* allow flex shrink */
+        }
+        .msg-row.out .msg-wrap { align-items:flex-end; }
+        .msg-row.in  .msg-wrap { align-items:flex-start; }
+
+        .msg-bubble {
+            /* width grows to fit text, no artificial narrowing */
+            display:inline-block;
+            width:auto;
+            padding:0.65rem 0.95rem;
+            border-radius:18px;
+            font-size:0.87rem;
+            line-height:1.55;
+            word-break:break-word;          /* break long URLs / unbreakable words */
+            overflow-wrap:anywhere;         /* modern browsers: break anywhere if needed */
+            white-space:pre-wrap;           /* honour newlines from textarea */
+            text-align:left;
+        }
+        .msg-row.in  .msg-bubble {
+            background:var(--msg-in-bg);
+            color:var(--msg-in-text);
+            border-bottom-left-radius:4px;
+        }
+        .msg-row.out .msg-bubble {
+            background:var(--msg-out-bg);
+            color:var(--msg-out-text);
+            border-bottom-right-radius:4px;
+        }
         [data-theme="dark"] .msg-row.out .msg-bubble { box-shadow:0 3px 14px rgba(34,211,238,0.25); }
-        .msg-time { font-size:0.66rem; margin-top:0.22rem; }
+
+        .msg-time {
+            font-size:0.65rem;
+            margin-top:0.25rem;
+            padding:0 0.25rem;
+            white-space:nowrap;
+        }
         .msg-row.in  .msg-time { color:var(--text-muted); }
         .msg-row.out .msg-time { text-align:right; color:rgba(255,255,255,0.55); }
-        .msg-system { text-align:center; font-size:0.72rem; color:var(--text-muted); background:var(--bg-table-hdr); border-radius:10px; padding:0.3rem 0.75rem; margin:0.3rem auto; max-width:80%; }
+
+        .msg-system {
+            text-align:center; font-size:0.72rem; color:var(--text-muted);
+            background:var(--bg-table-hdr); border-radius:10px;
+            padding:0.3rem 0.75rem; margin:0.3rem auto; max-width:80%;
+        }
         .chat-empty { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; color:var(--text-muted); gap:0.8rem; }
         .chat-empty i { font-size:3.5rem; opacity:0.13; }
         .chat-empty strong { font-size:0.98rem; font-weight:600; opacity:0.55; }
@@ -469,38 +557,57 @@
         [data-theme="dark"] .rt-bar { background:#0a0a1c; border-top-color:#1a1a3a; }
         .rt-dot { width:6px; height:6px; border-radius:50%; background:#22c55e; animation:pulse 2s infinite; flex-shrink:0; }
         @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4}}
-        .chat-input-bar { padding:0.85rem 1.1rem; border-top:1px solid var(--msg-border); display:flex; align-items:flex-end; gap:0.6rem; background:var(--msg-chat-bg); flex-shrink:0; }
+
+        /* ══ CHAT INPUT ══ */
+        .chat-input-bar {
+            padding:0.85rem 1.1rem; border-top:1px solid var(--msg-border);
+            display:flex; align-items:flex-end; gap:0.6rem;
+            background:var(--msg-chat-bg); flex-shrink:0;
+        }
         [data-theme="dark"] .chat-input-bar { border-top-color:#1a1a3a; }
         .input-wrap { flex:1; position:relative; }
-        .input-wrap textarea { width:100%; padding:0.6rem 2.5rem 0.6rem 0.9rem; background:var(--msg-input-bg); border:1.5px solid var(--msg-border); border-radius:20px; color:var(--text-primary); font-size:0.87rem; font-family:inherit; resize:none; min-height:40px; max-height:108px; line-height:1.5; outline:none; scrollbar-width:none; }
+        .input-wrap textarea {
+            width:100%; padding:0.6rem 2.5rem 0.6rem 0.9rem;
+            background:var(--msg-input-bg); border:1.5px solid var(--msg-border);
+            border-radius:20px; color:var(--text-primary); font-size:0.87rem;
+            font-family:inherit; resize:none; min-height:42px; max-height:120px;
+            line-height:1.5; outline:none; scrollbar-width:none;
+            transition:border-color 0.2s;
+        }
         .input-wrap textarea::-webkit-scrollbar { display:none; }
         .input-wrap textarea:focus { border-color:var(--conv-active-l); }
-        .emoji-btn { position:absolute; right:0.65rem; bottom:0.6rem; background:none; border:none; color:var(--text-muted); cursor:pointer; font-size:0.95rem; }
-        .send-btn { width:42px; height:42px; border-radius:50%; background:var(--send-bg); border:none; color:#fff; cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:0.95rem; flex-shrink:0; box-shadow:0 3px 14px var(--send-glow); transition:box-shadow 0.3s,transform 0.15s; }
-        .send-btn:active { transform:scale(0.92); }
+        .emoji-btn { position:absolute; right:0.65rem; bottom:0.65rem; background:none; border:none; color:var(--text-muted); cursor:pointer; font-size:0.95rem; transition:color 0.2s; }
+        .emoji-btn:hover { color:var(--brand-accent); }
+        .send-btn {
+            width:42px; height:42px; border-radius:50%;
+            background:var(--send-bg); border:none; color:#fff;
+            cursor:pointer; display:flex; align-items:center; justify-content:center;
+            font-size:0.95rem; flex-shrink:0;
+            box-shadow:0 3px 14px var(--send-glow);
+            transition:box-shadow 0.3s,transform 0.15s,opacity 0.2s;
+        }
+        .send-btn:active { transform:scale(0.9); }
+        .send-btn:disabled { opacity:0.5; cursor:not-allowed; transform:none; }
         [data-theme="dark"] .send-btn { box-shadow:0 3px 18px rgba(34,211,238,0.5); }
-        .send-btn .fa-spinner { display:none; }
-        .send-btn.sending .fa-paper-plane { display:none; }
-        .send-btn.sending .fa-spinner { display:inline; }
+        .send-btn .spin-icon { display:none; animation:spin 0.7s linear infinite; }
+        .send-btn.sending .send-icon { display:none; }
+        .send-btn.sending .spin-icon { display:inline; }
         .support-indicator { display:inline-flex; align-items:center; gap:0.35rem; font-size:0.72rem; color:var(--warning); font-weight:600; background:rgba(245,158,11,0.1); padding:0.15rem 0.5rem; border-radius:6px; }
 
         /* ══ MIGRATION TOAST ══ */
-        #migrationToast { position:fixed; bottom:1.5rem; left:50%; transform:translateX(-50%); background:#2d5a3d; color:#fff; padding:0.6rem 1.4rem; border-radius:50px; font-size:0.8rem; font-weight:600; z-index:9998; display:none; align-items:center; gap:0.5rem; box-shadow:0 4px 20px rgba(45,90,61,0.4); animation:toastIn 0.3s ease; }
+        #migrationToast { position:fixed; bottom:1.5rem; left:50%; transform:translateX(-50%); background:#2d5a3d; color:#fff; padding:0.6rem 1.4rem; border-radius:50px; font-size:0.8rem; font-weight:600; z-index:9998; display:none; align-items:center; gap:0.5rem; box-shadow:0 4px 20px rgba(45,90,61,0.4); }
         [data-theme="dark"] #migrationToast { background:linear-gradient(135deg,#6b3fa0,#9c6fe4); box-shadow:0 4px 20px rgba(156,111,228,0.5); }
-        @keyframes toastIn { from{opacity:0;transform:translateX(-50%) translateY(10px)} to{opacity:1;transform:translateX(-50%) translateY(0)} }
 
         @keyframes fadeInUp { from{opacity:0;transform:translateY(25px)} to{opacity:1;transform:translateY(0)} }
-
-        /* ══ DASHBOARD GRID ══ */
         .desk-dash-grid { display:grid; grid-template-columns:1fr 1fr; gap:1.25rem; }
 
         /* ══ MOBILE ══ */
         .mob-only  { display:none; }
         .desk-only { display:block; }
-        .mob-nav { display:none; position:fixed; bottom:0; left:0; right:0; height:var(--mob-nav-h); background:var(--mob-nav-bg); border-top:1px solid var(--mob-nav-border); backdrop-filter:blur(16px) saturate(1.8); -webkit-backdrop-filter:blur(16px) saturate(1.8); z-index:900; box-shadow:0 -2px 20px rgba(0,0,0,0.08); padding-bottom:env(safe-area-inset-bottom,0px); }
+        .mob-nav { display:none; position:fixed; bottom:0; left:0; right:0; height:var(--mob-nav-h); background:var(--mob-nav-bg); border-top:1px solid var(--mob-nav-border); backdrop-filter:blur(16px) saturate(1.8); z-index:900; box-shadow:0 -2px 20px rgba(0,0,0,0.08); padding-bottom:env(safe-area-inset-bottom,0px); }
         [data-theme="dark"] .mob-nav { box-shadow:0 -2px 24px rgba(0,0,0,0.55); }
         .mob-nav-inner { display:flex; height:62px; align-items:stretch; }
-        .mob-nav-btn { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:3px; cursor:pointer; border:none; background:transparent; color:var(--text-muted); font-family:inherit; position:relative; padding:5px 2px; transition:color 0.2s; -webkit-tap-highlight-color:transparent; }
+        .mob-nav-btn { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:3px; cursor:pointer; border:none; background:transparent; color:var(--text-muted); font-family:inherit; position:relative; padding:5px 2px; transition:color 0.2s; }
         .mob-nav-btn .m-icon { font-size:1.2rem; transition:transform 0.2s; }
         .mob-nav-btn .m-label { font-size:0.57rem; font-weight:600; letter-spacing:0.2px; }
         .mob-nav-btn.active { color:var(--brand); }
@@ -548,14 +655,14 @@
             .conv-panel.mob-conv-hidden { z-index:1; pointer-events:none; }
             .mob-back-btn { display:flex !important; width:34px; height:34px; border-radius:50%; background:var(--bg-row-hover); border:none; color:var(--text-primary); align-items:center; justify-content:center; cursor:pointer; flex-shrink:0; font-size:0.85rem; margin-right:0.15rem; }
             .send-btn { width:44px; height:44px; }
-            .msg-bubble { max-width:82%; }
+            .msg-wrap { max-width:85%; }
             .modal { display:none; align-items:flex-end; }
             .modal[style*="block"] { display:flex !important; }
             .modal-content { width:100%; max-width:100%; margin:0; border-radius:20px 20px 0 0; max-height:92vh; padding:1.2rem 1rem 1.5rem; padding-bottom:calc(1.5rem + env(safe-area-inset-bottom,0px)); animation:sheetUp 0.32s cubic-bezier(0.34,1.56,0.64,1); }
             @keyframes sheetUp { from{transform:translateY(100%);opacity:0.7} to{transform:translateY(0);opacity:1} }
             .modal-content::before { content:''; display:block; width:38px; height:4px; background:var(--border-color); border-radius:2px; margin:0 auto 1.1rem; }
             .form-group input,.form-group select,.form-group textarea { font-size:16px !important; }
-            #statusMessage { position:fixed; bottom:calc(var(--mob-nav-h) + 8px + env(safe-area-inset-bottom,0px)); left:0.75rem; right:0.75rem; margin:0; border-radius:10px; z-index:1500; box-shadow:0 4px 20px rgba(0,0,0,0.15); font-size:0.83rem; }
+            #statusMessage { top:auto; bottom:calc(var(--mob-nav-h) + 8px + env(safe-area-inset-bottom,0px)); right:0.75rem; left:0.75rem; min-width:0; }
         }
         @media (min-width:769px) and (max-width:1024px) {
             :root { --sidebar-w:220px; }
@@ -572,7 +679,6 @@
 </head>
 <body>
 
-<!-- Migration Toast -->
 <div id="migrationToast"><i class="fa-solid fa-rotate" style="animation:spin 1s linear infinite;"></i> Syncing helper data…</div>
 
 <div id="pageLoader">
@@ -580,9 +686,15 @@
     <div class="ld-spin"></div>
 </div>
 
+<!-- ── STATUS TOAST ── -->
+<div id="statusMessage" class="hidden">
+    <span class="toast-icon"></span>
+    <span class="toast-text"></span>
+    <button class="toast-close" onclick="hideStatus()"><i class="fa-solid fa-xmark"></i></button>
+</div>
+
 <div id="adminApp">
 
-<!-- ── HEADER ── -->
 <header>
     <nav>
         <a href="#" class="logo">Trouble Sarthi</a>
@@ -602,7 +714,6 @@
     </nav>
 </header>
 
-<!-- MOBILE BOTTOM NAV -->
 <nav class="mob-nav" id="mobNav">
     <div class="mob-nav-inner">
         <button class="mob-nav-btn active" data-sec="dashboard" onclick="showSection('dashboard');mobNavActive(this)">
@@ -632,7 +743,6 @@
 </nav>
 
 <div class="admin-layout">
-    <!-- SIDEBAR -->
     <aside class="sidebar" id="sidebar">
         <div class="sidebar-header">
             <h2><i class="fa-solid fa-user-shield" style="color:#7cb342;"></i>Admin Panel</h2>
@@ -672,9 +782,7 @@
         </nav>
     </aside>
 
-    <!-- MAIN CONTENT -->
     <main class="main-content" id="mainContent">
-        <div id="statusMessage"></div>
 
         <!-- ════ DASHBOARD ════ -->
         <div id="dashboard" class="content-section active">
@@ -685,38 +793,31 @@
             <div class="dashboard-cards">
                 <div class="dashboard-card" onclick="showSection('users');mobNavActive(document.querySelector('[data-sec=users]'))">
                     <div class="card-header"><div class="card-icon green"><i class="fa-solid fa-users"></i></div><span class="card-change up">Total</span></div>
-                    <div class="card-value" id="d_users">—</div>
-                    <div class="card-label">Total Users</div>
+                    <div class="card-value" id="d_users">—</div><div class="card-label">Total Users</div>
                 </div>
                 <div class="dashboard-card" onclick="showSection('helpers');mobNavActive(document.querySelector('[data-sec=helpers]'))">
                     <div class="card-header"><div class="card-icon orange"><i class="fa-solid fa-screwdriver-wrench"></i></div><span class="card-change up">Active</span></div>
-                    <div class="card-value" id="d_helpers">—</div>
-                    <div class="card-label">Active Helpers</div>
+                    <div class="card-value" id="d_helpers">—</div><div class="card-label">Active Helpers</div>
                 </div>
                 <div class="dashboard-card" onclick="showSection('bookings');mobNavActive(document.querySelector('[data-sec=bookings]'))">
                     <div class="card-header"><div class="card-icon blue"><i class="fa-solid fa-calendar-check"></i></div></div>
-                    <div class="card-value" id="d_bookings">—</div>
-                    <div class="card-label">Total Bookings</div>
+                    <div class="card-value" id="d_bookings">—</div><div class="card-label">Total Bookings</div>
                 </div>
                 <div class="dashboard-card" onclick="showSection('messages');mobNavActive(document.querySelector('[data-sec=messages]'))">
                     <div class="card-header"><div class="card-icon purple"><i class="fa-solid fa-comments"></i></div><span class="card-change warn" id="d_msgs_badge" style="display:none;">New</span></div>
-                    <div class="card-value" id="d_msgs">0</div>
-                    <div class="card-label">Unread Msgs</div>
+                    <div class="card-value" id="d_msgs">0</div><div class="card-label">Unread Msgs</div>
                 </div>
                 <div class="dashboard-card">
                     <div class="card-header"><div class="card-icon pink"><i class="fa-solid fa-star"></i></div></div>
-                    <div class="card-value" id="d_rating">—</div>
-                    <div class="card-label">Avg Rating</div>
+                    <div class="card-value" id="d_rating">—</div><div class="card-label">Avg Rating</div>
                 </div>
                 <div class="dashboard-card" onclick="showSection('helpers');mobNavActive(document.querySelector('[data-sec=helpers]'))">
                     <div class="card-header"><div class="card-icon red"><i class="fa-solid fa-id-card"></i></div><span class="card-change warn" id="d_kyc_badge" style="display:none;">Pending</span></div>
-                    <div class="card-value" id="d_kyc">0</div>
-                    <div class="card-label">KYC Pending</div>
+                    <div class="card-value" id="d_kyc">0</div><div class="card-label">KYC Pending</div>
                 </div>
                 <div class="dashboard-card" onclick="showSection('users');mobNavActive(document.querySelector('[data-sec=users]'))">
                     <div class="card-header"><div class="card-icon teal"><i class="fa-solid fa-file-alt"></i></div><span class="card-change warn" id="d_req_badge" style="display:none;">New</span></div>
-                    <div class="card-value" id="d_requests">0</div>
-                    <div class="card-label">User Requests</div>
+                    <div class="card-value" id="d_requests">0</div><div class="card-label">User Requests</div>
                 </div>
             </div>
             <div class="desk-dash-grid">
@@ -731,10 +832,8 @@
                         <button class="btn btn-secondary btn-sm" onclick="showSection('helpers')">View All</button>
                     </div>
                     <div class="table-wrapper">
-                        <table>
-                            <thead><tr><th>Name</th><th>Service</th><th>Status</th><th>Rating</th></tr></thead>
-                            <tbody id="recentHelpers"><tr><td colspan="4" class="empty-state"><i class="fa-solid fa-spinner fa-spin"></i></td></tr></tbody>
-                        </table>
+                        <table><thead><tr><th>Name</th><th>Service</th><th>Status</th><th>Rating</th></tr></thead>
+                        <tbody id="recentHelpers"><tr><td colspan="4" class="empty-state"><i class="fa-solid fa-spinner fa-spin"></i></td></tr></tbody></table>
                     </div>
                 </div>
             </div>
@@ -766,10 +865,8 @@
                         </div>
                     </div>
                     <div class="table-wrapper">
-                        <table>
-                            <thead><tr><th>ID</th><th>Name</th><th>Email</th><th>Phone</th><th>Role</th><th>Status</th><th>Joined</th><th>Actions</th></tr></thead>
-                            <tbody id="usersTable"><tr><td colspan="8" class="empty-state"><i class="fa-solid fa-spinner fa-spin"></i> Loading...</td></tr></tbody>
-                        </table>
+                        <table><thead><tr><th>ID</th><th>Name</th><th>Email</th><th>Phone</th><th>Role</th><th>Status</th><th>Joined</th><th>Actions</th></tr></thead>
+                        <tbody id="usersTable"><tr><td colspan="8" class="empty-state"><i class="fa-solid fa-spinner fa-spin"></i> Loading...</td></tr></tbody></table>
                     </div>
                 </div>
             </div>
@@ -807,10 +904,8 @@
                         </div>
                     </div>
                     <div class="table-wrapper">
-                        <table>
-                            <thead><tr><th>Emp ID</th><th>Name</th><th>Phone</th><th>Service</th><th>Location</th><th>Status</th><th>KYC</th><th>Rating</th><th>Actions</th></tr></thead>
-                            <tbody id="helpersTable"><tr><td colspan="9" class="empty-state"><i class="fa-solid fa-spinner fa-spin"></i> Loading...</td></tr></tbody>
-                        </table>
+                        <table><thead><tr><th>Emp ID</th><th>Name</th><th>Phone</th><th>Service</th><th>Location</th><th>Status</th><th>KYC</th><th>Rating</th><th>Actions</th></tr></thead>
+                        <tbody id="helpersTable"><tr><td colspan="9" class="empty-state"><i class="fa-solid fa-spinner fa-spin"></i> Loading...</td></tr></tbody></table>
                     </div>
                 </div>
             </div>
@@ -836,15 +931,13 @@
                     </div>
                 </div>
                 <div class="table-wrapper">
-                    <table>
-                        <thead><tr><th>Booking ID</th><th>Helper / EmpID</th><th>Service</th><th>Date</th><th>Status</th><th>Payment</th><th>Actions</th></tr></thead>
-                        <tbody id="bookingsTable"><tr><td colspan="7" class="empty-state"><i class="fa-solid fa-spinner fa-spin"></i> Loading...</td></tr></tbody>
-                    </table>
+                    <table><thead><tr><th>Booking ID</th><th>Helper / EmpID</th><th>Service</th><th>Date</th><th>Status</th><th>Payment</th><th>Actions</th></tr></thead>
+                    <tbody id="bookingsTable"><tr><td colspan="7" class="empty-state"><i class="fa-solid fa-spinner fa-spin"></i> Loading...</td></tr></tbody></table>
                 </div>
             </div>
         </div>
 
-        <!-- ════ USER MESSAGES (RTDB) ════ -->
+        <!-- ════ USER MESSAGES ════ -->
         <div id="messages" class="content-section">
             <div class="mob-page-hdr mob-only" style="display:none;margin-bottom:0.5rem;"><div class="mob-page-hdr-icon"><i class="fa-solid fa-comments"></i></div><h1>User Chats</h1></div>
             <div class="msg-wrapper" id="userMsgWrapper">
@@ -887,8 +980,8 @@
                                 <button class="emoji-btn"><i class="fa-regular fa-face-smile"></i></button>
                             </div>
                             <button class="send-btn" id="sendBtn" onclick="sendMsg('user')">
-                                <i class="fa-solid fa-paper-plane"></i>
-                                <i class="fa-solid fa-spinner fa-spin"></i>
+                                <i class="fa-solid fa-paper-plane send-icon"></i>
+                                <i class="fa-solid fa-spinner spin-icon"></i>
                             </button>
                         </div>
                     </div>
@@ -896,7 +989,7 @@
             </div>
         </div>
 
-        <!-- ════ HELPER SUPPORT (RTDB) ════ -->
+        <!-- ════ HELPER SUPPORT ════ -->
         <div id="support" class="content-section">
             <div class="mob-page-hdr mob-only" style="display:none;"><div class="mob-page-hdr-icon"><i class="fa-solid fa-headset"></i></div><h1>Helper Support</h1></div>
             <div class="section-header desk-only">
@@ -940,8 +1033,8 @@
                                 <textarea id="suppChatInput" placeholder="Reply to helper…" rows="1" onkeydown="handleKey(event,'support')" oninput="autoGrow(this)"></textarea>
                             </div>
                             <button class="send-btn" id="suppSendBtn" onclick="sendMsg('support')">
-                                <i class="fa-solid fa-paper-plane"></i>
-                                <i class="fa-solid fa-spinner fa-spin"></i>
+                                <i class="fa-solid fa-paper-plane send-icon"></i>
+                                <i class="fa-solid fa-spinner spin-icon"></i>
                             </button>
                         </div>
                     </div>
@@ -958,19 +1051,16 @@
             <div class="data-table">
                 <div class="table-header"><h3>All Contact Messages</h3></div>
                 <div class="table-wrapper">
-                    <table>
-                        <thead><tr><th>Name</th><th>Email</th><th>Phone</th><th>Message</th><th>Status</th><th>Date</th><th>Actions</th></tr></thead>
-                        <tbody id="contactsTable"><tr><td colspan="7" class="empty-state"><i class="fa-solid fa-spinner fa-spin"></i> Loading…</td></tr></tbody>
-                    </table>
+                    <table><thead><tr><th>Name</th><th>Email</th><th>Phone</th><th>Message</th><th>Status</th><th>Date</th><th>Actions</th></tr></thead>
+                    <tbody id="contactsTable"><tr><td colspan="7" class="empty-state"><i class="fa-solid fa-spinner fa-spin"></i> Loading…</td></tr></tbody></table>
                 </div>
             </div>
         </div>
 
     </main>
-</div><!-- /admin-layout -->
+</div>
 
-<!-- ══════ MODALS ══════ -->
-<!-- Add Helper -->
+<!-- ══ MODALS ══ -->
 <div id="addHelperModal" class="modal"><div class="modal-content">
     <button class="close" onclick="closeModal('addHelperModal')">&times;</button>
     <h2><i class="fa-solid fa-plus" style="color:#7cb342;"></i>Add New Helper</h2>
@@ -1001,11 +1091,10 @@
     </div>
     <div class="modal-footer">
         <button class="btn btn-secondary" onclick="closeModal('addHelperModal')">Cancel</button>
-        <button class="btn btn-primary" onclick="addHelper()"><i class="fa-solid fa-plus"></i> Add Helper</button>
+        <button class="btn btn-primary" id="addHelperBtn" onclick="addHelper()"><i class="fa-solid fa-plus"></i> Add Helper</button>
     </div>
 </div></div>
 
-<!-- Edit Helper -->
 <div id="editHelperModal" class="modal"><div class="modal-content">
     <button class="close" onclick="closeModal('editHelperModal')">&times;</button>
     <h2><i class="fa-solid fa-pen" style="color:#7cb342;"></i>Edit Helper</h2>
@@ -1037,11 +1126,10 @@
     </div>
     <div class="modal-footer">
         <button class="btn btn-secondary" onclick="closeModal('editHelperModal')">Cancel</button>
-        <button class="btn btn-primary" onclick="updateHelper()">Update Helper</button>
+        <button class="btn btn-primary" id="updateHelperBtn" onclick="updateHelper()">Update Helper</button>
     </div>
 </div></div>
 
-<!-- Add User -->
 <div id="addUserModal" class="modal"><div class="modal-content">
     <button class="close" onclick="closeModal('addUserModal')">&times;</button>
     <h2><i class="fa-solid fa-user-plus" style="color:#7cb342;"></i>Add New User</h2>
@@ -1053,11 +1141,10 @@
     <div class="form-group"><label>Password *</label><input type="password" id="au_pw" placeholder="Min 6 characters"></div>
     <div class="modal-footer">
         <button class="btn btn-secondary" onclick="closeModal('addUserModal')">Cancel</button>
-        <button class="btn btn-primary" onclick="addUser()"><i class="fa-solid fa-plus"></i> Add User</button>
+        <button class="btn btn-primary" id="addUserBtn" onclick="addUser()"><i class="fa-solid fa-plus"></i> Add User</button>
     </div>
 </div></div>
 
-<!-- Edit User -->
 <div id="editUserModal" class="modal"><div class="modal-content">
     <button class="close" onclick="closeModal('editUserModal')">&times;</button>
     <h2><i class="fa-solid fa-user-pen" style="color:#7cb342;"></i>Edit User</h2>
@@ -1070,11 +1157,10 @@
     <div class="form-group"><label>New Password <small style="color:var(--text-muted);">(leave blank)</small></label><input type="password" id="eu_pw" placeholder="Leave blank to keep current"></div>
     <div class="modal-footer">
         <button class="btn btn-secondary" onclick="closeModal('editUserModal')">Cancel</button>
-        <button class="btn btn-primary" onclick="updateUser()">Update User</button>
+        <button class="btn btn-primary" id="updateUserBtn" onclick="updateUser()">Update User</button>
     </div>
 </div></div>
 
-<!-- KYC Review Modal -->
 <div id="kycModal" class="modal"><div class="modal-content" style="max-width:580px;">
     <button class="close" onclick="closeModal('kycModal')">&times;</button>
     <h2><i class="fa-solid fa-id-card" style="color:#7cb342;"></i>KYC Review</h2>
@@ -1082,7 +1168,6 @@
     <div class="modal-footer" id="kycModalFooter"></div>
 </div></div>
 
-<!-- Request Detail Modal -->
 <div id="requestModal" class="modal"><div class="modal-content" style="max-width:560px;">
     <button class="close" onclick="closeModal('requestModal')">&times;</button>
     <h2><i class="fa-solid fa-file-alt" style="color:#7cb342;"></i>Request Detail</h2>
@@ -1092,7 +1177,7 @@
 
 </div><!-- /adminApp -->
 
-<!-- ══ FIREBASE SDK ══ -->
+<!-- ══ FIREBASE ══ -->
 <script type="module">
 import { initializeApp }        from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getAuth, onAuthStateChanged, signOut, createUserWithEmailAndPassword, updateProfile }
@@ -1124,104 +1209,93 @@ let activeConvKey  = null;
 let activeSuppKey  = null;
 let allUserConvs   = [], allSuppConvs = [];
 let msgUnsub=null, suppMsgUnsub=null, userConvUnsub=null, suppConvUnsub=null;
+// Firestore real-time unsubscribers
+let helpersUnsub=null, usersUnsub=null, bookingsUnsub=null;
 
-// ── AUTO MIGRATION ──
-// Runs silently in the background on every admin login.
-// Fixes helper documents that were created with broken/old field names.
-// Safe to run repeatedly — only updates docs that actually need changes.
+// ═══════════════════════════════════════
+//  LOADING BUTTON UTILITIES
+// ═══════════════════════════════════════
+function setBtnLoading(btnEl, loading, originalHTML) {
+    if (!btnEl) return;
+    if (loading) {
+        btnEl._originalHTML = btnEl.innerHTML;
+        btnEl.classList.add('loading');
+        btnEl.disabled = true;
+    } else {
+        btnEl.classList.remove('loading');
+        btnEl.disabled = false;
+        if (originalHTML !== undefined) btnEl.innerHTML = originalHTML;
+        else if (btnEl._originalHTML) btnEl.innerHTML = btnEl._originalHTML;
+    }
+}
+
+// ═══════════════════════════════════════
+//  INLINE DOM UPDATE UTILITIES
+// ═══════════════════════════════════════
+// Animate a card out before removing from DOM
+function animateOut(el, callback) {
+    if (!el) { callback && callback(); return; }
+    el.classList.add('removing');
+    el.addEventListener('animationend', () => { el.remove(); callback && callback(); }, { once: true });
+}
+
+// Highlight a table row after update
+function highlightRow(rowId) {
+    const row = document.querySelector(`tr[data-id="${rowId}"]`);
+    if (row) { row.classList.add('updated'); setTimeout(() => row.classList.remove('updated'), 700); }
+}
+
+// ═══════════════════════════════════════
+//  AUTO MIGRATION (background, silent)
+// ═══════════════════════════════════════
 async function migrateHelperDocuments() {
     const toast = document.getElementById('migrationToast');
     try {
         const snapshot = await getDocs(collection(db, 'helpers'));
         if (!snapshot.size) return;
-
         let needsFix = false;
-        // Quick check: does any doc need migration?
         for (const docSnap of snapshot.docs) {
             const d = docSnap.data();
             if (!d.kycStatus || (d.kycData && !d.kycDocuments) || (d.phone && !d.phoneNumber) || (d.area && !d.location) || (d.services && !d.serviceType)) {
                 needsFix = true; break;
             }
         }
-        if (!needsFix) return; // All docs already clean — skip silently
-
-        // Show toast only if actual work needs to be done
+        if (!needsFix) return;
         toast.style.display = 'flex';
-
         const BATCH_LIMIT = 400;
         let ops = [];
-
         for (const docSnap of snapshot.docs) {
             const data = docSnap.data();
             const reff = docSnap.ref;
             const updates = {};
-
-            // Fix 1: Add kycStatus field if missing
-            if (!data.kycStatus) {
-                updates.kycStatus = (data.kycData && Object.keys(data.kycData).length > 0)
-                    ? 'pending'
-                    : 'not_submitted';
-            }
-
-            // Fix 2: Rename kycData → kycDocuments
-            if (data.kycData && !data.kycDocuments) {
-                updates.kycDocuments = data.kycData;
-                updates.kycData = deleteField();
-            }
-
-            // Fix 3: Add phoneNumber alias from phone
-            if (data.phone && !data.phoneNumber) {
-                updates.phoneNumber = data.phone;
-            }
-
-            // Fix 4: Add location alias from area
-            if (data.area && !data.location) {
-                updates.location = data.area;
-            }
-
-            // Fix 5: Add serviceType from services array
-            if (data.services && Array.isArray(data.services) && !data.serviceType) {
-                updates.serviceType = data.services[0] || '';
-            }
-
-            // Fix 6: Add kycSubmittedAt timestamp if missing
-            if (data.kycDocuments && !data.kycSubmittedAt) {
-                updates.kycSubmittedAt = serverTimestamp();
-            }
-
-            if (Object.keys(updates).length > 0) {
-                ops.push({ ref: reff, updates });
-            }
-
-            // Flush in batches
+            if (!data.kycStatus) updates.kycStatus = (data.kycData && Object.keys(data.kycData).length > 0) ? 'pending' : 'not_submitted';
+            if (data.kycData && !data.kycDocuments) { updates.kycDocuments = data.kycData; updates.kycData = deleteField(); }
+            if (data.phone && !data.phoneNumber) updates.phoneNumber = data.phone;
+            if (data.area && !data.location) updates.location = data.area;
+            if (data.services && Array.isArray(data.services) && !data.serviceType) updates.serviceType = data.services[0] || '';
+            if (data.kycDocuments && !data.kycSubmittedAt) updates.kycSubmittedAt = serverTimestamp();
+            if (Object.keys(updates).length > 0) ops.push({ ref: reff, updates });
             if (ops.length >= BATCH_LIMIT) {
                 const b = writeBatch(db);
                 ops.forEach(({ ref: r, updates: u }) => b.update(r, u));
-                await b.commit();
-                ops = [];
+                await b.commit(); ops = [];
             }
         }
-
-        // Final batch
         if (ops.length > 0) {
             const b = writeBatch(db);
             ops.forEach(({ ref: r, updates: u }) => b.update(r, u));
             await b.commit();
         }
-
-        console.log('✅ Helper document migration complete');
-
-        // Reload helpers to reflect fixed data
-        await loadHelpers();
-        updateDashboard();
-
     } catch(e) {
-        console.warn('Migration skipped (non-critical):', e.message);
+        console.warn('Migration skipped:', e.message);
     } finally {
         setTimeout(() => { toast.style.display = 'none'; }, 1500);
     }
 }
 
+// ═══════════════════════════════════════
+//  AUTH
+// ═══════════════════════════════════════
 let _redir = false;
 onAuthStateChanged(auth, async (user) => {
     if (_redir) return;
@@ -1235,18 +1309,86 @@ onAuthStateChanged(auth, async (user) => {
         document.getElementById('adminUsernameBtn').innerHTML = `<i class="fa-solid fa-user-shield"></i> ${d.username||d.fullName||'Admin'} ▼`;
         document.getElementById('pageLoader').style.display = 'none';
         document.getElementById('adminApp').style.display   = 'block';
-        await Promise.all([loadHelpers(),loadUsers(),loadBookings(),loadContacts(),loadRequests()]);
-        updateDashboard();
+        // Set up real-time Firestore listeners (replaces manual fetches)
+        setupFirestoreListeners();
         setupRTDBListeners();
-        migrateHelperDocuments(); // auto-migration runs silently in background
+        // Load non-realtime collections
+        await Promise.all([loadContacts(), loadRequests()]);
+        migrateHelperDocuments();
     } catch(e) {
-        console.error(e); _redir=false;
-        document.getElementById('pageLoader').style.display='none';
-        document.getElementById('adminApp').style.display='block';
+        console.error(e); _redir = false;
+        document.getElementById('pageLoader').style.display = 'none';
+        document.getElementById('adminApp').style.display = 'block';
     }
 });
 
-// ── RTDB LISTENERS ──
+// ═══════════════════════════════════════
+//  FIRESTORE REAL-TIME LISTENERS
+//  Uses onSnapshot — no manual reload needed
+// ═══════════════════════════════════════
+function setupFirestoreListeners() {
+    // ── Helpers (real-time) ──
+    if (helpersUnsub) helpersUnsub();
+    helpersUnsub = onSnapshot(collection(db, 'helpers'), (snap) => {
+        allHelpers = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+        allHelpers.sort((a,b) => {
+            if (a.isAvailable !== b.isAvailable) return a.isAvailable ? -1 : 1;
+            return (a.name||'').localeCompare(b.name||'');
+        });
+        renderHelpers();
+        renderRecentHelpers();
+        renderKYC();
+        updateDashboard();
+    }, (err) => {
+        console.error('Helpers listener:', err);
+        // Fallback: single fetch
+        loadHelpersFallback();
+    });
+
+    // ── Users (real-time) ──
+    if (usersUnsub) usersUnsub();
+    usersUnsub = onSnapshot(collection(db, 'users'), (snap) => {
+        allUsers = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+        allUsers.sort((a,b) => (a.fullName||'').localeCompare(b.fullName||''));
+        document.getElementById('usersCount').textContent = `(${allUsers.filter(u=>u.role!=='admin').length} total)`;
+        renderUsers();
+        updateDashboard();
+    }, (err) => {
+        console.error('Users listener:', err);
+        loadUsersFallback();
+    });
+
+    // ── Bookings (real-time) ──
+    if (bookingsUnsub) bookingsUnsub();
+    bookingsUnsub = onSnapshot(collection(db, 'bookings'), (snap) => {
+        allBookings = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+        allBookings.sort((a,b) => {
+            const ta = a.createdAt?.toMillis ? a.createdAt.toMillis() : 0;
+            const tb = b.createdAt?.toMillis ? b.createdAt.toMillis() : 0;
+            return tb - ta;
+        });
+        renderBookings();
+        updateDashboard();
+    }, (err) => {
+        console.error('Bookings listener:', err);
+        loadBookingsFallback();
+    });
+}
+
+// Fallback single-fetch functions (used if onSnapshot fails)
+async function loadHelpersFallback() {
+    try { const snap=await getDocs(collection(db,'helpers')); allHelpers=snap.docs.map(d=>({id:d.id,...d.data()})); renderHelpers(); renderRecentHelpers(); renderKYC(); updateDashboard(); } catch(e){console.error(e);}
+}
+async function loadUsersFallback() {
+    try { const snap=await getDocs(collection(db,'users')); allUsers=snap.docs.map(d=>({id:d.id,...d.data()})); renderUsers(); updateDashboard(); } catch(e){console.error(e);}
+}
+async function loadBookingsFallback() {
+    try { const snap=await getDocs(collection(db,'bookings')); allBookings=snap.docs.map(d=>({id:d.id,...d.data()})); renderBookings(); updateDashboard(); } catch(e){console.error(e);}
+}
+
+// ═══════════════════════════════════════
+//  RTDB REAL-TIME CHAT LISTENERS
+// ═══════════════════════════════════════
 function setupRTDBListeners() { loadUserConversations(); loadSupportConversations(); }
 
 window.loadUserConversations = () => {
@@ -1255,13 +1397,14 @@ window.loadUserConversations = () => {
         if (!snap.exists()) { document.getElementById('convList').innerHTML='<div class="conv-empty"><i class="fa-solid fa-inbox"></i><p>No user chats yet</p></div>'; return; }
         const convs = [];
         snap.forEach(child => { if (!child.key.toLowerCase().includes('_helper')) convs.push({key:child.key,...child.val()}); });
-        convs.sort((a,b)=>(b.lastMessageTime||0)-(a.lastMessageTime||0));
+        convs.sort((a,b) => (b.lastMessageTime||0)-(a.lastMessageTime||0));
         allUserConvs = convs;
         renderUserConvList(convs);
-        const unread = convs.reduce((s,c)=>s+(c.unreadAdmin||0),0);
+        const unread = convs.reduce((s,c) => s+(c.unreadAdmin||0), 0);
         setNavBadge('user', unread);
         document.getElementById('d_msgs').textContent = unread||0;
         if (unread>0) { document.getElementById('d_msgs_badge').style.display=''; document.getElementById('notifDot').style.display=''; }
+        else { document.getElementById('d_msgs_badge').style.display='none'; }
     });
 };
 
@@ -1340,7 +1483,8 @@ window.openUserConv = (convKey,name,email,phone) => {
     update(ref(rtdb,`chatMeta/${convKey}`),{unreadAdmin:0}).catch(()=>{});
     if(msgUnsub) off(ref(rtdb,`messages/${convKey}/messages`));
     msgUnsub=onValue(ref(rtdb,`messages/${convKey}/messages`),snap=>{
-        const msgs=[]; snap.forEach(child=>msgs.push({key:child.key,...child.val()})); renderChatMsgs(msgs,'user');
+        const msgs=[]; snap.forEach(child=>msgs.push({key:child.key,...child.val()}));
+        renderChatMsgs(msgs,'user');
     });
     if(window.innerWidth<=768){document.getElementById('convPanel').classList.add('mob-conv-hidden');document.getElementById('chatPanel').classList.add('mob-chat-open');}
 };
@@ -1355,7 +1499,8 @@ window.openSuppConv = (convKey,name) => {
     update(ref(rtdb,`support_chats/${convKey}`),{unreadAdmin:0}).catch(()=>{});
     if(suppMsgUnsub) off(ref(rtdb,`support_chats/${convKey}/messages`));
     suppMsgUnsub=onValue(ref(rtdb,`support_chats/${convKey}/messages`),snap=>{
-        const msgs=[]; snap.forEach(child=>msgs.push({key:child.key,...child.val()})); renderChatMsgs(msgs,'support');
+        const msgs=[]; snap.forEach(child=>msgs.push({key:child.key,...child.val()}));
+        renderChatMsgs(msgs,'support');
     });
     if(window.innerWidth<=768){document.getElementById('suppConvPanel').classList.add('mob-conv-hidden');document.getElementById('suppChatPanel').classList.add('mob-chat-open');}
 };
@@ -1365,245 +1510,542 @@ window.closeMobChat = type => {
     else{document.getElementById('suppConvPanel').classList.remove('mob-conv-hidden');document.getElementById('suppChatPanel').classList.remove('mob-chat-open');}
 };
 
-function renderChatMsgs(msgs,type) {
-    const container=document.getElementById(type==='user'?'chatMsgs':'suppChatMsgs');
-    let lastDate=null;
-    container.innerHTML=msgs.map(m=>{
-        const isOut=m.senderId==='admin'||m.senderRole==='admin';
-        const ts=m.timestamp?new Date(m.timestamp):new Date();
-        const ds=ts.toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'});
-        const tStr=ts.toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});
-        let chip='';
-        if(ds!==lastDate){lastDate=ds;chip=`<div class="date-chip"><span>${ds}</span></div>`;}
-        const init=initials(m.senderName||'?');
-        const avCls=isOut?'admin-av':(type==='support'?'helper-av':'user-av');
-        if(m.type==='system'||m.type==='booking_confirmed'){
-            return`${chip}<div class="msg-system"><i class="fa-solid fa-circle-info" style="margin-right:0.3rem;"></i>${esc(m.text||'')}</div>`;
+// ═══════════════════════════════════════
+//  CHAT BUBBLE RENDERER — FIXED
+//  Uses .msg-wrap for max-width; .msg-bubble
+//  grows to fit its text naturally.
+// ═══════════════════════════════════════
+function renderChatMsgs(msgs, type) {
+    const container = document.getElementById(type==='user' ? 'chatMsgs' : 'suppChatMsgs');
+    const wasAtBottom = container.scrollTop + container.clientHeight >= container.scrollHeight - 40;
+    let lastDate = null;
+    let html = '';
+
+    msgs.forEach(m => {
+        const isOut = m.senderId === 'admin' || m.senderRole === 'admin';
+        const ts    = m.timestamp ? new Date(m.timestamp) : new Date();
+        const ds    = ts.toLocaleDateString('en-IN', {day:'numeric', month:'short', year:'numeric'});
+        const tStr  = ts.toLocaleTimeString('en-IN', {hour:'2-digit', minute:'2-digit'});
+        const init  = initials(m.senderName || '?');
+        const avCls = isOut ? 'admin-av' : (type==='support' ? 'helper-av' : 'user-av');
+
+        if (ds !== lastDate) {
+            lastDate = ds;
+            html += `<div class="date-chip"><span>${ds}</span></div>`;
         }
-        return`${chip}<div class="msg-row ${isOut?'out':'in'}">
+
+        if (m.type === 'system' || m.type === 'booking_confirmed') {
+            html += `<div class="msg-system"><i class="fa-solid fa-circle-info" style="margin-right:0.3rem;"></i>${esc(m.text||'')}</div>`;
+            return;
+        }
+
+        // ── FIXED: wrap controls max-width; bubble sizes to content ──
+        html += `
+        <div class="msg-row ${isOut ? 'out' : 'in'}">
             <div class="msg-av ${avCls}">${init}</div>
-            <div><div class="msg-bubble">${esc(m.text||'')}</div><div class="msg-time">${tStr}</div></div></div>`;
-    }).join('');
-    container.scrollTop=container.scrollHeight;
-}
+            <div class="msg-wrap">
+                <div class="msg-bubble">${esc(m.text||'')}</div>
+                <div class="msg-time">${tStr}</div>
+            </div>
+        </div>`;
+    });
 
-window.sendMsg = async type => {
-    const convKey=type==='user'?activeConvKey:activeSuppKey;
-    if(!convKey||!currentAdmin) return;
-    const inputEl=document.getElementById(type==='user'?'chatInput':'suppChatInput');
-    const btnEl=document.getElementById(type==='user'?'sendBtn':'suppSendBtn');
-    const text=inputEl.value.trim();
-    if(!text) return;
-    btnEl.classList.add('sending'); inputEl.value=''; autoGrow(inputEl);
-    try {
-        const now=Date.now();
-        const msgData={text,senderId:'admin',senderName:currentAdmin.displayName||'Admin',senderRole:'admin',timestamp:now,read:false};
-        if(type==='user'){
-            await push(ref(rtdb,`messages/${convKey}/messages`),msgData);
-            await update(ref(rtdb,`chatMeta/${convKey}`),{lastMessage:text,lastMessageTime:now,lastSenderId:'admin'});
-        } else {
-            await push(ref(rtdb,`support_chats/${convKey}/messages`),msgData);
-            await update(ref(rtdb,`support_chats/${convKey}`),{lastMessage:text,lastMessageTime:now,lastSenderId:'admin',status:'replied'});
-        }
-    } catch(e){showStatus('Failed: '+e.message,'error');}
-    finally{btnEl.classList.remove('sending');}
-};
+    container.innerHTML = html;
 
-window.handleKey = (e,type)=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendMsg(type);}};
-window.autoGrow  = el=>{el.style.height='auto';el.style.height=Math.min(el.scrollHeight,108)+'px';};
-window.showUserInfo = ()=>{const c=allUserConvs.find(x=>x.key===activeConvKey);if(!c)return;alert(`👤 Name: ${c.userName||'N/A'}\n📧 Email: ${c.userEmail||'N/A'}\n📱 Phone: ${c.userPhone||'N/A'}`);};
-window.clearUserChat = async()=>{if(!activeConvKey||!confirm('Clear all messages?'))return;try{await remove(ref(rtdb,`messages/${activeConvKey}/messages`));await update(ref(rtdb,`chatMeta/${activeConvKey}`),{lastMessage:'Chat cleared',lastMessageTime:Date.now()});showStatus('Chat cleared','success');}catch(e){showStatus('Error: '+e.message,'error');}};
-window.markSuppResolved = async()=>{if(!activeSuppKey||!confirm('Mark as resolved?'))return;try{await update(ref(rtdb,`support_chats/${activeSuppKey}`),{status:'resolved'});showStatus('Marked resolved','success');}catch(e){showStatus('Error: '+e.message,'error');}};
-
-function setNavBadge(type,n){
-    if(type==='user'){
-        const el=document.getElementById('navMsgBadge'),mob=document.getElementById('mobMsgBadge');
-        el.textContent=n;n>0?el.classList.add('show'):el.classList.remove('show');
-        if(mob){mob.textContent=n;n>0?mob.classList.add('show'):mob.classList.remove('show');}
-    } else {
-        const el=document.getElementById('navSupportBadge');
-        el.textContent=n;n>0?el.classList.add('show'):el.classList.remove('show');
+    // Auto-scroll only if user was already near bottom
+    if (wasAtBottom || msgs.length <= 1) {
+        container.scrollTop = container.scrollHeight;
     }
 }
 
-// ── HELPERS ──
-async function loadHelpers(){
-    try{
-        const snap=await getDocs(collection(db,'helpers'));
-        allHelpers=snap.docs.map(d=>({id:d.id,...d.data()}));
-        allHelpers.sort((a,b)=>{if(a.isAvailable!==b.isAvailable)return a.isAvailable?-1:1;return(a.name||'').localeCompare(b.name||'');});
-        renderHelpers();renderRecentHelpers();renderKYC();
-    }catch(e){console.error('loadHelpers',e);}
+// ═══════════════════════════════════════
+//  SEND MESSAGE — with loading state
+// ═══════════════════════════════════════
+window.sendMsg = async type => {
+    const convKey  = type==='user' ? activeConvKey : activeSuppKey;
+    if (!convKey || !currentAdmin) return;
+    const inputEl  = document.getElementById(type==='user' ? 'chatInput' : 'suppChatInput');
+    const btnEl    = document.getElementById(type==='user' ? 'sendBtn' : 'suppSendBtn');
+    const text     = inputEl.value.trim();
+    if (!text) return;
+
+    // Loading state
+    btnEl.classList.add('sending');
+    btnEl.disabled = true;
+    inputEl.value  = '';
+    autoGrow(inputEl);
+
+    try {
+        const now     = Date.now();
+        const msgData = { text, senderId:'admin', senderName:currentAdmin.displayName||'Admin', senderRole:'admin', timestamp:now, read:false };
+        if (type==='user') {
+            await push(ref(rtdb,`messages/${convKey}/messages`), msgData);
+            await update(ref(rtdb,`chatMeta/${convKey}`), {lastMessage:text, lastMessageTime:now, lastSenderId:'admin'});
+        } else {
+            await push(ref(rtdb,`support_chats/${convKey}/messages`), msgData);
+            await update(ref(rtdb,`support_chats/${convKey}`), {lastMessage:text, lastMessageTime:now, lastSenderId:'admin', status:'replied'});
+        }
+    } catch(e) {
+        showStatus('Failed to send: ' + e.message, 'error');
+        inputEl.value = text; // restore text on failure
+        autoGrow(inputEl);
+    } finally {
+        btnEl.classList.remove('sending');
+        btnEl.disabled = false;
+        inputEl.focus();
+    }
+};
+
+window.handleKey = (e,type) => { if(e.key==='Enter' && !e.shiftKey) { e.preventDefault(); sendMsg(type); } };
+window.autoGrow  = el => { el.style.height='auto'; el.style.height=Math.min(el.scrollHeight,120)+'px'; };
+window.showUserInfo = () => { const c=allUserConvs.find(x=>x.key===activeConvKey); if(!c)return; alert(`👤 Name: ${c.userName||'N/A'}\n📧 Email: ${c.userEmail||'N/A'}\n📱 Phone: ${c.userPhone||'N/A'}`); };
+
+window.clearUserChat = async () => {
+    if (!activeConvKey || !confirm('Clear all messages in this chat?')) return;
+    try {
+        await remove(ref(rtdb,`messages/${activeConvKey}/messages`));
+        await update(ref(rtdb,`chatMeta/${activeConvKey}`), {lastMessage:'Chat cleared', lastMessageTime:Date.now()});
+        showStatus('Chat cleared', 'success');
+    } catch(e) { showStatus('Error: '+e.message, 'error'); }
+};
+
+window.markSuppResolved = async () => {
+    if (!activeSuppKey || !confirm('Mark this support chat as resolved?')) return;
+    try {
+        await update(ref(rtdb,`support_chats/${activeSuppKey}`), {status:'resolved'});
+        showStatus('Marked as resolved', 'success');
+    } catch(e) { showStatus('Error: '+e.message, 'error'); }
+};
+
+function setNavBadge(type, n) {
+    if (type==='user') {
+        const el=document.getElementById('navMsgBadge'), mob=document.getElementById('mobMsgBadge');
+        el.textContent=n; n>0?el.classList.add('show'):el.classList.remove('show');
+        if(mob){mob.textContent=n; n>0?mob.classList.add('show'):mob.classList.remove('show');}
+    } else {
+        const el=document.getElementById('navSupportBadge');
+        el.textContent=n; n>0?el.classList.add('show'):el.classList.remove('show');
+    }
 }
-function renderRecentHelpers(){
-    const tbody=document.getElementById('recentHelpers');
-    const rows=allHelpers.slice(0,5);
-    if(!rows.length){tbody.innerHTML='<tr><td colspan="4" class="empty-state">No helpers yet.</td></tr>';return;}
-    tbody.innerHTML=rows.map(h=>`<tr><td><strong>${esc(h.name||'')}</strong></td><td>${esc(h.serviceType||'')}</td><td><span class="badge badge-${h.isAvailable?'active':'inactive'}">${h.isAvailable?'Active':'Inactive'}</span></td><td>⭐ ${parseFloat(h.rating||0).toFixed(1)}</td></tr>`).join('');
+
+// ═══════════════════════════════════════
+//  HELPERS
+// ═══════════════════════════════════════
+function renderRecentHelpers() {
+    const tbody = document.getElementById('recentHelpers');
+    const rows  = allHelpers.slice(0,5);
+    if (!rows.length) { tbody.innerHTML='<tr><td colspan="4" class="empty-state">No helpers yet.</td></tr>'; return; }
+    tbody.innerHTML = rows.map(h=>`<tr>
+        <td><strong>${esc(h.name||'')}</strong></td>
+        <td>${esc(h.serviceType||'')}</td>
+        <td><span class="badge badge-${h.isAvailable?'active':'inactive'}">${h.isAvailable?'Active':'Inactive'}</span></td>
+        <td>⭐ ${parseFloat(h.rating||0).toFixed(1)}</td>
+    </tr>`).join('');
 }
-let helperFilter={status:'',search:''};
-function renderHelpers(){
-    const tbody=document.getElementById('helpersTable');
-    let list=allHelpers;
-    if(helperFilter.status==='active')list=list.filter(h=>h.isAvailable);
-    if(helperFilter.status==='inactive')list=list.filter(h=>!h.isAvailable);
-    if(helperFilter.search){const q=helperFilter.search.toLowerCase();list=list.filter(h=>(h.name||'').toLowerCase().includes(q)||(h.serviceType||'').toLowerCase().includes(q)||(h.location||'').toLowerCase().includes(q));}
-    if(!list.length){tbody.innerHTML='<tr><td colspan="9" class="empty-state">No helpers found.</td></tr>';return;}
-    tbody.innerHTML=list.map(h=>{
-        const kycStatus=h.kycStatus||'not_submitted';
-        const kycBadge=kycStatus==='approved'?'badge-active':kycStatus==='pending'?'badge-pending':'badge-inactive';
-        const kycLabel=kycStatus==='approved'?'Approved':kycStatus==='pending'?'Pending':'Not Submitted';
-        return`<tr>
+
+let helperFilter = {status:'', search:''};
+function renderHelpers() {
+    const tbody = document.getElementById('helpersTable');
+    let list = allHelpers;
+    if (helperFilter.status==='active')   list=list.filter(h=>h.isAvailable);
+    if (helperFilter.status==='inactive') list=list.filter(h=>!h.isAvailable);
+    if (helperFilter.search) {
+        const q=helperFilter.search.toLowerCase();
+        list=list.filter(h=>(h.name||'').toLowerCase().includes(q)||(h.serviceType||'').toLowerCase().includes(q)||(h.location||'').toLowerCase().includes(q));
+    }
+    if (!list.length) { tbody.innerHTML='<tr><td colspan="9" class="empty-state">No helpers found.</td></tr>'; return; }
+    tbody.innerHTML = list.map(h => {
+        const kycStatus = h.kycStatus||'not_submitted';
+        const kycBadge  = kycStatus==='approved'?'badge-active':kycStatus==='pending'?'badge-pending':'badge-inactive';
+        const kycLabel  = kycStatus==='approved'?'Approved':kycStatus==='pending'?'Pending':'Not Submitted';
+        return `<tr data-id="${h.id}">
             <td style="font-size:0.72rem;font-family:monospace;color:var(--text-muted);">${esc(h.employeeId||h.id.slice(0,8))}</td>
-            <td><strong>${esc(h.name||'')}</strong></td><td>${esc(h.phoneNumber||'')}</td>
-            <td>${esc(h.serviceType||'')}</td><td>${esc(h.location||'N/A')}</td>
-            <td><span class="badge badge-${h.isAvailable?'active':'inactive'}">${h.isAvailable?'Active':'Inactive'}</span></td>
-            <td><span class="badge ${kycBadge}">${kycLabel}</span></td>
+            <td><strong>${esc(h.name||'')}</strong></td>
+            <td>${esc(h.phoneNumber||'')}</td>
+            <td>${esc(h.serviceType||'')}</td>
+            <td>${esc(h.location||'N/A')}</td>
+            <td class="status-cell"><span class="badge badge-${h.isAvailable?'active':'inactive'}">${h.isAvailable?'Active':'Inactive'}</span></td>
+            <td class="kyc-cell"><span class="badge ${kycBadge}">${kycLabel}</span></td>
             <td>⭐ ${parseFloat(h.rating||0).toFixed(1)}</td>
             <td><div class="action-buttons">
                 <button class="btn btn-secondary btn-sm" onclick="editHelper('${h.id}')"><i class="fa-solid fa-pen"></i></button>
-                ${h.isAvailable?`<button class="btn btn-warning btn-sm" onclick="toggleHelper('${h.id}',false)">Deactivate</button>`:`<button class="btn btn-success btn-sm" onclick="toggleHelper('${h.id}',true)">Activate</button>`}
+                ${h.isAvailable
+                    ? `<button class="btn btn-warning btn-sm" onclick="toggleHelper('${h.id}',false,this)">Deactivate</button>`
+                    : `<button class="btn btn-success btn-sm" onclick="toggleHelper('${h.id}',true,this)">Activate</button>`}
                 ${kycStatus==='pending'?`<button class="btn btn-info btn-sm" onclick="openKYCModal('${h.id}')"><i class="fa-solid fa-id-card"></i></button>`:''}
-                <button class="btn btn-danger btn-sm" onclick="deleteHelper('${h.id}')"><i class="fa-solid fa-trash"></i></button>
+                <button class="btn btn-danger btn-sm" onclick="deleteHelper('${h.id}',this)"><i class="fa-solid fa-trash"></i></button>
             </div></td>
         </tr>`;
     }).join('');
 }
-window.filterHelpers=q=>{helperFilter.search=q;renderHelpers();};
-window.filterHelpersByStatus=v=>{helperFilter.status=v;renderHelpers();};
 
-function renderKYC(){
-    const container=document.getElementById('kycContainer');
-    const pending=allHelpers.filter(h=>h.kycStatus==='pending');
-    const kycBadge=document.getElementById('kycTabBadge'),navBadge=document.getElementById('navKycBadge');
-    if(pending.length>0){kycBadge.textContent=pending.length;kycBadge.style.display='';navBadge.textContent=pending.length;navBadge.classList.add('show');document.getElementById('d_kyc').textContent=pending.length;document.getElementById('d_kyc_badge').style.display='';}
-    else{kycBadge.style.display='none';navBadge.classList.remove('show');document.getElementById('d_kyc').textContent=0;document.getElementById('d_kyc_badge').style.display='none';}
-    if(!pending.length){container.innerHTML=`<div class="kyc-empty"><i class="fa-solid fa-check-circle"></i><p style="font-size:0.9rem;font-weight:600;margin-top:0.5rem;">No pending KYC applications</p><p style="font-size:0.78rem;color:var(--text-muted);margin-top:0.3rem;">All KYC documents reviewed.</p></div>`;return;}
-    container.innerHTML=pending.map(h=>{
-        const init=(h.name||'H')[0].toUpperCase();
-        const docs=h.kycDocuments||{};
-        const docEntries=[{icon:'fa-id-card',type:'Aadhar',val:docs.aadharNumber||docs.aadhaar||'—'},{icon:'fa-file-alt',type:'PAN',val:docs.panNumber||docs.pan||'—'},{icon:'fa-address-card',type:'Address Proof',val:docs.addressProof||'—'},{icon:'fa-phone',type:'Alt Phone',val:h.alternatePhone||'—'}];
-        return`<div class="kyc-card">
+window.filterHelpers          = q => { helperFilter.search=q; renderHelpers(); };
+window.filterHelpersByStatus  = v => { helperFilter.status=v; renderHelpers(); };
+
+function renderKYC() {
+    const container = document.getElementById('kycContainer');
+    const pending   = allHelpers.filter(h=>h.kycStatus==='pending');
+    const kycBadge  = document.getElementById('kycTabBadge');
+    const navBadge  = document.getElementById('navKycBadge');
+    if (pending.length > 0) {
+        kycBadge.textContent=pending.length; kycBadge.style.display='';
+        navBadge.textContent=pending.length; navBadge.classList.add('show');
+        document.getElementById('d_kyc').textContent=pending.length;
+        document.getElementById('d_kyc_badge').style.display='';
+    } else {
+        kycBadge.style.display='none'; navBadge.classList.remove('show');
+        document.getElementById('d_kyc').textContent=0;
+        document.getElementById('d_kyc_badge').style.display='none';
+    }
+    if (!pending.length) {
+        container.innerHTML=`<div class="kyc-empty"><i class="fa-solid fa-check-circle"></i><p style="font-size:0.9rem;font-weight:600;margin-top:0.5rem;">No pending KYC applications</p><p style="font-size:0.78rem;color:var(--text-muted);margin-top:0.3rem;">All KYC documents reviewed.</p></div>`;
+        return;
+    }
+    container.innerHTML = pending.map(h => {
+        const init = (h.name||'H')[0].toUpperCase();
+        const docs = h.kycDocuments||{};
+        const docEntries = [
+            {icon:'fa-id-card', type:'Aadhar', val:docs.aadharNumber||docs.aadhaar||'—'},
+            {icon:'fa-file-alt', type:'PAN', val:docs.panNumber||docs.pan||'—'},
+            {icon:'fa-address-card', type:'Address Proof', val:docs.addressProof||'—'},
+            {icon:'fa-phone', type:'Alt Phone', val:h.alternatePhone||'—'}
+        ];
+        return `<div class="kyc-card" data-id="${h.id}">
             <div class="kyc-header">
                 <div class="kyc-avatar">${init}</div>
                 <div class="kyc-info"><div class="kyc-name">${esc(h.name||'')}</div><div class="kyc-sub">${esc(h.serviceType||'')} • ${esc(h.location||'')} • ${esc(h.phoneNumber||'')}</div></div>
                 <span class="badge badge-pending">KYC Pending</span>
             </div>
             <div class="kyc-docs">${docEntries.map(d=>`<div class="kyc-doc"><i class="fa-solid ${d.icon}"></i><div><div class="kyc-doc-type">${d.type}</div><div class="kyc-doc-val">${esc(d.val)}</div></div></div>`).join('')}</div>
-            ${h.kycDocuments?.selfieUrl||h.kycDocuments?.documentUrl?`<div style="margin-bottom:0.75rem;"><a href="${esc(h.kycDocuments.selfieUrl||h.kycDocuments.documentUrl)}" target="_blank" class="btn btn-secondary btn-sm"><i class="fa-solid fa-eye"></i> View Documents</a></div>`:''}
+            ${docs.selfieUrl||docs.documentUrl?`<div style="margin-bottom:0.75rem;"><a href="${esc(docs.selfieUrl||docs.documentUrl)}" target="_blank" class="btn btn-secondary btn-sm"><i class="fa-solid fa-eye"></i> View Documents</a></div>`:''}
             <div class="action-buttons" style="flex-wrap:wrap;">
-                <button class="btn btn-success" onclick="approveKYC('${h.id}')"><i class="fa-solid fa-check"></i> Approve</button>
-                <button class="btn btn-danger" onclick="rejectKYC('${h.id}')"><i class="fa-solid fa-times"></i> Reject</button>
+                <button class="btn btn-success" onclick="approveKYC('${h.id}',this)"><i class="fa-solid fa-check"></i> Approve</button>
+                <button class="btn btn-danger" onclick="rejectKYC('${h.id}',this)"><i class="fa-solid fa-times"></i> Reject</button>
                 <button class="btn btn-secondary" onclick="openKYCModal('${h.id}')"><i class="fa-solid fa-eye"></i> Full Detail</button>
             </div>
         </div>`;
     }).join('');
 }
 
-window.openKYCModal=id=>{
-    const h=allHelpers.find(x=>x.id===id);if(!h)return;
-    const docs=h.kycDocuments||{};
-    document.getElementById('kycModalBody').innerHTML=`
+window.openKYCModal = id => {
+    const h = allHelpers.find(x=>x.id===id); if (!h) return;
+    const docs = h.kycDocuments||{};
+    document.getElementById('kycModalBody').innerHTML = `
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.65rem;margin-bottom:1rem;">
-            ${[['Full Name',h.name],['Phone',h.phoneNumber],['Email',h.email],['Service',h.serviceType],['Location',h.location],['Experience',h.experience],['Employee ID',h.employeeId],['Rating',h.rating],['Aadhar',docs.aadharNumber||docs.aadhaar],['PAN',docs.panNumber||docs.pan],['Address Proof',docs.addressProof],['Submitted On',h.kycSubmittedAt?.toDate?h.kycSubmittedAt.toDate().toLocaleDateString('en-IN'):'N/A']].map(([l,v])=>`<div style="background:var(--bg-table-hdr);border-radius:8px;padding:0.55rem 0.75rem;">
-                <div style="font-size:0.65rem;font-weight:700;text-transform:uppercase;color:var(--text-muted);letter-spacing:0.3px;">${l}</div>
-                <div style="font-size:0.86rem;font-weight:600;color:var(--text-primary);margin-top:0.12rem;">${esc(String(v||'—'))}</div>
-            </div>`).join('')}
+            ${[['Full Name',h.name],['Phone',h.phoneNumber],['Email',h.email],['Service',h.serviceType],['Location',h.location],['Experience',h.experience],['Employee ID',h.employeeId],['Rating',h.rating],['Aadhar',docs.aadharNumber||docs.aadhaar],['PAN',docs.panNumber||docs.pan],['Address Proof',docs.addressProof],['Submitted On',h.kycSubmittedAt?.toDate?h.kycSubmittedAt.toDate().toLocaleDateString('en-IN'):'N/A']].map(([l,v])=>`<div style="background:var(--bg-table-hdr);border-radius:8px;padding:0.55rem 0.75rem;"><div style="font-size:0.65rem;font-weight:700;text-transform:uppercase;color:var(--text-muted);">${l}</div><div style="font-size:0.86rem;font-weight:600;margin-top:0.12rem;">${esc(String(v||'—'))}</div></div>`).join('')}
         </div>
         ${docs.selfieUrl?`<div style="margin-bottom:0.75rem;"><img src="${esc(docs.selfieUrl)}" style="max-width:100%;border-radius:10px;border:1px solid var(--border-color);" onerror="this.style.display='none'"></div>`:''}
     `;
-    document.getElementById('kycModalFooter').innerHTML=`
+    document.getElementById('kycModalFooter').innerHTML = `
         <button class="btn btn-secondary" onclick="closeModal('kycModal')">Close</button>
-        <button class="btn btn-danger" onclick="rejectKYC('${id}');closeModal('kycModal')"><i class="fa-solid fa-times"></i> Reject</button>
-        <button class="btn btn-success" onclick="approveKYC('${id}');closeModal('kycModal')"><i class="fa-solid fa-check"></i> Approve</button>
+        <button class="btn btn-danger" onclick="rejectKYC('${id}',this);closeModal('kycModal')"><i class="fa-solid fa-times"></i> Reject</button>
+        <button class="btn btn-success" onclick="approveKYC('${id}',this);closeModal('kycModal')"><i class="fa-solid fa-check"></i> Approve</button>
     `;
     openModal('kycModal');
 };
-window.approveKYC=async id=>{if(!confirm('Approve KYC?'))return;try{await updateDoc(doc(db,'helpers',id),{kycStatus:'approved',kycApprovedAt:serverTimestamp(),isAvailable:true});showStatus('KYC approved & helper activated!','success');await loadHelpers();updateDashboard();}catch(e){showStatus('Error: '+e.message,'error');}};
-window.rejectKYC=async id=>{const reason=prompt('Reason for rejection (optional):');try{await updateDoc(doc(db,'helpers',id),{kycStatus:'rejected',kycRejectedAt:serverTimestamp(),kycRejectionReason:reason||''});showStatus('KYC rejected.','success');await loadHelpers();updateDashboard();}catch(e){showStatus('Error: '+e.message,'error');}};
-window.addHelper=async()=>{const name=g('ah_name'),phone=g('ah_phone'),email=g('ah_email'),loc=g('ah_location'),svc=g('ah_service');if(!name||!phone||!svc||!loc){showStatus('All required fields must be filled','error');return;}try{await addDoc(collection(db,'helpers'),{name,phoneNumber:phone,email:email||null,location:loc,serviceType:svc,description:g('ah_desc')||null,rating:parseFloat(g('ah_rating')||4),experience:g('ah_exp')||'1 year',pricePerHour:parseFloat(g('ah_price')||0),skills:g('ah_skills').split(',').map(s=>s.trim()).filter(Boolean),isAvailable:false,completedJobs:0,kycStatus:'not_submitted',employeeId:`TS-EMP-${Math.floor(1000+Math.random()*9000)}`,createdAt:serverTimestamp()});showStatus('Helper added!','success');closeModal('addHelperModal');clearFields(['ah_name','ah_phone','ah_email','ah_location','ah_service','ah_desc','ah_rating','ah_exp','ah_price','ah_skills']);await loadHelpers();updateDashboard();}catch(e){showStatus('Error: '+e.message,'error');}};
-window.editHelper=id=>{const h=allHelpers.find(x=>x.id===id);if(!h)return;s('eh_id',id);s('eh_name',h.name||'');s('eh_phone',h.phoneNumber||'');s('eh_email',h.email||'');s('eh_location',h.location||'');s('eh_desc',h.description||'');s('eh_rating',h.rating||4);s('eh_exp',h.experience||'');s('eh_price',h.pricePerHour||'');s('eh_skills',(h.skills||[]).join(', '));document.getElementById('eh_service').value=h.serviceType||'';openModal('editHelperModal');};
-window.updateHelper=async()=>{const id=g('eh_id'),name=g('eh_name'),phone=g('eh_phone'),loc=g('eh_location'),svc=g('eh_service');if(!name||!phone||!svc||!loc){showStatus('All required fields must be filled','error');return;}try{await updateDoc(doc(db,'helpers',id),{name,phoneNumber:phone,email:g('eh_email')||null,location:loc,serviceType:svc,description:g('eh_desc')||null,rating:parseFloat(g('eh_rating')||4),experience:g('eh_exp')||'',pricePerHour:parseFloat(g('eh_price')||0),skills:g('eh_skills').split(',').map(s=>s.trim()).filter(Boolean)});showStatus('Helper updated!','success');closeModal('editHelperModal');await loadHelpers();updateDashboard();}catch(e){showStatus('Error: '+e.message,'error');}};
-window.toggleHelper=async(id,active)=>{if(!confirm(`${active?'Activate':'Deactivate'} this helper?`))return;try{await updateDoc(doc(db,'helpers',id),{isAvailable:active});showStatus(`Helper ${active?'activated':'deactivated'}!`,'success');await loadHelpers();updateDashboard();}catch(e){showStatus('Error: '+e.message,'error');}};
-window.deleteHelper=async id=>{if(!confirm('Delete this helper permanently?'))return;try{await deleteDoc(doc(db,'helpers',id));showStatus('Deleted!','success');await loadHelpers();updateDashboard();}catch(e){showStatus('Error: '+e.message,'error');}};
 
-// ── USERS ──
-async function loadUsers(){try{const snap=await getDocs(collection(db,'users'));allUsers=snap.docs.map(d=>({id:d.id,...d.data()}));allUsers.sort((a,b)=>(a.fullName||'').localeCompare(b.fullName||''));document.getElementById('usersCount').textContent=`(${allUsers.filter(u=>u.role!=='admin').length} total)`;renderUsers();}catch(e){console.error('loadUsers',e);}}
-let userSearch='';
-function renderUsers(){
-    const tbody=document.getElementById('usersTable');
-    let list=allUsers;
-    if(userSearch){const q=userSearch.toLowerCase();list=list.filter(u=>(u.fullName||'').toLowerCase().includes(q)||(u.email||'').toLowerCase().includes(q));}
-    if(!list.length){tbody.innerHTML='<tr><td colspan="8" class="empty-state">No users found.</td></tr>';return;}
-    tbody.innerHTML=list.map(u=>{
-        const joined=u.createdAt?.toDate?u.createdAt.toDate().toLocaleDateString('en-IN',{year:'numeric',month:'short',day:'numeric'}):'N/A';
-        const blocked=u.status==='blocked';
-        return`<tr>
+// KYC Approve — DOM updates inline, no full re-render (onSnapshot handles it)
+window.approveKYC = async (id, btnEl) => {
+    if (!confirm('Approve this KYC?')) return;
+    setBtnLoading(btnEl, true);
+    try {
+        await updateDoc(doc(db,'helpers',id), {kycStatus:'approved', kycApprovedAt:serverTimestamp(), isAvailable:true});
+        showStatus('KYC approved — helper is now active! ✅', 'success');
+        // Animate the KYC card out (onSnapshot will remove it from allHelpers and re-render KYC list)
+        const card = document.querySelector(`.kyc-card[data-id="${id}"]`);
+        if (card) animateOut(card);
+        // Update the status badge directly in helpers table if visible
+        const row = document.querySelector(`tr[data-id="${id}"]`);
+        if (row) {
+            const statusCell = row.querySelector('.status-cell');
+            const kycCell    = row.querySelector('.kyc-cell');
+            if (statusCell) statusCell.innerHTML = '<span class="badge badge-active">Active</span>';
+            if (kycCell)    kycCell.innerHTML    = '<span class="badge badge-active">Approved</span>';
+            highlightRow(id);
+        }
+    } catch(e) {
+        showStatus('Error: '+e.message, 'error');
+        setBtnLoading(btnEl, false);
+    }
+};
+
+// KYC Reject — inline update
+window.rejectKYC = async (id, btnEl) => {
+    const reason = prompt('Reason for rejection (optional):');
+    if (reason === null) return; // cancelled
+    setBtnLoading(btnEl, true);
+    try {
+        await updateDoc(doc(db,'helpers',id), {kycStatus:'rejected', kycRejectedAt:serverTimestamp(), kycRejectionReason:reason||''});
+        showStatus('KYC rejected.', 'success');
+        const card = document.querySelector(`.kyc-card[data-id="${id}"]`);
+        if (card) animateOut(card);
+        const row  = document.querySelector(`tr[data-id="${id}"]`);
+        if (row) { const kycCell=row.querySelector('.kyc-cell'); if(kycCell) kycCell.innerHTML='<span class="badge badge-rejected">Rejected</span>'; highlightRow(id); }
+    } catch(e) {
+        showStatus('Error: '+e.message, 'error');
+        setBtnLoading(btnEl, false);
+    }
+};
+
+// Toggle helper status — inline DOM update
+window.toggleHelper = async (id, active, btnEl) => {
+    if (!confirm(`${active?'Activate':'Deactivate'} this helper?`)) return;
+    setBtnLoading(btnEl, true);
+    try {
+        await updateDoc(doc(db,'helpers',id), {isAvailable:active});
+        showStatus(`Helper ${active?'activated ✅':'deactivated'}!`, 'success');
+        // Inline row update (onSnapshot also handles this)
+        const row = document.querySelector(`tr[data-id="${id}"]`);
+        if (row) {
+            const statusCell = row.querySelector('.status-cell');
+            if (statusCell) statusCell.innerHTML = `<span class="badge badge-${active?'active':'inactive'}">${active?'Active':'Inactive'}</span>`;
+            // Swap button
+            const oldBtn = btnEl;
+            const newBtn = document.createElement('button');
+            newBtn.className = `btn ${active?'btn-warning':'btn-success'} btn-sm`;
+            newBtn.textContent = active ? 'Deactivate' : 'Activate';
+            newBtn.onclick = () => toggleHelper(id, !active, newBtn);
+            oldBtn.replaceWith(newBtn);
+            highlightRow(id);
+        }
+    } catch(e) {
+        showStatus('Error: '+e.message, 'error');
+        setBtnLoading(btnEl, false);
+    }
+};
+
+// Delete helper — animate row out, no page reload
+window.deleteHelper = async (id, btnEl) => {
+    if (!confirm('Delete this helper permanently? This cannot be undone.')) return;
+    setBtnLoading(btnEl, true);
+    try {
+        await deleteDoc(doc(db,'helpers',id));
+        showStatus('Helper deleted.', 'success');
+        // Animate row out; onSnapshot will update allHelpers
+        const row = document.querySelector(`tr[data-id="${id}"]`);
+        if (row) animateOut(row);
+    } catch(e) {
+        showStatus('Error: '+e.message, 'error');
+        setBtnLoading(btnEl, false);
+    }
+};
+
+window.addHelper = async () => {
+    const name=g('ah_name'), phone=g('ah_phone'), email=g('ah_email'), loc=g('ah_location'), svc=g('ah_service');
+    if (!name||!phone||!svc||!loc) { showStatus('All required fields must be filled','error'); return; }
+    const btn = document.getElementById('addHelperBtn');
+    setBtnLoading(btn, true);
+    try {
+        await addDoc(collection(db,'helpers'), {
+            name, phoneNumber:phone, email:email||null, location:loc, serviceType:svc,
+            description:g('ah_desc')||null, rating:parseFloat(g('ah_rating')||4),
+            experience:g('ah_exp')||'1 year', pricePerHour:parseFloat(g('ah_price')||0),
+            skills:g('ah_skills').split(',').map(s=>s.trim()).filter(Boolean),
+            isAvailable:false, completedJobs:0, kycStatus:'not_submitted',
+            employeeId:`TS-EMP-${Math.floor(1000+Math.random()*9000)}`,
+            createdAt:serverTimestamp()
+        });
+        showStatus('Helper added successfully! ✅','success');
+        closeModal('addHelperModal');
+        clearFields(['ah_name','ah_phone','ah_email','ah_location','ah_service','ah_desc','ah_rating','ah_exp','ah_price','ah_skills']);
+    } catch(e) { showStatus('Error: '+e.message,'error'); }
+    finally { setBtnLoading(btn, false, '<i class="fa-solid fa-plus"></i> Add Helper'); }
+};
+
+window.editHelper = id => {
+    const h = allHelpers.find(x=>x.id===id); if (!h) return;
+    s('eh_id',id); s('eh_name',h.name||''); s('eh_phone',h.phoneNumber||''); s('eh_email',h.email||'');
+    s('eh_location',h.location||''); s('eh_desc',h.description||''); s('eh_rating',h.rating||4);
+    s('eh_exp',h.experience||''); s('eh_price',h.pricePerHour||'');
+    s('eh_skills',(h.skills||[]).join(', '));
+    document.getElementById('eh_service').value = h.serviceType||'';
+    openModal('editHelperModal');
+};
+
+window.updateHelper = async () => {
+    const id=g('eh_id'), name=g('eh_name'), phone=g('eh_phone'), loc=g('eh_location'), svc=g('eh_service');
+    if (!name||!phone||!svc||!loc) { showStatus('All required fields must be filled','error'); return; }
+    const btn = document.getElementById('updateHelperBtn');
+    setBtnLoading(btn, true);
+    try {
+        await updateDoc(doc(db,'helpers',id), {
+            name, phoneNumber:phone, email:g('eh_email')||null, location:loc, serviceType:svc,
+            description:g('eh_desc')||null, rating:parseFloat(g('eh_rating')||4),
+            experience:g('eh_exp')||'', pricePerHour:parseFloat(g('eh_price')||0),
+            skills:g('eh_skills').split(',').map(s=>s.trim()).filter(Boolean)
+        });
+        showStatus('Helper updated! ✅','success');
+        closeModal('editHelperModal');
+        highlightRow(id);
+    } catch(e) { showStatus('Error: '+e.message,'error'); }
+    finally { setBtnLoading(btn, false, 'Update Helper'); }
+};
+
+// ═══════════════════════════════════════
+//  USERS
+// ═══════════════════════════════════════
+let userSearch = '';
+function renderUsers() {
+    const tbody = document.getElementById('usersTable');
+    let list = allUsers;
+    if (userSearch) { const q=userSearch.toLowerCase(); list=list.filter(u=>(u.fullName||'').toLowerCase().includes(q)||(u.email||'').toLowerCase().includes(q)); }
+    if (!list.length) { tbody.innerHTML='<tr><td colspan="8" class="empty-state">No users found.</td></tr>'; return; }
+    tbody.innerHTML = list.map(u => {
+        const joined  = u.createdAt?.toDate ? u.createdAt.toDate().toLocaleDateString('en-IN',{year:'numeric',month:'short',day:'numeric'}) : 'N/A';
+        const blocked = u.status==='blocked';
+        return `<tr data-id="${u.id}">
             <td style="font-size:0.7rem;font-family:monospace;color:var(--text-muted);">${u.id.slice(0,8)}</td>
             <td><strong>${esc(u.fullName||u.username||'')}</strong></td>
-            <td>${esc(u.email||'')}</td><td>${esc((u.phone||'').replace('+91',''))}</td>
+            <td>${esc(u.email||'')}</td>
+            <td>${esc((u.phone||'').replace('+91',''))}</td>
             <td><span class="badge badge-${u.role==='admin'?'admin':'user'}">${cap(u.role||'user')}</span></td>
-            <td><span class="badge badge-${blocked?'blocked':'active'}">${blocked?'Blocked':'Active'}</span></td>
+            <td class="status-cell"><span class="badge badge-${blocked?'blocked':'active'}">${blocked?'Blocked':'Active'}</span></td>
             <td>${joined}</td>
             <td><div class="action-buttons">
                 <button class="btn btn-secondary btn-sm" onclick="editUser('${u.id}')"><i class="fa-solid fa-pen"></i></button>
-                ${blocked?`<button class="btn btn-success btn-sm" onclick="blockUser('${u.id}',false)">Unblock</button>`:`<button class="btn btn-warning btn-sm" onclick="blockUser('${u.id}',true)">Block</button>`}
-                <button class="btn btn-danger btn-sm" onclick="deleteUser('${u.id}')"><i class="fa-solid fa-trash"></i></button>
+                ${blocked
+                    ? `<button class="btn btn-success btn-sm" onclick="blockUser('${u.id}',false,this)">Unblock</button>`
+                    : `<button class="btn btn-warning btn-sm" onclick="blockUser('${u.id}',true,this)">Block</button>`}
+                <button class="btn btn-danger btn-sm" onclick="deleteUser('${u.id}',this)"><i class="fa-solid fa-trash"></i></button>
             </div></td>
         </tr>`;
     }).join('');
 }
-window.filterUsers=q=>{userSearch=q;renderUsers();};
-window.addUser=async()=>{const name=g('au_name'),email=g('au_email'),phone=g('au_phone'),pw=g('au_pw');if(!name||!email||!phone||!pw){showStatus('All fields required','error');return;}try{const cred=await createUserWithEmailAndPassword(auth,email,pw);await updateProfile(cred.user,{displayName:name});await setDoc(doc(db,'users',cred.user.uid),{uid:cred.user.uid,fullName:name,username:name.toLowerCase().replace(/\s+/g,'_').slice(0,30),email,phone:phone.startsWith('+91')?phone:`+91${phone.replace(/\D/g,'')}`,photoUrl:null,provider:'email',role:'user',status:'active',createdAt:serverTimestamp(),updatedAt:serverTimestamp()});showStatus('User added!','success');closeModal('addUserModal');clearFields(['au_name','au_email','au_phone','au_pw']);await loadUsers();updateDashboard();}catch(e){showStatus(e.code==='auth/email-already-in-use'?'Email already exists':'Error: '+e.message,'error');}};
-window.editUser=id=>{const u=allUsers.find(x=>x.id===id);if(!u)return;s('eu_id',id);s('eu_name',u.fullName||'');s('eu_email',u.email||'');s('eu_phone',(u.phone||'').replace('+91',''));s('eu_pw','');openModal('editUserModal');};
-window.updateUser=async()=>{const id=g('eu_id'),name=g('eu_name'),email=g('eu_email'),phone=g('eu_phone');if(!name||!email||!phone){showStatus('All required fields must be filled','error');return;}try{await updateDoc(doc(db,'users',id),{fullName:name,email,phone:phone.startsWith('+91')?phone:`+91${phone.replace(/\D/g,'')}`,updatedAt:serverTimestamp()});showStatus('User updated!','success');closeModal('editUserModal');await loadUsers();}catch(e){showStatus('Error: '+e.message,'error');}};
-window.blockUser=async(id,block)=>{if(!confirm(`${block?'Block':'Unblock'} this user?`))return;try{await updateDoc(doc(db,'users',id),{status:block?'blocked':'active',updatedAt:serverTimestamp()});showStatus(`User ${block?'blocked':'unblocked'}!`,'success');await loadUsers();}catch(e){showStatus('Error: '+e.message,'error');}};
-window.deleteUser=async id=>{if(id===currentAdmin?.uid){showStatus('Cannot delete your own account!','error');return;}if(!confirm('Delete this user permanently?'))return;try{await deleteDoc(doc(db,'users',id));showStatus('User deleted!','success');await loadUsers();updateDashboard();}catch(e){showStatus('Error: '+e.message,'error');}};
 
-// ── ADMIN REQUESTS ──
-async function loadRequests(){
-    try{
-        const snap=await getDocs(query(collection(db,'admin_requests'),orderBy('createdAt','desc')));
-        allRequests=snap.docs.map(d=>({id:d.id,...d.data()}));
+window.filterUsers = q => { userSearch=q; renderUsers(); };
+
+window.addUser = async () => {
+    const name=g('au_name'), email=g('au_email'), phone=g('au_phone'), pw=g('au_pw');
+    if (!name||!email||!phone||!pw) { showStatus('All fields required','error'); return; }
+    const btn = document.getElementById('addUserBtn');
+    setBtnLoading(btn, true);
+    try {
+        const cred = await createUserWithEmailAndPassword(auth, email, pw);
+        await updateProfile(cred.user, {displayName:name});
+        await setDoc(doc(db,'users',cred.user.uid), {
+            uid:cred.user.uid, fullName:name,
+            username:name.toLowerCase().replace(/\s+/g,'_').slice(0,30),
+            email, phone:phone.startsWith('+91')?phone:`+91${phone.replace(/\D/g,'')}`,
+            photoUrl:null, provider:'email', role:'user', status:'active',
+            createdAt:serverTimestamp(), updatedAt:serverTimestamp()
+        });
+        showStatus('User added! ✅','success');
+        closeModal('addUserModal');
+        clearFields(['au_name','au_email','au_phone','au_pw']);
+    } catch(e) {
+        showStatus(e.code==='auth/email-already-in-use'?'Email already in use':'Error: '+e.message,'error');
+    } finally { setBtnLoading(btn, false, '<i class="fa-solid fa-plus"></i> Add User'); }
+};
+
+window.editUser = id => {
+    const u = allUsers.find(x=>x.id===id); if (!u) return;
+    s('eu_id',id); s('eu_name',u.fullName||''); s('eu_email',u.email||'');
+    s('eu_phone',(u.phone||'').replace('+91','')); s('eu_pw','');
+    openModal('editUserModal');
+};
+
+window.updateUser = async () => {
+    const id=g('eu_id'), name=g('eu_name'), email=g('eu_email'), phone=g('eu_phone');
+    if (!name||!email||!phone) { showStatus('All required fields must be filled','error'); return; }
+    const btn = document.getElementById('updateUserBtn');
+    setBtnLoading(btn, true);
+    try {
+        await updateDoc(doc(db,'users',id), {fullName:name, email, phone:phone.startsWith('+91')?phone:`+91${phone.replace(/\D/g,'')}`, updatedAt:serverTimestamp()});
+        showStatus('User updated! ✅','success');
+        closeModal('editUserModal');
+        highlightRow(id);
+    } catch(e) { showStatus('Error: '+e.message,'error'); }
+    finally { setBtnLoading(btn, false, 'Update User'); }
+};
+
+// Block/Unblock — inline status badge update
+window.blockUser = async (id, block, btnEl) => {
+    if (!confirm(`${block?'Block':'Unblock'} this user?`)) return;
+    setBtnLoading(btnEl, true);
+    try {
+        await updateDoc(doc(db,'users',id), {status:block?'blocked':'active', updatedAt:serverTimestamp()});
+        showStatus(`User ${block?'blocked 🚫':'unblocked ✅'}!`,'success');
+        const row = document.querySelector(`tr[data-id="${id}"]`);
+        if (row) {
+            const statusCell = row.querySelector('.status-cell');
+            if (statusCell) statusCell.innerHTML = `<span class="badge badge-${block?'blocked':'active'}">${block?'Blocked':'Active'}</span>`;
+            const oldBtn = btnEl;
+            const newBtn = document.createElement('button');
+            newBtn.className = `btn ${block?'btn-success':'btn-warning'} btn-sm`;
+            newBtn.textContent = block ? 'Unblock' : 'Block';
+            newBtn.onclick = () => blockUser(id, !block, newBtn);
+            oldBtn.replaceWith(newBtn);
+            highlightRow(id);
+        }
+    } catch(e) { showStatus('Error: '+e.message,'error'); setBtnLoading(btnEl, false); }
+};
+
+// Delete user — animate row out
+window.deleteUser = async (id, btnEl) => {
+    if (id===currentAdmin?.uid) { showStatus('Cannot delete your own account!','error'); return; }
+    if (!confirm('Delete this user permanently?')) return;
+    setBtnLoading(btnEl, true);
+    try {
+        await deleteDoc(doc(db,'users',id));
+        showStatus('User deleted.','success');
+        const row = document.querySelector(`tr[data-id="${id}"]`);
+        if (row) animateOut(row);
+    } catch(e) { showStatus('Error: '+e.message,'error'); setBtnLoading(btnEl, false); }
+};
+
+// ═══════════════════════════════════════
+//  ADMIN REQUESTS
+// ═══════════════════════════════════════
+async function loadRequests() {
+    try {
+        const snap = await getDocs(query(collection(db,'admin_requests'), orderBy('createdAt','desc')));
+        allRequests = snap.docs.map(d=>({id:d.id,...d.data()}));
         renderRequests();
-        const pending=allRequests.filter(r=>r.status==='pending'||!r.status).length;
-        const badge=document.getElementById('reqTabBadge'),navBadge=document.getElementById('navReqBadge');
-        if(pending>0){badge.textContent=pending;badge.style.display='';navBadge.textContent=pending;navBadge.classList.add('show');}
-        else{badge.style.display='none';navBadge.classList.remove('show');}
-        document.getElementById('d_requests').textContent=allRequests.length;
-        if(pending>0)document.getElementById('d_req_badge').style.display='';
-    }catch(e){console.error('loadRequests',e);}
+        const pending = allRequests.filter(r=>r.status==='pending'||!r.status).length;
+        const badge   = document.getElementById('reqTabBadge');
+        const navBadge= document.getElementById('navReqBadge');
+        if (pending>0) { badge.textContent=pending; badge.style.display=''; navBadge.textContent=pending; navBadge.classList.add('show'); }
+        else { badge.style.display='none'; navBadge.classList.remove('show'); }
+        document.getElementById('d_requests').textContent = allRequests.length;
+        if (pending>0) document.getElementById('d_req_badge').style.display='';
+    } catch(e) { console.error('loadRequests',e); }
 }
-function renderRequests(){
-    const container=document.getElementById('requestsContainer');
-    if(!allRequests.length){container.innerHTML='<div class="empty-state"><i class="fa-solid fa-inbox"></i><p>No admin requests yet</p></div>';return;}
-    container.innerHTML=allRequests.map(r=>{
-        const dt=r.createdAt?.toDate?r.createdAt.toDate().toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'}):'N/A';
-        const st=r.status||'pending';
-        return`<div class="request-card">
+
+function renderRequests() {
+    const container = document.getElementById('requestsContainer');
+    if (!allRequests.length) { container.innerHTML='<div class="empty-state"><i class="fa-solid fa-inbox"></i><p>No admin requests yet</p></div>'; return; }
+    container.innerHTML = allRequests.map(r => {
+        const dt = r.createdAt?.toDate ? r.createdAt.toDate().toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'}) : 'N/A';
+        const st = r.status||'pending';
+        return `<div class="request-card" data-id="${r.id}">
             <div class="request-header">
                 <div>
-                    <div style="font-size:0.9rem;font-weight:700;color:var(--text-primary);">${esc(r.title||r.requestType||'Request')}</div>
+                    <div style="font-size:0.9rem;font-weight:700;">${esc(r.title||r.requestType||'Request')}</div>
                     <div class="request-meta">
                         <span><i class="fa-solid fa-user"></i>${esc(r.userName||r.userId||'Unknown')}</span>
                         <span><i class="fa-solid fa-envelope"></i>${esc(r.userEmail||'—')}</span>
                         <span><i class="fa-solid fa-clock"></i>${dt}</span>
-                        <span><i class="fa-solid fa-tag"></i>${esc(r.category||r.type||'General')}</span>
                     </div>
                 </div>
-                <span class="badge badge-${st}">${cap(st)}</span>
+                <span class="badge badge-${st} req-status-badge">${cap(st)}</span>
             </div>
-            <div class="request-body">${esc(r.message||r.description||r.body||'No message provided')}</div>
+            <div class="request-body">${esc(r.message||r.description||r.body||'No message')}</div>
             <div class="action-buttons">
                 <button class="btn btn-info btn-sm" onclick="viewRequest('${r.id}')"><i class="fa-solid fa-eye"></i> View</button>
-                ${st==='pending'?`<button class="btn btn-success btn-sm" onclick="updateRequest('${r.id}','approved')"><i class="fa-solid fa-check"></i> Approve</button><button class="btn btn-danger btn-sm" onclick="updateRequest('${r.id}','rejected')"><i class="fa-solid fa-times"></i> Reject</button>`:st==='approved'?`<button class="btn btn-warning btn-sm" onclick="updateRequest('${r.id}','resolved')"><i class="fa-solid fa-check-double"></i> Resolve</button>`:''}
-                <button class="btn btn-secondary btn-sm" onclick="deleteRequest('${r.id}')"><i class="fa-solid fa-trash"></i></button>
+                ${st==='pending'
+                    ? `<button class="btn btn-success btn-sm" onclick="updateRequest('${r.id}','approved',this)"><i class="fa-solid fa-check"></i> Approve</button>
+                       <button class="btn btn-danger btn-sm" onclick="updateRequest('${r.id}','rejected',this)"><i class="fa-solid fa-times"></i> Reject</button>`
+                    : st==='approved'
+                    ? `<button class="btn btn-warning btn-sm" onclick="updateRequest('${r.id}','resolved',this)"><i class="fa-solid fa-check-double"></i> Resolve</button>`
+                    : ''}
+                <button class="btn btn-secondary btn-sm" onclick="deleteRequest('${r.id}',this)"><i class="fa-solid fa-trash"></i></button>
             </div>
         </div>`;
     }).join('');
 }
-window.viewRequest=id=>{
-    const r=allRequests.find(x=>x.id===id);if(!r)return;
+
+window.viewRequest = id => {
+    const r=allRequests.find(x=>x.id===id); if(!r)return;
     const dt=r.createdAt?.toDate?r.createdAt.toDate().toLocaleDateString('en-IN'):'N/A';
     document.getElementById('requestModalBody').innerHTML=`
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.6rem;margin-bottom:1rem;">
@@ -1615,182 +2057,335 @@ window.viewRequest=id=>{
         </div>
         ${r.attachmentUrl?`<a href="${esc(r.attachmentUrl)}" target="_blank" class="btn btn-secondary btn-sm"><i class="fa-solid fa-paperclip"></i> Attachment</a>`:''}
     `;
-    const st=r.status||'pending';
+    const st = r.status||'pending';
     document.getElementById('requestModalFooter').innerHTML=`
         <button class="btn btn-secondary" onclick="closeModal('requestModal')">Close</button>
-        ${st==='pending'?`<button class="btn btn-danger" onclick="updateRequest('${r.id}','rejected');closeModal('requestModal')">Reject</button><button class="btn btn-success" onclick="updateRequest('${r.id}','approved');closeModal('requestModal')">Approve</button>`:st==='approved'?`<button class="btn btn-warning" onclick="updateRequest('${r.id}','resolved');closeModal('requestModal')">Mark Resolved</button>`:''}
+        ${st==='pending'
+            ?`<button class="btn btn-danger" onclick="updateRequest('${r.id}','rejected',this);closeModal('requestModal')">Reject</button>
+              <button class="btn btn-success" onclick="updateRequest('${r.id}','approved',this);closeModal('requestModal')">Approve</button>`
+            :st==='approved'
+            ?`<button class="btn btn-warning" onclick="updateRequest('${r.id}','resolved',this);closeModal('requestModal')">Mark Resolved</button>`:''}
     `;
     openModal('requestModal');
 };
-window.updateRequest=async(id,status)=>{try{await updateDoc(doc(db,'admin_requests',id),{status,updatedAt:serverTimestamp(),reviewedBy:currentAdmin?.uid||'admin'});showStatus(`Request ${status}!`,'success');await loadRequests();}catch(e){showStatus('Error: '+e.message,'error');}};
-window.deleteRequest=async id=>{if(!confirm('Delete this request?'))return;try{await deleteDoc(doc(db,'admin_requests',id));showStatus('Deleted!','success');await loadRequests();}catch(e){showStatus('Error: '+e.message,'error');}};
 
-// ── BOOKINGS ──
-async function loadBookings(){try{const snap=await getDocs(collection(db,'bookings'));allBookings=snap.docs.map(d=>({id:d.id,...d.data()}));allBookings.sort((a,b)=>{const ta=a.createdAt?.toMillis?a.createdAt.toMillis():0,tb=b.createdAt?.toMillis?b.createdAt.toMillis():0;return tb-ta;});renderBookings();}catch(e){console.error('loadBookings',e);}}
-let bookingStatusFilter='';
-function renderBookings(){
-    const tbody=document.getElementById('bookingsTable');
-    let list=allBookings;
-    if(bookingStatusFilter)list=list.filter(b=>(b.status||'').toLowerCase()===bookingStatusFilter);
-    if(!list.length){tbody.innerHTML='<tr><td colspan="7" class="empty-state">No bookings found.</td></tr>';return;}
-    tbody.innerHTML=list.map(b=>{
-        const dt=b.scheduledAt?.toDate?b.scheduledAt.toDate().toLocaleDateString('en-IN'):(b.createdAt?.toDate?b.createdAt.toDate().toLocaleDateString('en-IN'):'N/A');
-        const st=(b.status||'pending').toLowerCase();
+// Update request status — inline badge update, no full re-render
+window.updateRequest = async (id, status, btnEl) => {
+    setBtnLoading(btnEl, true);
+    try {
+        await updateDoc(doc(db,'admin_requests',id), {status, updatedAt:serverTimestamp(), reviewedBy:currentAdmin?.uid||'admin'});
+        showStatus(`Request ${status}! ✅`,'success');
+        // Update in-memory array
+        const idx = allRequests.findIndex(r=>r.id===id);
+        if (idx>-1) allRequests[idx].status = status;
+        // Inline card badge update
+        const card = document.querySelector(`.request-card[data-id="${id}"]`);
+        if (card) {
+            const badge = card.querySelector('.req-status-badge');
+            if (badge) { badge.className=`badge badge-${status} req-status-badge`; badge.textContent=cap(status); }
+            // Remove action buttons that no longer apply
+            const btns = card.querySelectorAll('.btn-success, .btn-danger[onclick*="rejected"]');
+            btns.forEach(b => b.remove());
+        }
+        // Update pending count
+        const pending = allRequests.filter(r=>r.status==='pending'||!r.status).length;
+        document.getElementById('reqTabBadge').textContent = pending;
+        document.getElementById('d_requests').textContent  = allRequests.length;
+    } catch(e) { showStatus('Error: '+e.message,'error'); }
+    finally { setBtnLoading(btnEl, false); }
+};
+
+window.deleteRequest = async (id, btnEl) => {
+    if (!confirm('Delete this request?')) return;
+    setBtnLoading(btnEl, true);
+    try {
+        await deleteDoc(doc(db,'admin_requests',id));
+        showStatus('Request deleted.','success');
+        const card = document.querySelector(`.request-card[data-id="${id}"]`);
+        if (card) animateOut(card, () => {
+            allRequests = allRequests.filter(r=>r.id!==id);
+            document.getElementById('d_requests').textContent = allRequests.length;
+        });
+    } catch(e) { showStatus('Error: '+e.message,'error'); setBtnLoading(btnEl, false); }
+};
+
+// ═══════════════════════════════════════
+//  BOOKINGS
+// ═══════════════════════════════════════
+let bookingStatusFilter = '';
+function renderBookings() {
+    const tbody = document.getElementById('bookingsTable');
+    let list = allBookings;
+    if (bookingStatusFilter) list=list.filter(b=>(b.status||'').toLowerCase()===bookingStatusFilter);
+    if (!list.length) { tbody.innerHTML='<tr><td colspan="7" class="empty-state">No bookings found.</td></tr>'; return; }
+    tbody.innerHTML = list.map(b => {
+        const dt = b.scheduledAt?.toDate ? b.scheduledAt.toDate().toLocaleDateString('en-IN') : (b.createdAt?.toDate ? b.createdAt.toDate().toLocaleDateString('en-IN') : 'N/A');
+        const st = (b.status||'pending').toLowerCase();
         let btns='';
-        if(st==='pending')btns+=`<button class="btn btn-success btn-sm" onclick="updateBooking('${b.id}','confirmed')">Confirm</button>`;
-        if(st==='confirmed')btns+=`<button class="btn btn-info btn-sm" onclick="updateBooking('${b.id}','ongoing')">Start</button>`;
-        if(st==='ongoing')btns+=`<button class="btn btn-primary btn-sm" onclick="updateBooking('${b.id}','completed')">Complete</button>`;
-        if(st!=='cancelled'&&st!=='completed')btns+=`<button class="btn btn-danger btn-sm" onclick="updateBooking('${b.id}','cancelled')">Cancel</button>`;
-        return`<tr>
+        if(st==='pending')    btns+=`<button class="btn btn-success btn-sm" onclick="updateBooking('${b.id}','confirmed',this)">Confirm</button>`;
+        if(st==='confirmed')  btns+=`<button class="btn btn-info btn-sm" onclick="updateBooking('${b.id}','ongoing',this)">Start</button>`;
+        if(st==='ongoing')    btns+=`<button class="btn btn-primary btn-sm" onclick="updateBooking('${b.id}','completed',this)">Complete</button>`;
+        if(st!=='cancelled'&&st!=='completed') btns+=`<button class="btn btn-danger btn-sm" onclick="updateBooking('${b.id}','cancelled',this)">Cancel</button>`;
+        return `<tr data-id="${b.id}">
             <td style="font-size:0.72rem;font-family:monospace;color:var(--text-muted);">#${b.id.slice(0,8)}</td>
             <td><strong>${esc(b.helperName||'N/A')}</strong>${b.helperEmployeeId?`<br><small style="color:var(--text-muted);font-size:0.68rem;">${esc(b.helperEmployeeId)}</small>`:''}</td>
-            <td>${esc(b.serviceName||b.serviceId||'N/A')}</td><td>${dt}</td>
-            <td><span class="badge badge-${st}">${cap(st)}</span></td>
+            <td>${esc(b.serviceName||b.serviceId||'N/A')}</td>
+            <td>${dt}</td>
+            <td class="status-cell"><span class="badge badge-${st}">${cap(st)}</span></td>
             <td>${cap(b.paymentMode||'cash')} / <span class="badge badge-${b.paymentStatus==='paid'?'active':'pending'}">${cap(b.paymentStatus||'pending')}</span></td>
             <td><div class="action-buttons">${btns||'<span style="font-size:0.78rem;color:var(--text-muted);">—</span>'}</div></td>
         </tr>`;
     }).join('');
 }
-window.filterBookingsByStatus=v=>{bookingStatusFilter=v;renderBookings();};
-window.updateBooking=async(id,status)=>{if(!confirm(`Set booking status to "${status}"?`))return;const upd={status};if(status==='completed')upd.completedAt=serverTimestamp();try{await updateDoc(doc(db,'bookings',id),upd);showStatus(`Booking ${status}!`,'success');await loadBookings();updateDashboard();}catch(e){showStatus('Error: '+e.message,'error');}};
 
-// ── CONTACTS ──
-async function loadContacts(){try{const snap=await getDocs(collection(db,'contact_messages'));allContacts=snap.docs.map(d=>({id:d.id,...d.data()}));allContacts.sort((a,b)=>{const ta=a.created_at?.toMillis?a.created_at.toMillis():0,tb=b.created_at?.toMillis?b.created_at.toMillis():0;return tb-ta;});renderContacts();}catch(e){console.error('loadContacts',e);}}
-function renderContacts(){
-    const tbody=document.getElementById('contactsTable');
-    if(!allContacts.length){tbody.innerHTML='<tr><td colspan="7" class="empty-state">No messages yet.</td></tr>';return;}
-    tbody.innerHTML=allContacts.map(c=>{
-        const dt=c.created_at?.toDate?c.created_at.toDate().toLocaleDateString('en-IN'):'N/A';
-        const st=(c.status||'new').toLowerCase();
-        return`<tr>
+window.filterBookingsByStatus = v => { bookingStatusFilter=v; renderBookings(); };
+
+// Update booking — inline status update
+window.updateBooking = async (id, status, btnEl) => {
+    if (!confirm(`Set booking status to "${status}"?`)) return;
+    setBtnLoading(btnEl, true);
+    try {
+        const upd = {status};
+        if (status==='completed') upd.completedAt = serverTimestamp();
+        await updateDoc(doc(db,'bookings',id), upd);
+        showStatus(`Booking ${status}! ✅`,'success');
+        // Inline row update (onSnapshot will also handle it)
+        const row = document.querySelector(`tr[data-id="${id}"]`);
+        if (row) {
+            const statusCell = row.querySelector('.status-cell');
+            if (statusCell) statusCell.innerHTML = `<span class="badge badge-${status}">${cap(status)}</span>`;
+            highlightRow(id);
+        }
+    } catch(e) { showStatus('Error: '+e.message,'error'); }
+    finally { setBtnLoading(btnEl, false); }
+};
+
+// ═══════════════════════════════════════
+//  CONTACTS
+// ═══════════════════════════════════════
+async function loadContacts() {
+    try {
+        const snap = await getDocs(collection(db,'contact_messages'));
+        allContacts = snap.docs.map(d=>({id:d.id,...d.data()}));
+        allContacts.sort((a,b)=>{const ta=a.created_at?.toMillis?a.created_at.toMillis():0,tb=b.created_at?.toMillis?b.created_at.toMillis():0;return tb-ta;});
+        renderContacts();
+    } catch(e) { console.error('loadContacts',e); }
+}
+
+function renderContacts() {
+    const tbody = document.getElementById('contactsTable');
+    if (!allContacts.length) { tbody.innerHTML='<tr><td colspan="7" class="empty-state">No messages yet.</td></tr>'; return; }
+    tbody.innerHTML = allContacts.map(c => {
+        const dt = c.created_at?.toDate ? c.created_at.toDate().toLocaleDateString('en-IN') : 'N/A';
+        const st = (c.status||'new').toLowerCase();
+        return `<tr data-id="${c.id}">
             <td><strong>${esc(c.full_name||c.fullName||'')}</strong></td>
-            <td>${esc(c.email||'')}</td><td>${esc(c.phone||'N/A')}</td>
+            <td>${esc(c.email||'')}</td>
+            <td>${esc(c.phone||'N/A')}</td>
             <td style="max-width:200px;white-space:normal;font-size:0.78rem;">${esc((c.message||'').slice(0,80))}${(c.message||'').length>80?'…':''}</td>
-            <td><span class="badge badge-${st}">${cap(st)}</span></td><td>${dt}</td>
+            <td class="status-cell"><span class="badge badge-${st}">${cap(st)}</span></td>
+            <td>${dt}</td>
             <td><div class="action-buttons">
-                ${st==='new'?`<button class="btn btn-primary btn-sm" onclick="markRead('${c.id}')"><i class="fa-solid fa-check"></i> Read</button>`:''}
-                <button class="btn btn-danger btn-sm" onclick="deleteContact('${c.id}')"><i class="fa-solid fa-trash"></i></button>
+                ${st==='new'?`<button class="btn btn-primary btn-sm" onclick="markRead('${c.id}',this)"><i class="fa-solid fa-check"></i> Read</button>`:''}
+                <button class="btn btn-danger btn-sm" onclick="deleteContact('${c.id}',this)"><i class="fa-solid fa-trash"></i></button>
             </div></td>
         </tr>`;
     }).join('');
 }
-window.markRead=async id=>{try{await updateDoc(doc(db,'contact_messages',id),{status:'read'});showStatus('Marked as read','success');await loadContacts();}catch(e){showStatus('Error: '+e.message,'error');}};
-window.deleteContact=async id=>{if(!confirm('Delete this message?'))return;try{await deleteDoc(doc(db,'contact_messages',id));showStatus('Deleted!','success');await loadContacts();}catch(e){showStatus('Error: '+e.message,'error');}};
 
-// ── DASHBOARD ──
-function updateDashboard(){
-    document.getElementById('d_users').textContent   =allUsers.filter(u=>u.role!=='admin').length;
-    document.getElementById('d_helpers').textContent =allHelpers.filter(h=>h.isAvailable).length;
-    document.getElementById('d_bookings').textContent=allBookings.length;
-    document.getElementById('d_requests').textContent=allRequests.length;
-    const av=allHelpers.filter(h=>h.isAvailable);
-    document.getElementById('d_rating').textContent  =av.length?(av.reduce((s,h)=>s+(parseFloat(h.rating)||0),0)/av.length).toFixed(1):'0.0';
+window.markRead = async (id, btnEl) => {
+    setBtnLoading(btnEl, true);
+    try {
+        await updateDoc(doc(db,'contact_messages',id), {status:'read'});
+        showStatus('Marked as read ✅','success');
+        const row = document.querySelector(`tr[data-id="${id}"]`);
+        if (row) {
+            const statusCell = row.querySelector('.status-cell');
+            if (statusCell) statusCell.innerHTML = '<span class="badge badge-replied">Read</span>';
+            btnEl.remove();
+            highlightRow(id);
+        }
+        const idx = allContacts.findIndex(c=>c.id===id);
+        if (idx>-1) allContacts[idx].status='read';
+    } catch(e) { showStatus('Error: '+e.message,'error'); setBtnLoading(btnEl, false); }
+};
+
+window.deleteContact = async (id, btnEl) => {
+    if (!confirm('Delete this message?')) return;
+    setBtnLoading(btnEl, true);
+    try {
+        await deleteDoc(doc(db,'contact_messages',id));
+        showStatus('Message deleted.','success');
+        const row = document.querySelector(`tr[data-id="${id}"]`);
+        if (row) animateOut(row, () => { allContacts=allContacts.filter(c=>c.id!==id); });
+    } catch(e) { showStatus('Error: '+e.message,'error'); setBtnLoading(btnEl, false); }
+};
+
+// ═══════════════════════════════════════
+//  DASHBOARD
+// ═══════════════════════════════════════
+function updateDashboard() {
+    const animateCount = (elId, value) => {
+        const el = document.getElementById(elId);
+        if (!el || el.textContent == value) return;
+        el.style.transform = 'scale(1.1)';
+        el.textContent = value;
+        setTimeout(() => { el.style.transform = 'scale(1)'; }, 200);
+    };
+    animateCount('d_users',   allUsers.filter(u=>u.role!=='admin').length);
+    animateCount('d_helpers', allHelpers.filter(h=>h.isAvailable).length);
+    animateCount('d_bookings',allBookings.length);
+    animateCount('d_requests',allRequests.length);
+    const av = allHelpers.filter(h=>h.isAvailable);
+    document.getElementById('d_rating').textContent = av.length ? (av.reduce((s,h)=>s+(parseFloat(h.rating)||0),0)/av.length).toFixed(1) : '0.0';
     renderActivityFeed();
 }
-function renderActivityFeed(){
-    const feed=document.getElementById('activityFeed');
-    const items=[];
+
+function renderActivityFeed() {
+    const feed  = document.getElementById('activityFeed');
+    const items = [];
     allBookings.slice(0,3).forEach(b=>{const dt=b.createdAt?.toDate?b.createdAt.toDate():'';items.push({dot:'blue',text:`New booking for ${b.helperName||'a helper'} — ${b.status||'pending'}`,time:dt?fmtTime(dt):''});});
     allHelpers.filter(h=>h.kycStatus==='pending').slice(0,2).forEach(h=>{items.push({dot:'orange',text:`KYC pending: ${h.name||'Helper'}`,time:''});});
     allRequests.filter(r=>!r.status||r.status==='pending').slice(0,2).forEach(r=>{items.push({dot:'red',text:`New request: ${r.title||r.requestType||'Admin Request'} from ${r.userName||'User'}`,time:''});});
-    if(!items.length){feed.innerHTML='<div class="empty-state">No recent activity</div>';return;}
-    feed.innerHTML=items.map(i=>`<div class="activity-item"><div class="activity-dot ${i.dot}"></div><div class="activity-content"><div class="activity-text">${esc(i.text)}</div>${i.time?`<div class="activity-time">${i.time}</div>`:''}</div></div>`).join('');
+    if (!items.length) { feed.innerHTML='<div class="empty-state">No recent activity</div>'; return; }
+    feed.innerHTML = items.map(i=>`<div class="activity-item"><div class="activity-dot ${i.dot}"></div><div class="activity-content"><div class="activity-text">${esc(i.text)}</div>${i.time?`<div class="activity-time">${i.time}</div>`:''}</div></div>`).join('');
 }
 
-// ── UTILS ──
-window.doLogout  =async()=>{if(msgUnsub&&activeConvKey)off(ref(rtdb,`messages/${activeConvKey}/messages`));await signOut(auth);window.location.replace('login.html');};
-window.openModal =id=>{document.getElementById(id).style.display='block';document.body.style.overflow='hidden';};
-window.closeModal=id=>{document.getElementById(id).style.display='none';document.body.style.overflow='auto';};
-document.addEventListener('click',e=>{if(e.target.classList.contains('modal')){e.target.style.display='none';document.body.style.overflow='auto';}});
-window.showStatus=(msg,type)=>{
-    const el=document.getElementById('statusMessage');
-    el.textContent=msg;
-    el.style.background      =type==='success'?'#d4edda':'#f8d7da';
-    el.style.color           =type==='success'?'#155724':'#721c24';
-    el.style.borderLeftColor =type==='success'?'#28a745':'#dc3545';
-    el.style.display='block';
-    clearTimeout(el._t);el._t=setTimeout(()=>{el.style.display='none';},4000);
+// ═══════════════════════════════════════
+//  GLOBAL UTILS
+// ═══════════════════════════════════════
+window.doLogout = async () => {
+    if(msgUnsub && activeConvKey) off(ref(rtdb,`messages/${activeConvKey}/messages`));
+    if(helpersUnsub)  helpersUnsub();
+    if(usersUnsub)    usersUnsub();
+    if(bookingsUnsub) bookingsUnsub();
+    await signOut(auth);
+    window.location.replace('login.html');
 };
-function g(id){return document.getElementById(id)?.value?.trim()||'';}
-function s(id,v){const el=document.getElementById(id);if(el)el.value=v;}
-function esc(str){return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
-function cap(str){return String(str).charAt(0).toUpperCase()+String(str).slice(1);}
-function clearFields(ids){ids.forEach(id=>{const el=document.getElementById(id);if(el)el.value=''});}
-function initials(name){return(name||'?').split(' ').map(w=>w[0]||'').join('').slice(0,2).toUpperCase()||'?';}
-function fmtTime(d){const diff=(new Date()-d)/1000;if(diff<60)return'Just now';if(diff<3600)return Math.floor(diff/60)+'m ago';if(diff<86400)return d.toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});return d.toLocaleDateString('en-IN',{month:'short',day:'numeric'});}
+window.openModal  = id => { document.getElementById(id).style.display='block'; document.body.style.overflow='hidden'; };
+window.closeModal = id => { document.getElementById(id).style.display='none';  document.body.style.overflow='auto'; };
+document.addEventListener('click', e => { if(e.target.classList.contains('modal')){e.target.style.display='none';document.body.style.overflow='auto';} });
+
+// Improved toast — no blinking, top-right, with icon
+window.showStatus = (msg, type) => {
+    const el   = document.getElementById('statusMessage');
+    const icon = el.querySelector('.toast-icon');
+    const text = el.querySelector('.toast-text');
+    el.classList.remove('hidden');
+    el.style.background      = type==='success' ? '#d4edda' : '#f8d7da';
+    el.style.color            = type==='success' ? '#155724' : '#721c24';
+    el.style.borderLeftColor  = type==='success' ? '#28a745' : '#dc3545';
+    icon.textContent          = type==='success' ? '✅' : '❌';
+    text.textContent          = msg;
+    clearTimeout(el._t);
+    el._t = setTimeout(() => { el.classList.add('hidden'); }, 4500);
+};
+window.hideStatus = () => {
+    clearTimeout(document.getElementById('statusMessage')._t);
+    document.getElementById('statusMessage').classList.add('hidden');
+};
+
+function g(id) { return document.getElementById(id)?.value?.trim()||''; }
+function s(id,v){ const el=document.getElementById(id); if(el) el.value=v; }
+function esc(str) { return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function cap(str) { return String(str).charAt(0).toUpperCase()+String(str).slice(1); }
+function clearFields(ids) { ids.forEach(id=>{const el=document.getElementById(id);if(el)el.value='';}); }
+function initials(name) { return (name||'?').split(' ').map(w=>w[0]||'').join('').slice(0,2).toUpperCase()||'?'; }
+function fmtTime(d) {
+    const diff=(new Date()-d)/1000;
+    if(diff<60)    return 'Just now';
+    if(diff<3600)  return Math.floor(diff/60)+'m ago';
+    if(diff<86400) return d.toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});
+    return d.toLocaleDateString('en-IN',{month:'short',day:'numeric'});
+}
 </script>
 
-<!-- UI JS -->
+<!-- UI JS (No Firebase dependency) -->
 <script>
 window.showSection = name => {
     document.querySelectorAll('.content-section').forEach(s=>s.classList.remove('active'));
     document.getElementById(name)?.classList.add('active');
     document.querySelectorAll('.sidebar-nav a[data-section]').forEach(a=>a.classList.remove('active'));
     document.querySelector(`.sidebar-nav a[data-section="${name}"]`)?.classList.add('active');
-    const mc=document.getElementById('mainContent');
-    const isMob=window.innerWidth<=768;
-    const isMsgLike=name==='messages'||name==='support';
-    if(isMsgLike){
-        mc.style.padding    =isMob?'0.4rem 0.5rem':'0.75rem';
-        mc.style.overflow   ='hidden';
-        mc.style.height     =isMob?`calc(100vh - 52px - 62px - env(safe-area-inset-bottom,0px))`:`calc(100vh - 60px)`;
-        mc.style.display    ='flex';
-        mc.style.flexDirection='column';
-        ['convPanel','chatPanel','suppConvPanel','suppChatPanel'].forEach(id=>{const el=document.getElementById(id);if(el){el.classList.remove('mob-conv-hidden','mob-chat-open');}});
+    const mc = document.getElementById('mainContent');
+    const isMob = window.innerWidth<=768;
+    const isMsgLike = name==='messages'||name==='support';
+    if (isMsgLike) {
+        mc.style.padding       = isMob ? '0.4rem 0.5rem' : '0.75rem';
+        mc.style.overflow      = 'hidden';
+        mc.style.height        = isMob ? `calc(100vh - 52px - 62px - env(safe-area-inset-bottom,0px))` : `calc(100vh - 60px)`;
+        mc.style.display       = 'flex';
+        mc.style.flexDirection = 'column';
+        ['convPanel','chatPanel','suppConvPanel','suppChatPanel'].forEach(id=>{
+            const el=document.getElementById(id);
+            if(el){el.classList.remove('mob-conv-hidden','mob-chat-open');}
+        });
     } else {
-        mc.style.padding    =isMob?`0.9rem 0.9rem calc(62px + env(safe-area-inset-bottom,0px) + 0.5rem)`:'1.5rem';
-        mc.style.overflow   ='';
-        mc.style.height     ='';
-        mc.style.display    ='';
+        mc.style.padding       = isMob ? `0.9rem 0.9rem calc(62px + env(safe-area-inset-bottom,0px) + 0.5rem)` : '1.5rem';
+        mc.style.overflow      = '';
+        mc.style.height        = '';
+        mc.style.display       = '';
     }
-    if(!isMsgLike) window.scrollTo({top:0,behavior:'smooth'});
+    if (!isMsgLike) window.scrollTo({top:0, behavior:'smooth'});
     applyMobHeaders(name);
 };
 
-window.switchTab=(section,tabId,btn)=>{
-    const sec=document.getElementById(section);
+window.switchTab = (section, tabId, btn) => {
+    const sec = document.getElementById(section);
     sec.querySelectorAll('.tab-pane').forEach(p=>p.classList.remove('active'));
     sec.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
     document.getElementById(tabId)?.classList.add('active');
     btn.classList.add('active');
 };
 
-window.mobNavActive=el=>{if(!el)return;document.querySelectorAll('.mob-nav-btn').forEach(b=>b.classList.remove('active'));el.classList.add('active');};
+window.mobNavActive = el => {
+    if (!el) return;
+    document.querySelectorAll('.mob-nav-btn').forEach(b=>b.classList.remove('active'));
+    el.classList.add('active');
+};
 
-function applyMobMode(){
-    const isMob=window.innerWidth<=768;
+function applyMobMode() {
+    const isMob = window.innerWidth<=768;
     document.querySelectorAll('.mob-only').forEach(el=>el.style.display=isMob?'flex':'none');
     document.querySelectorAll('.desk-only').forEach(el=>el.style.display=isMob?'none':'');
-    const ml=document.querySelector('.mob-logout-icon');
-    if(ml)ml.style.display=isMob?'flex':'none';
+    const ml = document.querySelector('.mob-logout-icon');
+    if (ml) ml.style.display = isMob?'flex':'none';
     document.querySelectorAll('.mob-back-btn').forEach(el=>el.style.display=isMob?'flex':'none');
-    const dg=document.querySelector('.desk-dash-grid');
-    if(dg)dg.style.gridTemplateColumns=isMob?'1fr':'1fr 1fr';
+    const dg = document.querySelector('.desk-dash-grid');
+    if (dg) dg.style.gridTemplateColumns = isMob?'1fr':'1fr 1fr';
 }
 
-function applyMobHeaders(activeSection){
-    const isMob=window.innerWidth<=768;
+function applyMobHeaders(activeSection) {
+    const isMob = window.innerWidth<=768;
     document.querySelectorAll('.mob-page-hdr').forEach(el=>el.style.display='none');
-    if(isMob){const sec=document.getElementById(activeSection);if(sec){const hdr=sec.querySelector('.mob-page-hdr');if(hdr)hdr.style.display='flex';}}
+    if (isMob) {
+        const sec = document.getElementById(activeSection);
+        if (sec) { const hdr=sec.querySelector('.mob-page-hdr'); if(hdr) hdr.style.display='flex'; }
+    }
 }
 
 // Theme
-const html=document.documentElement;
-const saved=localStorage.getItem('ts_theme')||'light';
-html.setAttribute('data-theme',saved);
+const html  = document.documentElement;
+const saved = localStorage.getItem('ts_theme')||'light';
+html.setAttribute('data-theme', saved);
 updateToggleIcon(saved);
-document.getElementById('themeToggle').addEventListener('click',()=>{
-    const next=html.getAttribute('data-theme')==='dark'?'light':'dark';
-    html.setAttribute('data-theme',next);localStorage.setItem('ts_theme',next);updateToggleIcon(next);
+document.getElementById('themeToggle').addEventListener('click', () => {
+    const next = html.getAttribute('data-theme')==='dark'?'light':'dark';
+    html.setAttribute('data-theme',next); localStorage.setItem('ts_theme',next); updateToggleIcon(next);
 });
-function updateToggleIcon(t){document.getElementById('toggleIcon').className=t==='dark'?'fa-solid fa-sun':'fa-solid fa-moon';}
+function updateToggleIcon(t) { document.getElementById('toggleIcon').className=t==='dark'?'fa-solid fa-sun':'fa-solid fa-moon'; }
 
-applyMobMode(); applyMobHeaders('dashboard');
-window.addEventListener('resize',()=>{
+// Init
+applyMobMode();
+applyMobHeaders('dashboard');
+// Hide status on init
+document.getElementById('statusMessage').classList.add('hidden');
+
+window.addEventListener('resize', () => {
     applyMobMode();
-    const a=document.querySelector('.content-section.active')?.id||'dashboard';
+    const a = document.querySelector('.content-section.active')?.id||'dashboard';
     applyMobHeaders(a);
-    if(a==='messages'||a==='support')showSection(a);
+    if(a==='messages'||a==='support') showSection(a);
 });
 </script>
 </body>
