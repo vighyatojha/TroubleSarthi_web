@@ -904,7 +904,7 @@
                         </div>
                     </div>
                     <div class="table-wrapper">
-                        <table><thead><tr><th>Emp ID</th><th>Name</th><th>Phone</th><th>Service</th><th>Location</th><th>Status</th><th>KYC</th><th>Rating</th><th>Actions</th></tr></thead>
+                       <table><thead><tr><th>Emp ID</th><th>Name</th><th>Phone</th><th>Category</th><th>Subcategory</th><th>Location</th><th>Status</th><th>KYC</th><th>Rating</th><th>Actions</th></tr></thead>
                         <tbody id="helpersTable"><tr><td colspan="9" class="empty-state"><i class="fa-solid fa-spinner fa-spin"></i> Loading...</td></tr></tbody></table>
                     </div>
                 </div>
@@ -1069,16 +1069,22 @@
         <div class="form-group"><label>Phone *</label><input type="tel" id="ah_phone" placeholder="10-digit number" maxlength="10"></div>
     </div>
     <div class="form-group"><label>Email</label><input type="email" id="ah_email" placeholder="helper@email.com"></div>
+    <div class="form-group"><label>Location *</label><input type="text" id="ah_location" placeholder="City, State"></div>
     <div class="form-row">
-        <div class="form-group"><label>Location *</label><input type="text" id="ah_location" placeholder="City, State"></div>
-        <div class="form-group"><label>Service Category *</label>
-            <select id="ah_service"><option value="">Select</option>
-                <option>Cleaning</option><option>Plumbing</option><option>Electrical</option><option>Home Repairs</option>
-                <option>Gardening</option><option>Painting</option><option>Cooking</option><option>Tutoring</option>
-                <option>Pet Care</option><option>Moving</option><option>IT Support</option><option>Photography</option>
-                <option>Carpentry</option><option>Beauty</option><option>Fitness</option>
+        <div class="form-group"><label>Category *</label>
+            <select id="ah_category" onchange="onCategoryChange('ah_category','ah_subcategory')">
+                <option value="">Select Category</option>
             </select>
         </div>
+        <div class="form-group"><label>Subcategory *</label>
+            <select id="ah_subcategory" disabled>
+                <option value="">Select Subcategory</option>
+            </select>
+        </div>
+    </div>
+    <div class="form-group">
+        <label>KYC Document Number * <small style="color:var(--text-muted);">(Aadhar / PAN)</small></label>
+        <input type="text" id="ah_kycdoc" placeholder="e.g. 1234 5678 9012 or ABCDE1234F">
     </div>
     <div class="form-group"><label>Description</label><textarea id="ah_desc" rows="2" placeholder="Brief description…"></textarea></div>
     <div class="form-row">
@@ -1104,16 +1110,22 @@
         <div class="form-group"><label>Phone *</label><input type="tel" id="eh_phone"></div>
     </div>
     <div class="form-group"><label>Email</label><input type="email" id="eh_email"></div>
+    <div class="form-group"><label>Location *</label><input type="text" id="eh_location"></div>
     <div class="form-row">
-        <div class="form-group"><label>Location *</label><input type="text" id="eh_location"></div>
-        <div class="form-group"><label>Service Category *</label>
-            <select id="eh_service"><option value="">Select</option>
-                <option>Cleaning</option><option>Plumbing</option><option>Electrical</option><option>Home Repairs</option>
-                <option>Gardening</option><option>Painting</option><option>Cooking</option><option>Tutoring</option>
-                <option>Pet Care</option><option>Moving</option><option>IT Support</option><option>Photography</option>
-                <option>Carpentry</option><option>Beauty</option><option>Fitness</option>
+        <div class="form-group"><label>Category *</label>
+            <select id="eh_category" onchange="onCategoryChange('eh_category','eh_subcategory')">
+                <option value="">Select Category</option>
             </select>
         </div>
+        <div class="form-group"><label>Subcategory *</label>
+            <select id="eh_subcategory" disabled>
+                <option value="">Select Subcategory</option>
+            </select>
+        </div>
+    </div>
+    <div class="form-group">
+        <label>KYC Document Number * <small style="color:var(--text-muted);">(Aadhar / PAN)</small></label>
+        <input type="text" id="eh_kycdoc" placeholder="e.g. 1234 5678 9012 or ABCDE1234F">
     </div>
     <div class="form-group"><label>Description</label><textarea id="eh_desc" rows="2"></textarea></div>
     <div class="form-row">
@@ -1215,11 +1227,45 @@ let helpersUnsub=null, usersUnsub=null, bookingsUnsub=null;
 let _firstRenderUser=true, _firstRenderSupp=true;
 
 // ═══════════════════════════════════════
-//  AUTO-DETECT FIREBASE PATH FOR MESSAGES
-//  Some helper apps store msgs at:
-//    support_chats/{key}/messages/{msgId}   ← standard
-//    support_chats/{key}/{msgId}            ← flat (no /messages subpath)
-//  This function checks both.
+//  SERVICE CATEGORIES & SUBCATEGORIES
+// ═══════════════════════════════════════
+const SERVICE_CATEGORIES = {
+  "Home Services":        ["Plumber","Electrician","Carpenter","AC Repair","RO Repair","Appliance Repair","Painter","Cleaner"],
+  "Vehicle Services":     ["Car Mechanic","Bike Mechanic","Towing Service","Puncture Repair","Car Wash","Battery Jump Start"],
+  "Emergency":            ["Ambulance","First Aid","Blood Donor","Fire Help","Disaster Support","Mid-Night Vehicle Emergency"],
+  "Delivery & Pickup":    ["Parcel Pickup","Grocery Delivery","Medicine Delivery","Document Courier","Local Shifting"],
+  "Technical Services":   ["Mobile Repair","Laptop Repair","CCTV Install","WiFi Install","Software Help"],
+  "Personal Assistance":  ["Home Tutor","Fitness Trainer","Yoga Instructor","Caretaker","Babysitter"],
+  "Events & Occasions":   ["Photographer","Videographer","DJ","Decoration","Catering"],
+  "Construction":         ["Mason","Interior Design","Tiles Worker","Architect Help","Fabrication"],
+  "Cleaning":             ["Deep Cleaning","Bathroom Clean","Pest Control","Water Tank"],
+  "Professional":         ["Lawyer Consult","CA / Tax Help","Insurance","Real Estate"],
+  "Outdoor & More":       ["Gardener","Security Guard","Driver on Hire","Scrap Collector"],
+  "Community Help":       ["Volunteer Help","Senior Support","Student Helper","NGO Support"]
+};
+
+function buildCategorySelect(selectId, currentVal='') {
+    const el = document.getElementById(selectId);
+    if (!el) return;
+    el.innerHTML = '<option value="">Select Category</option>' +
+        Object.keys(SERVICE_CATEGORIES).map(cat =>
+            `<option value="${cat}"${cat===currentVal?' selected':''}>${cat}</option>`
+        ).join('');
+}
+
+function buildSubcategorySelect(selectId, category, currentVal='') {
+    const el = document.getElementById(selectId);
+    if (!el) return;
+    const subs = SERVICE_CATEGORIES[category] || [];
+    el.innerHTML = '<option value="">Select Subcategory</option>' +
+        subs.map(s => `<option value="${s}"${s===currentVal?' selected':''}>${s}</option>`).join('');
+    el.disabled = !subs.length;
+}
+
+window.onCategoryChange = (catSelectId, subSelectId) => {
+    const cat = document.getElementById(catSelectId)?.value || '';
+    buildSubcategorySelect(subSelectId, cat);
+};
 // ═══════════════════════════════════════
 async function detectMsgsPath(basePath) {
     return new Promise(resolve => {
@@ -1306,6 +1352,7 @@ async function migrateHelperDocuments() {
             if (data.area && !data.location) updates.location = data.area;
             if (data.services && Array.isArray(data.services) && !data.serviceType) updates.serviceType = data.services[0] || '';
             if (data.kycDocuments && !data.kycSubmittedAt) updates.kycSubmittedAt = serverTimestamp();
+            if (data.serviceType && !data.category) updates.category = data.serviceType;
             if (Object.keys(updates).length > 0) ops.push({ ref: reff, updates });
             if (ops.length >= BATCH_LIMIT) {
                 const b = writeBatch(db);
@@ -1759,7 +1806,7 @@ function renderRecentHelpers() {
     if (!rows.length) { tbody.innerHTML='<tr><td colspan="4" class="empty-state">No helpers yet.</td></tr>'; return; }
     tbody.innerHTML = rows.map(h=>`<tr>
         <td><strong>${esc(h.name||'')}</strong></td>
-        <td>${esc(h.serviceType||'')}</td>
+        <td>${esc(h.category||'')}${h.subcategory?`<br><small style="color:var(--text-muted);font-size:0.7rem;">${esc(h.subcategory)}</small>`:''}</td>
         <td><span class="badge badge-${h.isAvailable?'active':'inactive'}">${h.isAvailable?'Active':'Inactive'}</span></td>
         <td>⭐ ${parseFloat(h.rating||0).toFixed(1)}</td>
     </tr>`).join('');
@@ -1773,9 +1820,14 @@ function renderHelpers() {
     if (helperFilter.status==='inactive') list=list.filter(h=>!h.isAvailable);
     if (helperFilter.search) {
         const q=helperFilter.search.toLowerCase();
-        list=list.filter(h=>(h.name||'').toLowerCase().includes(q)||(h.serviceType||'').toLowerCase().includes(q)||(h.location||'').toLowerCase().includes(q));
+        list=list.filter(h=>
+            (h.name||'').toLowerCase().includes(q)||
+            (h.category||'').toLowerCase().includes(q)||
+            (h.subcategory||'').toLowerCase().includes(q)||
+            (h.location||'').toLowerCase().includes(q)
+        );
     }
-    if (!list.length) { tbody.innerHTML='<tr><td colspan="9" class="empty-state">No helpers found.</td></tr>'; return; }
+    if (!list.length) { tbody.innerHTML='<tr><td colspan="10" class="empty-state">No helpers found.</td></tr>'; return; }
     tbody.innerHTML = list.map(h => {
         const kycStatus = h.kycStatus||'not_submitted';
         const kycBadge  = kycStatus==='approved'?'badge-active':kycStatus==='pending'?'badge-pending':'badge-inactive';
@@ -1784,7 +1836,8 @@ function renderHelpers() {
             <td style="font-size:0.72rem;font-family:monospace;color:var(--text-muted);">${esc(h.employeeId||h.id.slice(0,8))}</td>
             <td><strong>${esc(h.name||'')}</strong></td>
             <td>${esc(h.phoneNumber||'')}</td>
-            <td>${esc(h.serviceType||'')}</td>
+            <td>${esc(h.category||'—')}</td>
+            <td style="font-size:0.8rem;">${esc(h.subcategory||'—')}</td>
             <td>${esc(h.location||'N/A')}</td>
             <td class="status-cell"><span class="badge badge-${h.isAvailable?'active':'inactive'}">${h.isAvailable?'Active':'Inactive'}</span></td>
             <td class="kyc-cell"><span class="badge ${kycBadge}">${kycLabel}</span></td>
@@ -1827,15 +1880,18 @@ function renderKYC() {
         const init = (h.name||'H')[0].toUpperCase();
         const docs = h.kycDocuments||{};
         const docEntries = [
-            {icon:'fa-id-card', type:'Aadhar', val:docs.aadharNumber||docs.aadhaar||'—'},
-            {icon:'fa-file-alt', type:'PAN', val:docs.panNumber||docs.pan||'—'},
-            {icon:'fa-address-card', type:'Address Proof', val:docs.addressProof||'—'},
-            {icon:'fa-phone', type:'Alt Phone', val:h.alternatePhone||'—'}
+            {icon:'fa-id-card',      type:'KYC Doc No.',   val:h.kycDocNumber||'—'},
+            {icon:'fa-tag',          type:'Category',       val:h.category||'—'},
+            {icon:'fa-list',         type:'Subcategory',    val:h.subcategory||'—'},
+            {icon:'fa-phone',        type:'Alt Phone',      val:h.alternatePhone||'—'}
         ];
         return `<div class="kyc-card" data-id="${h.id}">
             <div class="kyc-header">
                 <div class="kyc-avatar">${init}</div>
-                <div class="kyc-info"><div class="kyc-name">${esc(h.name||'')}</div><div class="kyc-sub">${esc(h.serviceType||'')} • ${esc(h.location||'')} • ${esc(h.phoneNumber||'')}</div></div>
+                <div class="kyc-info">
+                    <div class="kyc-name">${esc(h.name||'')}</div>
+                    <div class="kyc-sub">${esc(h.category||'')}${h.subcategory?' › '+esc(h.subcategory):''} • ${esc(h.location||'')} • ${esc(h.phoneNumber||'')}</div>
+                </div>
                 <span class="badge badge-pending">KYC Pending</span>
             </div>
             <div class="kyc-docs">${docEntries.map(d=>`<div class="kyc-doc"><i class="fa-solid ${d.icon}"></i><div><div class="kyc-doc-type">${d.type}</div><div class="kyc-doc-val">${esc(d.val)}</div></div></div>`).join('')}</div>
@@ -1854,7 +1910,7 @@ window.openKYCModal = id => {
     const docs = h.kycDocuments||{};
     document.getElementById('kycModalBody').innerHTML = `
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.65rem;margin-bottom:1rem;">
-            ${[['Full Name',h.name],['Phone',h.phoneNumber],['Email',h.email],['Service',h.serviceType],['Location',h.location],['Experience',h.experience],['Employee ID',h.employeeId],['Rating',h.rating],['Aadhar',docs.aadharNumber||docs.aadhaar],['PAN',docs.panNumber||docs.pan],['Address Proof',docs.addressProof],['Submitted On',h.kycSubmittedAt?.toDate?h.kycSubmittedAt.toDate().toLocaleDateString('en-IN'):'N/A']].map(([l,v])=>`<div style="background:var(--bg-table-hdr);border-radius:8px;padding:0.55rem 0.75rem;"><div style="font-size:0.65rem;font-weight:700;text-transform:uppercase;color:var(--text-muted);">${l}</div><div style="font-size:0.86rem;font-weight:600;margin-top:0.12rem;">${esc(String(v||'—'))}</div></div>`).join('')}
+            ${[['Full Name',h.name],['Phone',h.phoneNumber],['Email',h.email],['Category',h.category],['Subcategory',h.subcategory],['Location',h.location],['Experience',h.experience],['Employee ID',h.employeeId],['Rating',h.rating],['KYC Doc No.',h.kycDocNumber],['Aadhar',docs.aadharNumber||docs.aadhaar],['PAN',docs.panNumber||docs.pan],['Address Proof',docs.addressProof],['Submitted On',h.kycSubmittedAt?.toDate?h.kycSubmittedAt.toDate().toLocaleDateString('en-IN'):'N/A']].map(([l,v])=>`<div style="background:var(--bg-table-hdr);border-radius:8px;padding:0.55rem 0.75rem;"><div style="font-size:0.65rem;font-weight:700;text-transform:uppercase;color:var(--text-muted);">${l}</div><div style="font-size:0.86rem;font-weight:600;margin-top:0.12rem;">${esc(String(v||'—'))}</div></div>`).join('')}
         </div>
         ${docs.selfieUrl?`<div style="margin-bottom:0.75rem;"><img src="${esc(docs.selfieUrl)}" style="max-width:100%;border-radius:10px;border:1px solid var(--border-color);" onerror="this.style.display='none'"></div>`:''}
     `;
@@ -1953,50 +2009,107 @@ window.deleteHelper = async (id, btnEl) => {
 };
 
 window.addHelper = async () => {
-    const name=g('ah_name'), phone=g('ah_phone'), email=g('ah_email'), loc=g('ah_location'), svc=g('ah_service');
-    if (!name||!phone||!svc||!loc) { showStatus('All required fields must be filled','error'); return; }
+    const name      = g('ah_name');
+    const phone     = g('ah_phone');
+    const email     = g('ah_email');
+    const loc       = g('ah_location');
+    const category  = g('ah_category');
+    const subcategory = g('ah_subcategory');
+    const kycDocNumber = g('ah_kycdoc');
+    if (!name||!phone||!loc)           { showStatus('Name, phone and location are required','error'); return; }
+    if (!category||!subcategory)        { showStatus('Please select both category and subcategory','error'); return; }
+    if (!kycDocNumber)                  { showStatus('KYC document number is mandatory','error'); return; }
     const btn = document.getElementById('addHelperBtn');
     setBtnLoading(btn, true);
     try {
         await addDoc(collection(db,'helpers'), {
-            name, phoneNumber:phone, email:email||null, location:loc, serviceType:svc,
-            description:g('ah_desc')||null, rating:parseFloat(g('ah_rating')||4),
-            experience:g('ah_exp')||'1 year', pricePerHour:parseFloat(g('ah_price')||0),
-            skills:g('ah_skills').split(',').map(s=>s.trim()).filter(Boolean),
-            isAvailable:false, completedJobs:0, kycStatus:'not_submitted',
-            employeeId:`TS-EMP-${Math.floor(1000+Math.random()*9000)}`,
-            createdAt:serverTimestamp()
+            name,
+            phoneNumber: phone,
+            email:       email||null,
+            location:    loc,
+            category,
+            subcategory,
+            kycDocNumber,
+            description: g('ah_desc')||null,
+            rating:      parseFloat(g('ah_rating')||4),
+            experience:  g('ah_exp')||'1 year',
+            pricePerHour:parseFloat(g('ah_price')||0),
+            skills:      g('ah_skills').split(',').map(s=>s.trim()).filter(Boolean),
+            isAvailable: false,
+            isVerified:  true,
+            completedJobs: 0,
+            kycStatus:   'pending',
+            kycSubmittedAt: serverTimestamp(),
+            employeeId:  `TS-EMP-${Math.floor(1000+Math.random()*9000)}`,
+            createdAt:   serverTimestamp()
         });
-        showStatus('Helper added successfully! ✅','success');
+        showStatus('Helper added! KYC sent for approval ✅','success');
         closeModal('addHelperModal');
-        clearFields(['ah_name','ah_phone','ah_email','ah_location','ah_service','ah_desc','ah_rating','ah_exp','ah_price','ah_skills']);
+        clearFields(['ah_name','ah_phone','ah_email','ah_location','ah_desc','ah_rating','ah_exp','ah_price','ah_skills','ah_kycdoc']);
+        document.getElementById('ah_category').value = '';
+        document.getElementById('ah_subcategory').innerHTML = '<option value="">Select Subcategory</option>';
+        document.getElementById('ah_subcategory').disabled = true;
     } catch(e) { showStatus('Error: '+e.message,'error'); }
     finally { setBtnLoading(btn, false, '<i class="fa-solid fa-plus"></i> Add Helper'); }
 };
 
 window.editHelper = id => {
     const h = allHelpers.find(x=>x.id===id); if (!h) return;
-    s('eh_id',id); s('eh_name',h.name||''); s('eh_phone',h.phoneNumber||''); s('eh_email',h.email||'');
-    s('eh_location',h.location||''); s('eh_desc',h.description||''); s('eh_rating',h.rating||4);
-    s('eh_exp',h.experience||''); s('eh_price',h.pricePerHour||'');
-    s('eh_skills',(h.skills||[]).join(', '));
-    document.getElementById('eh_service').value = h.serviceType||'';
+    s('eh_id',      id);
+    s('eh_name',    h.name||'');
+    s('eh_phone',   h.phoneNumber||'');
+    s('eh_email',   h.email||'');
+    s('eh_location',h.location||'');
+    s('eh_desc',    h.description||'');
+    s('eh_rating',  h.rating||4);
+    s('eh_exp',     h.experience||'');
+    s('eh_price',   h.pricePerHour||'');
+    s('eh_skills',  (h.skills||[]).join(', '));
+    s('eh_kycdoc',  h.kycDocNumber||'');
+    // Build category dropdown then restore values
+    buildCategorySelect('eh_category', h.category||'');
+    buildSubcategorySelect('eh_subcategory', h.category||'', h.subcategory||'');
     openModal('editHelperModal');
 };
 
 window.updateHelper = async () => {
-    const id=g('eh_id'), name=g('eh_name'), phone=g('eh_phone'), loc=g('eh_location'), svc=g('eh_service');
-    if (!name||!phone||!svc||!loc) { showStatus('All required fields must be filled','error'); return; }
+    const id          = g('eh_id');
+    const name        = g('eh_name');
+    const phone       = g('eh_phone');
+    const loc         = g('eh_location');
+    const category    = g('eh_category');
+    const subcategory = g('eh_subcategory');
+    const kycDocNumber= g('eh_kycdoc');
+    if (!name||!phone||!loc)      { showStatus('Name, phone and location are required','error'); return; }
+    if (!category||!subcategory)  { showStatus('Please select both category and subcategory','error'); return; }
+    if (!kycDocNumber)            { showStatus('KYC document number is mandatory','error'); return; }
     const btn = document.getElementById('updateHelperBtn');
     setBtnLoading(btn, true);
     try {
-        await updateDoc(doc(db,'helpers',id), {
-            name, phoneNumber:phone, email:g('eh_email')||null, location:loc, serviceType:svc,
-            description:g('eh_desc')||null, rating:parseFloat(g('eh_rating')||4),
-            experience:g('eh_exp')||'', pricePerHour:parseFloat(g('eh_price')||0),
-            skills:g('eh_skills').split(',').map(s=>s.trim()).filter(Boolean)
-        });
-        showStatus('Helper updated! ✅','success');
+        // Only re-send KYC if doc number changed
+        const existing = allHelpers.find(h=>h.id===id);
+        const kycChanged = existing?.kycDocNumber !== kycDocNumber;
+        const updates = {
+            name,
+            phoneNumber:  phone,
+            email:        g('eh_email')||null,
+            location:     loc,
+            category,
+            subcategory,
+            kycDocNumber,
+            description:  g('eh_desc')||null,
+            rating:       parseFloat(g('eh_rating')||4),
+            experience:   g('eh_exp')||'',
+            pricePerHour: parseFloat(g('eh_price')||0),
+            skills:       g('eh_skills').split(',').map(s=>s.trim()).filter(Boolean),
+            isVerified:   true
+        };
+        if (kycChanged) {
+            updates.kycStatus     = 'pending';
+            updates.kycSubmittedAt = serverTimestamp();
+        }
+        await updateDoc(doc(db,'helpers',id), updates);
+        showStatus(kycChanged ? 'Helper updated! KYC re-sent for approval ✅' : 'Helper updated! ✅','success');
         closeModal('editHelperModal');
         highlightRow(id);
     } catch(e) { showStatus('Error: '+e.message,'error'); }
@@ -2384,7 +2497,21 @@ window.doLogout = async () => {
     await signOut(auth);
     window.location.replace('login.html');
 };
-window.openModal  = id => { document.getElementById(id).style.display='block'; document.body.style.overflow='hidden'; };
+window.openModal  = id => {
+    document.getElementById(id).style.display='block';
+    document.body.style.overflow='hidden';
+    // Populate category dropdowns fresh on open
+    if (id==='addHelperModal') {
+        buildCategorySelect('ah_category');
+        buildSubcategorySelect('ah_subcategory','');
+    }
+    if (id==='editHelperModal') {
+        // editHelper() populates these; just ensure they exist
+        if (!document.getElementById('eh_category').options.length || document.getElementById('eh_category').options.length < 2) {
+            buildCategorySelect('eh_category');
+        }
+    }
+};
 window.closeModal = id => { document.getElementById(id).style.display='none';  document.body.style.overflow='auto'; };
 document.addEventListener('click', e => { if(e.target.classList.contains('modal')){e.target.style.display='none';document.body.style.overflow='auto';} });
 
