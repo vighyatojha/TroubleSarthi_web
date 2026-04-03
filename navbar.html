@@ -1,0 +1,238 @@
+<!-- ══ NAVBAR COMPONENT ══ -->
+<!-- Include this file in any page by calling: loadComponent('navbar.html', 'navbar-placeholder') -->
+<style>
+    /* ── HEADER ── */
+    header {
+        position: fixed;
+        top: 0; left: 0; right: 0;
+        z-index: 1000;
+        padding: 1rem 0;
+        transition: all 0.4s cubic-bezier(0.4,0,0.2,1);
+    }
+
+    header.scrolled {
+        background: rgba(255,255,255,0.96);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        box-shadow: 0 1px 0 rgba(45,90,61,0.1), 0 8px 32px rgba(30,77,43,0.08);
+        padding: 0.7rem 0;
+    }
+
+    nav {
+        max-width: 1280px;
+        margin: 0 auto;
+        padding: 0 2rem;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1.5rem;
+    }
+
+    .logo {
+        font-family: 'SAMAN___', 'DM Serif Display', serif;
+        font-size: 2rem;
+        font-weight: normal;
+        color: #fff;
+        text-decoration: none;
+        letter-spacing: 0.5px;
+        text-shadow: 0 2px 12px rgba(0,0,0,0.25);
+        transition: color 0.3s ease, text-shadow 0.3s ease;
+        flex-shrink: 0;
+    }
+
+    header.scrolled .logo { color: var(--green-mid); text-shadow: none; }
+
+    .nav-center {
+        display: flex;
+        list-style: none;
+        gap: 0.25rem;
+        align-items: center;
+    }
+
+    .nav-center a {
+        text-decoration: none;
+        color: rgba(255,255,255,0.92);
+        font-weight: 500;
+        font-size: 0.9rem;
+        padding: 0.5rem 0.75rem;
+        border-radius: 8px;
+        transition: all 0.25s ease;
+        letter-spacing: 0.01em;
+        white-space: nowrap;
+    }
+
+    .nav-center a:hover { color: #fff; background: rgba(255,255,255,0.15); }
+    header.scrolled .nav-center a { color: var(--text-body); }
+    header.scrolled .nav-center a:hover { color: var(--green-mid); background: var(--green-pale); }
+
+    .nav-auth {
+        display: flex;
+        gap: 0.75rem;
+        align-items: center;
+        flex-shrink: 0;
+    }
+
+    .auth-btn {
+        padding: 0.55rem 1.2rem;
+        border-radius: 50px;
+        font-weight: 600;
+        font-size: 0.88rem;
+        cursor: pointer;
+        transition: all 0.25s ease;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        letter-spacing: 0.01em;
+        white-space: nowrap;
+    }
+
+    .login-btn { background: transparent; color: #fff; border: 1.5px solid rgba(255,255,255,0.7); }
+    .login-btn:hover { background: rgba(255,255,255,0.18); border-color: #fff; }
+    header.scrolled .login-btn { color: var(--green-mid); border-color: var(--green-mid); }
+    header.scrolled .login-btn:hover { background: var(--green-pale); }
+
+    .signup-btn {
+        background: linear-gradient(135deg, var(--green-light), var(--green-base));
+        color: #fff;
+        border: 1.5px solid transparent;
+        box-shadow: 0 4px 14px rgba(123,179,66,0.35);
+    }
+    .signup-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(123,179,66,0.45); }
+
+    /* ── MOBILE NAV ── */
+    .mobile-menu-toggle {
+        display: none;
+        background: transparent;
+        border: none;
+        outline: none;
+        color: #fff;
+        width: 36px; height: 36px;
+        border-radius: 50%;
+        font-size: 1.25rem;
+        cursor: pointer;
+        transition: all 0.25s ease;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        -webkit-appearance: none;
+        appearance: none;
+        box-shadow: none;
+    }
+
+    .mobile-menu-toggle:hover { background: rgba(255,255,255,0.1); }
+    .mobile-menu-toggle:focus { outline: none; box-shadow: none; }
+    header.scrolled .mobile-menu-toggle { color: var(--green-mid); }
+    header.scrolled .mobile-menu-toggle:hover { background: var(--green-pale); }
+
+    .mobile-menu {
+        display: none;
+        position: absolute;
+        top: calc(100% + 8px);
+        left: 1rem; right: 1rem;
+        background: #fff;
+        border-radius: 16px;
+        box-shadow: var(--shadow-lg);
+        overflow: hidden;
+        border: 1px solid var(--border);
+    }
+
+    .mobile-menu.active { display: block; }
+    .mobile-menu ul { list-style: none; padding: 0.5rem 0; }
+    .mobile-menu li { border-bottom: 1px solid rgba(45,90,61,0.06); }
+    .mobile-menu li:last-child { border-bottom: none; }
+
+    .mobile-menu a {
+        display: block;
+        padding: 0.9rem 1.5rem;
+        color: var(--text-body);
+        text-decoration: none;
+        font-weight: 500;
+        font-size: 1rem;
+        transition: all 0.2s;
+    }
+
+    .mobile-menu a:hover { color: var(--green-mid); background: var(--green-pale); padding-left: 1.9rem; }
+
+    .mobile-auth { display: flex; gap: 0.75rem; padding: 1rem 1.5rem 1.25rem; }
+    .mobile-auth .auth-btn { flex: 1; justify-content: center; }
+    .mobile-auth .login-btn { color: var(--green-mid); border-color: var(--green-mid); }
+
+    @media (max-width: 768px) {
+        .nav-center, .nav-auth { display: none; }
+        .mobile-menu-toggle { display: flex; }
+    }
+</style>
+
+<header id="mainHeader">
+    <nav>
+        <a href="index.html" class="logo logo-font">Trouble Sarthi</a>
+        <ul class="nav-center">
+            <li><a href="index.html#home">Home</a></li>
+            <li><a href="index.html#services">Services</a></li>
+            <li><a href="index.html#about">About</a></li>
+            <li><a href="index.html#cofounders">Co-Founders</a></li>
+            <li><a href="contact.html">Contact</a></li>
+        </ul>
+        <div class="nav-auth">
+            <a href="login.html" class="auth-btn login-btn"><i class="fas fa-sign-in-alt"></i> Login</a>
+            <a href="login.html?tab=signup" class="auth-btn signup-btn">Get Started <i class="fas fa-arrow-right"></i></a>
+        </div>
+        <button class="mobile-menu-toggle" onclick="toggleMobileMenu()" aria-label="Menu">
+            <i class="fas fa-bars" id="menuIcon"></i>
+        </button>
+    </nav>
+    <div class="mobile-menu" id="mobileMenu">
+        <ul>
+            <li><a href="index.html#home"     onclick="closeMobileMenu()"><i class="fas fa-home"        style="margin-right:0.6rem;color:var(--green-light);"></i>Home</a></li>
+            <li><a href="index.html#services" onclick="closeMobileMenu()"><i class="fas fa-tools"       style="margin-right:0.6rem;color:var(--green-light);"></i>Services</a></li>
+            <li><a href="index.html#about"    onclick="closeMobileMenu()"><i class="fas fa-info-circle" style="margin-right:0.6rem;color:var(--green-light);"></i>About</a></li>
+            <li><a href="index.html#cofounders" onclick="closeMobileMenu()"><i class="fas fa-handshake" style="margin-right:0.6rem;color:var(--green-light);"></i>Co-Founders</a></li>
+            <li><a href="contact.html"        onclick="closeMobileMenu()"><i class="fas fa-envelope"    style="margin-right:0.6rem;color:var(--green-light);"></i>Contact</a></li>
+        </ul>
+        <div class="mobile-auth">
+            <a href="login.html" class="auth-btn login-btn">Login</a>
+            <a href="login.html?tab=signup" class="auth-btn signup-btn">Sign Up</a>
+        </div>
+    </div>
+</header>
+
+<script>
+    // Header scroll effect
+    window.addEventListener('scroll', () => {
+        document.getElementById('mainHeader').classList.toggle('scrolled', window.scrollY > 80);
+    });
+
+    // Mobile menu toggle
+    function toggleMobileMenu() {
+        const menu = document.getElementById('mobileMenu');
+        const icon = document.getElementById('menuIcon');
+        const isOpen = menu.classList.toggle('active');
+        icon.className = isOpen ? 'fas fa-times' : 'fas fa-bars';
+    }
+
+    function closeMobileMenu() {
+        document.getElementById('mobileMenu').classList.remove('active');
+        document.getElementById('menuIcon').className = 'fas fa-bars';
+    }
+
+    document.addEventListener('click', e => {
+        if (!e.target.closest('header')) closeMobileMenu();
+    });
+
+    // Smooth scroll for anchor links
+    document.querySelectorAll('a[href*="#"]').forEach(a => {
+        a.addEventListener('click', e => {
+            const href = a.getAttribute('href');
+            const hashIndex = href.indexOf('#');
+            if (hashIndex === -1) return;
+            const hash = href.slice(hashIndex);
+            const isSamePage = !href.slice(0, hashIndex) || href.slice(0, hashIndex) === window.location.pathname.split('/').pop();
+            if (isSamePage) {
+                e.preventDefault();
+                const t = document.querySelector(hash);
+                if (t) { closeMobileMenu(); t.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
+            }
+        });
+    });
+</script>

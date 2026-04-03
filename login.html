@@ -3,10 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Trouble Sarthi - Login & Signup</title>
+    <title>Trouble Sarthi — Login & Sign Up</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Noto+Serif+Devanagari:wght@400;700&display=swap">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <style>
         @font-face {
@@ -15,417 +14,741 @@
             font-display: swap;
         }
 
-        /* ════ PAGE LOADER ════ */
-        #pageLoader {
-            position: fixed;
-            inset: 0;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            z-index: 9999;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            gap: 1rem;
-        }
-        #pageLoader .ld-logo {
-            font-family: 'SAMAN___', sans-serif;
-            font-size: 2.4rem;
-            color: #fff;
-            letter-spacing: 1px;
-        }
-        #pageLoader .ld-spin {
-            width: 40px; height: 40px;
-            border: 4px solid rgba(255,255,255,0.3);
-            border-top-color: #fff;
-            border-radius: 50%;
-            animation: spin 0.8s linear infinite;
-        }
-        @keyframes spin { to { transform: rotate(360deg); } }
-
-        #appContent { display: none; }
-
-        .logo-title {
-            text-align: center;
-            font-size: clamp(1.8rem, 4vw, 2.2rem);
-            font-weight: 700;
-            font-family: "SAMAN___", sans-serif;
-            color: #2d5a3d;
-            margin-bottom: 0.3rem;
+        :root {
+            --green-dark:   #1e4d2b;
+            --green-mid:    #2d5a3d;
+            --green-base:   #3a7d52;
+            --green-light:  #7cb342;
+            --green-pale:   #e8f5e9;
+            --accent:       #f5a623;
+            --accent-warm:  #ff6b35;
+            --text-primary: #0f1c14;
+            --text-body:    #3d4f42;
+            --text-muted:   #6b7e72;
+            --bg-page:      #f7f9f7;
+            --bg-card:      #ffffff;
+            --border:       rgba(45,90,61,0.12);
+            --shadow-sm:    0 2px 12px rgba(30,77,43,0.08);
+            --shadow-md:    0 8px 32px rgba(30,77,43,0.13);
+            --shadow-lg:    0 20px 60px rgba(30,77,43,0.18);
+            --radius:       20px;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
 
         body {
-            font-family: 'Inter', sans-serif;
-            line-height: 1.6;
-            color: #333;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            position: relative;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            color: var(--text-primary);
             overflow-x: hidden;
-            padding: 1rem;
-        }
-        body::before {
-            content: '';
-            position: absolute;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000"><defs><pattern id="g" width="100" height="100" patternUnits="userSpaceOnUse"><path d="M 100 0 L 0 0 0 100" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="2"/></pattern></defs><rect width="100%25" height="100%25" fill="url(%23g)"/></svg>');
-            opacity: 0.3;
+            line-height: 1.7;
+            min-height: 100vh;
         }
 
-        /* ── FIXED WIDTH CARD ── */
-        /* Wrap in a container that scales on hover, preventing layout shift */
-        .auth-wrapper {
-            position: relative;
-            z-index: 2;
-            width: 960px;
-            max-width: 95vw;
-        }
+        .logo-font { font-family: 'SAMAN___', 'DM Serif Display', serif; }
 
-        .auth-container {
-            background: rgba(255,255,255,0.97);
-            backdrop-filter: blur(15px);
-            border-radius: 20px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.15);
-            width: 100%;
-            min-height: 580px;
-            display: flex;
-            overflow: hidden;
-            /* Smooth zoom on hover — no layout shift since wrapper holds position */
-            transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1),
-                        box-shadow 0.35s ease;
-            will-change: transform;
-        }
-        .auth-container:hover {
-            transform: scale(1.025);
-            box-shadow: 0 36px 90px rgba(0,0,0,0.22);
-        }
-
-        /* ── LEFT SIDE: fixed width ── */
-        .animation-side {
-            width: 400px;
-            flex-shrink: 0;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            position: relative; overflow: hidden;
+        /* ════ PAGE LOADER ════ */
+        #pageLoader {
+            position: fixed; inset: 0;
+            background: linear-gradient(160deg, #0f2e18 0%, #1e4d2b 40%, #254a35 70%, #1a3d28 100%);
+            z-index: 9999;
             display: flex; flex-direction: column;
-            align-items: center; justify-content: center;
-            padding: 2.5rem; color: #fff;
+            align-items: center; justify-content: center; gap: 1rem;
         }
-        .floating-shapes { position: absolute; inset: 0; overflow: hidden; }
-        .shape { position: absolute; border-radius: 50%; background: rgba(255,255,255,0.1); animation: float 6s ease-in-out infinite; }
-        .shape:nth-child(1) { width:60px;height:60px;top:20%;left:20%;animation-delay:0s; }
-        .shape:nth-child(2) { width:40px;height:40px;top:60%;left:80%;animation-delay:2s; }
-        .shape:nth-child(3) { width:80px;height:80px;top:40%;left:10%;animation-delay:4s; }
-        .shape:nth-child(4) { width:30px;height:30px;top:80%;left:70%;animation-delay:1s; }
-        .shape:nth-child(5) { width:90px;height:90px;top:10%;left:70%;animation-delay:3s; }
-        @keyframes float { 0%,100% { transform:translateY(0) scale(1); } 50% { transform:translateY(-15px) scale(1.05); } }
+        .ld-logo {
+            font-family: 'DM Serif Display', serif;
+            font-size: 2.4rem; color: #fff; letter-spacing: 0.5px;
+            animation: ldPulse 1.5s ease-in-out infinite;
+        }
+        .ld-bar { width: 160px; height: 3px; background: rgba(255,255,255,0.15); border-radius: 3px; overflow: hidden; }
+        .ld-bar-fill { height: 100%; width: 0%; background: linear-gradient(90deg, var(--green-light), #a8d96b); border-radius: 3px; animation: ldFill 1.4s ease-in-out forwards; }
+        @keyframes ldFill { 0%{width:0%} 60%{width:80%} 100%{width:100%} }
+        @keyframes ldPulse { 0%,100%{opacity:1} 50%{opacity:0.6} }
 
-        .welcome-content { position: relative; z-index: 2; text-align: center; }
-        .welcome-title {
-            font-size: 2.2rem; font-weight: 700; margin-bottom: 0.5rem;
-            background: linear-gradient(45deg, #fff, rgba(255,255,255,0.8));
-            -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+        #appContent { display: none; flex-direction: column; min-height: 100vh; }
+
+        /* ══ FULL-PAGE BG — exact match to index.html hero ══ */
+        .page-bg {
+            position: fixed; inset: 0; z-index: 0;
+            background:
+                radial-gradient(ellipse 80% 60% at 20% 40%, rgba(58,125,82,0.55) 0%, transparent 60%),
+                radial-gradient(ellipse 60% 70% at 80% 70%, rgba(124,179,66,0.3) 0%, transparent 55%),
+                radial-gradient(ellipse 50% 50% at 50% 10%, rgba(245,166,35,0.12) 0%, transparent 50%),
+                linear-gradient(160deg, #0f2e18 0%, #1e4d2b 40%, #254a35 70%, #1a3d28 100%);
         }
-        .brand-name { font-size: 1.8rem; font-weight: 800; margin-bottom: 0.5rem; color: #fff; }
-        .welcome-subtitle { font-size: 1rem; opacity: 0.9; margin-bottom: 2rem; font-weight: 300; }
-        .welcome-features { list-style: none; text-align: left; }
-        .welcome-features li {
-            padding: 0.5rem 0;
-            display: flex; align-items: center; gap: 0.75rem;
-            opacity: 0.9; font-size: 0.95rem;
+        .page-bg::after {
+            content: '';
+            position: absolute; inset: 0;
+            background-image:
+                linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px);
+            background-size: 60px 60px;
+            mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black, transparent);
         }
-        .welcome-features li::before {
-            content: '✓';
-            background: rgba(255,255,255,0.2);
-            border-radius: 50%; width: 22px; height: 22px;
-            display: flex; align-items: center; justify-content: center;
-            font-weight: 700; font-size: 0.8rem; flex-shrink: 0;
+        .orb { position: fixed; border-radius: 50%; filter: blur(60px); pointer-events: none; z-index: 0; }
+        .orb-1 {
+            width: 500px; height: 500px;
+            background: radial-gradient(circle, rgba(124,179,66,0.18), transparent 70%);
+            top: -100px; right: -100px;
+            animation: floatOrb1 12s ease-in-out infinite;
+        }
+        .orb-2 {
+            width: 350px; height: 350px;
+            background: radial-gradient(circle, rgba(245,166,35,0.12), transparent 70%);
+            bottom: 50px; left: -80px;
+            animation: floatOrb2 15s ease-in-out infinite;
+        }
+        @keyframes floatOrb1 { 0%,100%{transform:translate(0,0) scale(1)} 50%{transform:translate(-40px,30px) scale(1.08)} }
+        @keyframes floatOrb2 { 0%,100%{transform:translate(0,0) scale(1)} 50%{transform:translate(30px,-20px) scale(1.05)} }
+
+        /* ══ NAVBAR — transparent over dark, scrolled to white (same as index.html) ══ */
+        header {
+            position: fixed; top: 0; left: 0; right: 0;
+            z-index: 1000; padding: 1rem 0;
+            transition: all 0.4s cubic-bezier(0.4,0,0.2,1);
+        }
+        header.scrolled {
+            background: rgba(255,255,255,0.96);
+            backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+            box-shadow: 0 1px 0 rgba(45,90,61,0.1), 0 8px 32px rgba(30,77,43,0.08);
+            padding: 0.7rem 0;
+        }
+        nav {
+            max-width: 1280px; margin: 0 auto; padding: 0 2rem;
+            display: flex; align-items: center; justify-content: space-between; gap: 1.5rem;
+        }
+        .logo {
+            font-family: 'SAMAN___', 'DM Serif Display', serif;
+            font-size: 2rem; font-weight: normal; color: #fff;
+            text-decoration: none; letter-spacing: 0.5px;
+            text-shadow: 0 2px 12px rgba(0,0,0,0.25);
+            transition: color 0.3s ease, text-shadow 0.3s ease; flex-shrink: 0;
+        }
+        header.scrolled .logo { color: var(--green-mid); text-shadow: none; }
+        .nav-center { display: flex; list-style: none; gap: 0.25rem; align-items: center; }
+        .nav-center a {
+            text-decoration: none; color: rgba(255,255,255,0.92);
+            font-weight: 500; font-size: 0.9rem;
+            padding: 0.5rem 0.75rem; border-radius: 8px;
+            transition: all 0.25s ease; white-space: nowrap;
+        }
+        .nav-center a:hover { color: #fff; background: rgba(255,255,255,0.15); }
+        header.scrolled .nav-center a { color: var(--text-body); }
+        header.scrolled .nav-center a:hover { color: var(--green-mid); background: var(--green-pale); }
+        .nav-auth { display: flex; gap: 0.75rem; align-items: center; flex-shrink: 0; }
+        .nav-btn {
+            padding: 0.55rem 1.2rem; border-radius: 50px;
+            font-weight: 600; font-size: 0.88rem; cursor: pointer;
+            transition: all 0.25s ease; text-decoration: none;
+            display: inline-flex; align-items: center; gap: 0.4rem;
+            letter-spacing: 0.01em; white-space: nowrap; font-family: inherit;
+        }
+        .nav-login { background: transparent; color: #fff; border: 1.5px solid rgba(255,255,255,0.7); }
+        .nav-login:hover { background: rgba(255,255,255,0.18); border-color: #fff; }
+        header.scrolled .nav-login { color: var(--green-mid); border-color: var(--green-mid); }
+        header.scrolled .nav-login:hover { background: var(--green-pale); }
+        .nav-signup {
+            background: linear-gradient(135deg, var(--green-light), var(--green-base));
+            color: #fff; border: 1.5px solid transparent;
+            box-shadow: 0 4px 14px rgba(123,179,66,0.35);
+        }
+        .nav-signup:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(123,179,66,0.45); }
+        .mobile-toggle {
+            display: none; background: transparent; border: none; outline: none;
+            color: #fff; width: 36px; height: 36px; border-radius: 50%;
+            font-size: 1.25rem; cursor: pointer; transition: all 0.25s ease;
+            align-items: center; justify-content: center; flex-shrink: 0;
+        }
+        .mobile-toggle:hover { background: rgba(255,255,255,0.15); }
+        header.scrolled .mobile-toggle { color: var(--green-mid); }
+        header.scrolled .mobile-toggle:hover { background: var(--green-pale); }
+        .mobile-menu {
+            display: none; position: absolute; top: calc(100% + 8px);
+            left: 1rem; right: 1rem; background: #fff; border-radius: 16px;
+            box-shadow: var(--shadow-lg); overflow: hidden; border: 1px solid var(--border);
+        }
+        .mobile-menu.open { display: block; }
+        .mobile-menu ul { list-style: none; padding: 0.5rem 0; }
+        .mobile-menu li { border-bottom: 1px solid rgba(45,90,61,0.06); }
+        .mobile-menu li:last-child { border-bottom: none; }
+        .mobile-menu a {
+            display: block; padding: 0.9rem 1.5rem;
+            color: var(--text-body); text-decoration: none;
+            font-weight: 500; font-size: 1rem; transition: all 0.2s;
+        }
+        .mobile-menu a:hover { color: var(--green-mid); background: var(--green-pale); padding-left: 1.9rem; }
+        .mobile-auth { display: flex; gap: 0.75rem; padding: 1rem 1.5rem 1.25rem; }
+        .mobile-auth .nav-btn { flex: 1; justify-content: center; }
+        .mobile-auth .nav-login { color: var(--green-mid); border-color: var(--green-mid); }
+
+        /* ══ SHELL ══ */
+        .page-shell {
+            position: relative; z-index: 1;
+            display: flex; flex-direction: column; min-height: 100vh;
         }
 
-        /* ── RIGHT SIDE: fills remaining space ── */
-        .form-side {
+        /* ══ AUTH SECTION ══ */
+        .auth-section {
             flex: 1;
-            padding: 2.5rem 3rem;
-            display: flex; flex-direction: column; justify-content: center;
-            overflow-y: auto; max-height: 95vh;
+            display: flex; justify-content: center; align-items: flex-start;
+            padding: 7rem 1.5rem 5rem;
         }
-        .logo-subtitle { text-align: center; color: #666; margin-bottom: 1.5rem; font-size: 0.9rem; }
+        .auth-wrapper {
+            width: 100%; max-width: 1020px;
+            display: flex; gap: 2.5rem; align-items: flex-start;
+            animation: fadeInUp 0.7s ease-out 0.1s both;
+        }
+        @keyframes fadeInUp { from{opacity:0;transform:translateY(28px)} to{opacity:1;transform:translateY(0)} }
 
-        .auth-tabs { display: flex; margin-bottom: 1.5rem; background: #f8f9fa; border-radius: 10px; padding: 0.3rem; gap: 0.3rem; }
+        /* ── LEFT INFO PANEL ── */
+        .info-panel {
+            width: 310px; flex-shrink: 0;
+            position: sticky; top: 100px;
+            display: flex; flex-direction: column; gap: 1.25rem;
+        }
+
+        /* Section label — matches index.html .section-label */
+        .panel-label {
+            display: inline-flex; align-items: center; gap: 0.5rem;
+            color: #a8d96b;
+            font-size: 0.78rem; font-weight: 700;
+            letter-spacing: 0.1em; text-transform: uppercase;
+            margin-bottom: 0.5rem;
+        }
+        .panel-label::before {
+            content: ''; display: block; width: 20px; height: 2px;
+            background: var(--green-light); border-radius: 2px;
+        }
+
+        /* Heading — matches index.html .section-title with DM Serif Display */
+        .panel-heading {
+            font-family: 'DM Serif Display', serif;
+            font-size: clamp(1.6rem, 2.5vw, 2rem);
+            font-weight: 400; color: #fff; line-height: 1.2;
+            margin-bottom: 0.6rem;
+        }
+        .panel-heading em { font-style: italic; color: #a8d96b; }
+        .panel-sub {
+            color: rgba(255,255,255,0.62); font-size: 0.92rem;
+            line-height: 1.7; margin-bottom: 1.25rem;
+        }
+
+        /* Feature cards — glassmorphism matching the dark hero atmosphere */
+        .feat-card {
+            padding: 1.25rem 1.4rem;
+            border-radius: 16px;
+            background: rgba(255,255,255,0.06);
+            border: 1px solid rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+            transition: all 0.35s cubic-bezier(0.4,0,0.2,1);
+            display: flex; align-items: flex-start; gap: 1rem;
+            position: relative; overflow: hidden;
+        }
+        .feat-card::after {
+            content: ''; position: absolute; inset: 0;
+            background: linear-gradient(135deg, rgba(124,179,66,0.1), transparent 70%);
+            opacity: 0; transition: opacity 0.35s;
+        }
+        .feat-card:hover { background: rgba(255,255,255,0.1); border-color: rgba(124,179,66,0.35); transform: translateY(-3px); }
+        .feat-card:hover::after { opacity: 1; }
+
+        /* Feature icon — matches index.html .feature-icon gradient */
+        .feat-icon {
+            width: 44px; height: 44px; flex-shrink: 0;
+            background: linear-gradient(135deg, var(--green-mid), var(--green-light));
+            border-radius: 12px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1rem;
+            box-shadow: 0 4px 16px rgba(45,90,61,0.4);
+            position: relative; z-index: 1;
+        }
+        .feat-icon i { color: #fff; }
+        .feat-text { position: relative; z-index: 1; }
+        .feat-text h4 { font-size: 0.9rem; font-weight: 700; color: #fff; margin-bottom: 0.15rem; }
+        .feat-text p { font-size: 0.8rem; color: rgba(255,255,255,0.55); line-height: 1.5; }
+
+        /* Stats row — matches index.html .hero-stats */
+        .panel-stats {
+            display: flex;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: var(--radius); overflow: hidden;
+        }
+        .pstat { flex: 1; text-align: center; padding: 1.1rem 0.5rem; }
+        .pstat + .pstat { border-left: 1px solid rgba(255,255,255,0.08); }
+        .pstat-num {
+            font-family: 'DM Serif Display', serif;
+            font-size: 1.5rem; font-weight: 400; color: #fff;
+            line-height: 1; letter-spacing: -0.02em; margin-bottom: 0.2rem;
+        }
+        .pstat-lbl { font-size: 0.68rem; color: rgba(255,255,255,0.45); text-transform: uppercase; letter-spacing: 0.07em; }
+
+        /* ── AUTH CARD ── */
+        .auth-card {
+            flex: 1;
+            background: rgba(255,255,255,0.97);
+            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            border-radius: 28px;
+            border: 1px solid rgba(255,255,255,0.2);
+            box-shadow: 0 24px 80px rgba(0,0,0,0.3), 0 0 0 1px rgba(124,179,66,0.06);
+            overflow: hidden;
+        }
+
+        /* Tab bar */
+        .auth-tabs {
+            display: grid; grid-template-columns: 1fr 1fr;
+            border-bottom: 1px solid var(--border);
+        }
         .tab-btn {
-            flex: 1; padding: 0.8rem 1rem; border: none; border-radius: 8px;
-            background: transparent; color: #666; font-weight: 600; cursor: pointer;
-            /* No transform on tab-btn to avoid bounce */
-            transition: background 0.3s ease, color 0.3s ease, box-shadow 0.3s ease;
-            font-size: 0.9rem; font-family: inherit;
+            padding: 1.25rem 1.5rem; border: none; background: transparent;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 0.95rem; font-weight: 600; color: var(--text-muted);
+            cursor: pointer; transition: all 0.3s ease;
+            position: relative; display: flex; align-items: center; justify-content: center; gap: 0.5rem;
         }
-        .tab-btn.active { background: linear-gradient(45deg, #7cb342, #8bc34a); color: #fff; box-shadow: 0 6px 20px rgba(123,179,66,0.3); }
+        .tab-btn::after {
+            content: ''; position: absolute;
+            bottom: -1px; left: 50%; right: 50%; height: 3px;
+            background: linear-gradient(90deg, var(--green-light), var(--accent));
+            border-radius: 3px 3px 0 0;
+            transition: all 0.35s cubic-bezier(0.4,0,0.2,1);
+        }
+        .tab-btn.active { color: var(--green-mid); background: rgba(124,179,66,0.04); }
+        .tab-btn.active::after { left: 15%; right: 15%; }
+        .tab-btn i { font-size: 0.9rem; }
 
-        .form-container { min-height: 350px; }
-        .auth-form { display: none; animation: fadeInUp 0.5s cubic-bezier(0.4,0,0.2,1); }
+        /* Form */
+        .form-body { padding: 2.5rem 2.5rem 2rem; }
+        .form-heading { margin-bottom: 1.75rem; }
+        .form-heading h2 {
+            font-family: 'DM Serif Display', serif;
+            font-size: 1.9rem; font-weight: 400;
+            color: var(--text-primary); margin-bottom: 0.3rem; line-height: 1.2;
+        }
+        .form-heading h2 em { font-style: italic; color: var(--green-mid); }
+        .form-heading p { font-size: 0.9rem; color: var(--text-muted); }
+
+        .auth-form { display: none; animation: fadeSlideIn 0.4s cubic-bezier(0.4,0,0.2,1); }
         .auth-form.active { display: block; }
+        @keyframes fadeSlideIn { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:translateY(0)} }
 
-        .form-group { margin-bottom: 1.2rem; position: relative; }
-        .form-group label { display: block; margin-bottom: 0.5rem; color: #2d5a3d; font-weight: 600; font-size: 0.85rem; }
-
-        /* ── FIX: No transform on inputs — causes bounce / scroll jump ── */
-        .form-input {
-            width: 100%; padding: 0.85rem 1rem; border: 2px solid #e9ecef;
-            border-radius: 10px; font-size: 0.95rem;
-            transition: border-color 0.3s ease, box-shadow 0.3s ease;
-            background: #fff; font-family: inherit;
-            /* transform removed entirely */
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+        .form-group { margin-bottom: 1.1rem; }
+        .form-group label {
+            display: block; margin-bottom: 0.45rem;
+            color: var(--text-body); font-weight: 600; font-size: 0.8rem;
+            letter-spacing: 0.04em; text-transform: uppercase;
         }
-        .form-input:focus { outline: none; border-color: #7cb342; box-shadow: 0 0 0 3px rgba(123,179,66,0.1); }
-        .form-input:hover { border-color: #7cb342; }
+        .input-wrap { position: relative; }
+        .input-icon {
+            position: absolute; left: 14px; top: 50%; transform: translateY(-50%);
+            color: var(--text-muted); font-size: 0.9rem; pointer-events: none; transition: color 0.2s;
+        }
+        .form-input {
+            width: 100%; padding: 0.85rem 1rem 0.85rem 2.75rem;
+            border: 2px solid var(--border); border-radius: 14px;
+            font-size: 0.93rem; font-family: inherit; color: var(--text-primary);
+            background: var(--bg-page);
+            transition: border-color 0.25s, box-shadow 0.25s, background 0.25s;
+        }
+        .form-input:focus {
+            outline: none; border-color: var(--green-light);
+            box-shadow: 0 0 0 4px rgba(124,179,66,0.12); background: #fff;
+        }
+        .input-wrap:focus-within .input-icon { color: var(--green-light); }
+        .form-input::placeholder { color: var(--text-muted); opacity: 0.65; }
 
         .password-group { position: relative; }
         .password-toggle {
             position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
-            background: none; border: none; color: #666; cursor: pointer;
-            font-size: 1rem; padding: 0.4rem;
-            transition: color 0.3s ease; border-radius: 50%; z-index: 3;
+            background: none; border: none; color: var(--text-muted); cursor: pointer;
+            font-size: 0.95rem; padding: 0.4rem; border-radius: 8px; z-index: 3; transition: color 0.25s;
         }
-        .password-toggle:hover { color: #7cb342; background: rgba(123,179,66,0.1); }
+        .password-toggle:hover { color: var(--green-mid); background: var(--green-pale); }
         .password-group .form-input { padding-right: 3rem; }
 
-        .password-strength { margin-top: 0.5rem; display: none; }
+        .password-strength { margin-top: 0.6rem; display: none; }
         .password-strength.show { display: block; }
-        .strength-bar { height: 4px; border-radius: 2px; background: #e9ecef; overflow: hidden; margin-bottom: 0.5rem; }
-        .strength-fill { height: 100%; width: 0%; transition: all 0.3s ease; border-radius: 2px; }
-        .strength-fill.weak   { width:25%; background:#dc3545; }
-        .strength-fill.fair   { width:50%; background:#fd7e14; }
-        .strength-fill.good   { width:75%; background:#ffc107; }
-        .strength-fill.strong { width:100%; background:#28a745; }
-        .strength-text { font-size: 0.8rem; font-weight: 600; }
-        .strength-text.weak   { color:#dc3545; }
-        .strength-text.fair   { color:#fd7e14; }
-        .strength-text.good   { color:#ffc107; }
-        .strength-text.strong { color:#28a745; }
+        .strength-bar { height: 5px; border-radius: 3px; background: var(--border); margin-bottom: 0.4rem; display: flex; gap: 3px; }
+        .strength-segment { flex: 1; border-radius: 3px; background: var(--border); transition: background 0.3s; }
+        .strength-segment.active.weak   { background: #ef5350; }
+        .strength-segment.active.fair   { background: #fb8c00; }
+        .strength-segment.active.good   { background: #fbc02d; }
+        .strength-segment.active.strong { background: var(--green-light); }
+        .strength-text { font-size: 0.78rem; font-weight: 700; color: var(--text-muted); }
+        .strength-text.weak   { color: #ef5350; }
+        .strength-text.fair   { color: #fb8c00; }
+        .strength-text.good   { color: #fbc02d; }
+        .strength-text.strong { color: var(--green-light); }
 
-        .password-requirements { margin-top: 0.5rem; font-size: 0.75rem; display: none; }
-        .password-requirements.show { display: block; }
-        .requirement { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.2rem; color: #666; transition: color 0.3s ease; }
-        .requirement.valid { color: #28a745; }
-        .requirement-icon { width:12px;height:12px;border-radius:50%;border:1px solid #ccc;display:flex;align-items:center;justify-content:center;font-size:8px;transition:all 0.3s ease;flex-shrink:0; }
-        .requirement.valid .requirement-icon { background:#28a745;border-color:#28a745;color:#fff; }
+        .password-requirements { margin-top: 0.6rem; font-size: 0.77rem; display: none; }
+        .password-requirements.show { display: grid; grid-template-columns: 1fr 1fr; gap: 0.2rem 0.5rem; }
+        .requirement { display: flex; align-items: center; gap: 0.4rem; color: var(--text-muted); transition: color 0.25s; }
+        .requirement.valid { color: var(--green-base); }
+        .requirement-icon { width: 14px; height: 14px; border-radius: 50%; border: 1.5px solid currentColor; display: flex; align-items: center; justify-content: center; font-size: 8px; transition: all 0.25s; flex-shrink: 0; }
+        .requirement.valid .requirement-icon { background: var(--green-base); border-color: var(--green-base); color: #fff; }
 
-        .password-match { position:absolute;right:50px;top:50%;transform:translateY(-50%);width:20px;height:20px;border-radius:50%;display:none;align-items:center;justify-content:center;font-size:12px;z-index:2; }
+        .password-match { position: absolute; right: 50px; top: 50%; transform: translateY(-50%); width: 20px; height: 20px; border-radius: 50%; display: none; align-items: center; justify-content: center; font-size: 11px; z-index: 2; }
         .password-match.show { display: flex; }
-        .password-match.valid   { background:#28a745;color:#fff; }
-        .password-match.invalid { background:#dc3545;color:#fff; }
+        .password-match.valid   { background: var(--green-base); color: #fff; }
+        .password-match.invalid { background: #ef5350; color: #fff; }
 
-        .form-options { display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem;font-size:0.85rem;flex-wrap:wrap;gap:0.5rem; }
-        .remember-me { display:flex;align-items:center;gap:0.5rem;cursor:pointer; }
-        .remember-me input[type="checkbox"] { accent-color:#7cb342;width:16px;height:16px;cursor:pointer; }
-        .forgot-password { color:#7cb342;text-decoration:none;font-weight:600;transition:color 0.3s ease; }
-        .forgot-password:hover { color:#2d5a3d;text-decoration:underline; }
+        .form-options { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; font-size: 0.85rem; flex-wrap: wrap; gap: 0.5rem; }
+        .remember-me { display: flex; align-items: center; gap: 0.5rem; cursor: pointer; color: var(--text-body); font-weight: 500; }
+        .remember-me input[type="checkbox"] { accent-color: var(--green-light); width: 16px; height: 16px; cursor: pointer; }
+        .forgot-link { color: var(--green-base); text-decoration: none; font-weight: 700; font-size: 0.85rem; transition: color 0.2s; }
+        .forgot-link:hover { color: var(--green-dark); }
 
-        /* ── FIX: Submit button — no transform on hover to prevent bounce ── */
+        /* Submit — matches index.html .cta-primary pill style */
         .submit-btn {
-            width:100%; padding:1rem;
-            background:linear-gradient(45deg,#7cb342,#8bc34a);
-            color:#fff; border:none; border-radius:10px;
-            font-size:1rem; font-weight:600; cursor:pointer;
-            transition: box-shadow 0.3s ease, background 0.3s ease, opacity 0.3s ease;
-            margin-bottom:1.2rem; font-family:inherit;
+            width: 100%; padding: 1rem 1.5rem;
+            background: linear-gradient(135deg, var(--green-light), #a8d96b);
+            color: var(--green-dark); border: none; border-radius: 50px;
+            font-size: 1rem; font-weight: 700; cursor: pointer; font-family: inherit;
+            letter-spacing: 0.01em;
+            transition: transform 0.3s cubic-bezier(0.4,0,0.2,1), box-shadow 0.3s, opacity 0.3s;
+            margin-bottom: 1.25rem;
+            box-shadow: 0 8px 28px rgba(124,179,66,0.4);
+            display: flex; align-items: center; justify-content: center; gap: 0.5rem;
         }
-        .submit-btn:hover:not(:disabled) { box-shadow:0 10px 30px rgba(123,179,66,0.4); }
-        .submit-btn:active:not(:disabled) { opacity: 0.9; }
-        .submit-btn:disabled { background:#ccc;cursor:not-allowed;box-shadow:none; }
+        .submit-btn:hover:not(:disabled) { transform: translateY(-3px); box-shadow: 0 14px 40px rgba(124,179,66,0.5); }
+        .submit-btn:active:not(:disabled) { opacity: 0.9; transform: translateY(0); }
+        .submit-btn:disabled { background: #ccc; color: #888; cursor: not-allowed; box-shadow: none; transform: none; }
 
-        .divider { text-align:center;margin:1.2rem 0;position:relative;color:#666;font-size:0.85rem;display:flex;align-items:center; }
-        .divider::before, .divider::after { content:'';flex:1;height:1px;background:#e9ecef; }
-        .divider::before { margin-right:1rem; }
-        .divider::after  { margin-left:1rem; }
+        .divider { text-align: center; margin: 1.25rem 0; color: var(--text-muted); font-size: 0.82rem; display: flex; align-items: center; }
+        .divider::before, .divider::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+        .divider::before { margin-right: 1rem; }
+        .divider::after  { margin-left: 1rem; }
 
-        .social-login { display:flex;gap:0.8rem;margin-bottom:0.8rem; }
-
-        /* ── FIX: Social buttons — no transform to prevent bounce ── */
+        .social-login { display: flex; gap: 0.8rem; margin-bottom: 0.8rem; }
         .social-btn {
-            flex:1; padding:0.8rem 1.2rem; border:2px solid #e9ecef;
-            border-radius:10px; background:#fff; color:#333;
-            text-decoration:none; text-align:center; font-weight:600;
-            transition: border-color 0.3s ease, color 0.3s ease, box-shadow 0.3s ease;
-            display:flex; align-items:center; justify-content:center;
-            gap:0.6rem; font-size:0.9rem; cursor:pointer; font-family:inherit;
+            flex: 1; padding: 0.8rem 1rem;
+            border: 2px solid var(--border); border-radius: 14px;
+            background: #fff; color: var(--text-body);
+            display: flex; align-items: center; justify-content: center;
+            gap: 0.6rem; font-size: 0.88rem; font-weight: 600;
+            cursor: pointer; font-family: inherit;
+            transition: border-color 0.25s, box-shadow 0.25s, background 0.25s;
         }
-        .social-btn:hover { box-shadow:0 6px 20px rgba(0,0,0,0.1); }
-        .google-btn:hover   { border-color:#db4437;color:#db4437; }
-        .facebook-btn:hover { border-color:#3b5998;color:#3b5998; }
-        .social-btn .fa-google   { color:#db4437;font-size:1.1rem; }
-        .social-btn .fa-facebook { color:#3b5998;font-size:1.1rem; }
+        .social-btn:hover { box-shadow: 0 6px 20px rgba(0,0,0,0.1); }
+        .google-btn:hover   { border-color: #db4437; color: #db4437; background: #fdf3f2; }
+        .facebook-btn:hover { border-color: #3b5998; color: #3b5998; background: #f0f3ff; }
+        .social-btn .fa-google   { color: #db4437; font-size: 1rem; }
+        .social-btn .fa-facebook { color: #3b5998; font-size: 1rem; }
 
-        .switch-link { text-align:center;font-size:0.85rem;color:#666;margin-top:1rem; }
-        .switch-link a { color:#7cb342;text-decoration:none;font-weight:600; }
-        .switch-link a:hover { color:#2d5a3d;text-decoration:underline; }
+        .switch-link { text-align: center; font-size: 0.88rem; color: var(--text-muted); margin-top: 1rem; }
+        .switch-link a { color: var(--green-base); text-decoration: none; font-weight: 700; }
+        .switch-link a:hover { color: var(--green-dark); }
+        .terms-group { display: flex; align-items: flex-start; gap: 0.5rem; font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1.15rem; }
+        .terms-group input { accent-color: var(--green-light); width: 16px; height: 16px; margin-top: 3px; flex-shrink: 0; cursor: pointer; }
+        .terms-group a { color: var(--green-base); text-decoration: none; font-weight: 700; }
+        .terms-group a:hover { color: var(--green-dark); }
 
-        .terms-group { display:flex;align-items:flex-start;gap:0.5rem;font-size:0.85rem;color:#666; }
-        .terms-group input { accent-color:#7cb342;width:16px;height:16px;margin-top:2px;flex-shrink:0;cursor:pointer; }
-        .terms-group a { color:#7cb342;text-decoration:none;font-weight:600; }
-        .terms-group a:hover { color:#2d5a3d;text-decoration:underline; }
+        #msgArea { margin-bottom: 0.75rem; }
+        .php-message { padding: 10px 16px; margin: 8px 0; border-radius: 12px; font-weight: 600; text-align: center; animation: slideDown 0.3s ease-out; font-size: 0.85rem; transition: opacity 0.3s ease-out; }
+        .php-success { background: #e8f5e9; color: var(--green-dark); border: 2px solid rgba(124,179,66,0.4); }
+        .php-error   { background: #fdecea; color: #b71c1c; border: 2px solid rgba(239,83,80,0.4); }
+        .php-message.hide { opacity: 0; }
+        @keyframes slideDown { from{opacity:0;transform:translateY(-10px)} to{opacity:1;transform:translateY(0)} }
 
-        .back-home {
-            position: fixed; top: 1.5rem; left: 1.5rem;
-            background: rgba(255,255,255,0.95); backdrop-filter: blur(10px);
-            border: 2px solid rgba(123,179,66,0.3); border-radius: 40px;
-            padding: 0.7rem 1.4rem; color: #2d5a3d; text-decoration: none;
-            font-weight: 600; transition: background 0.3s ease, color 0.3s ease, box-shadow 0.3s ease;
-            display: flex; align-items: center; gap: 0.5rem;
-            font-size: 0.85rem; z-index: 10;
+        /* ══ FOOTER — frosted glass over dark bg ══ */
+        footer {
+            background: rgba(10,30,16,0.88);
+            backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
+            color: #fff; padding: 5rem 0 0;
+            position: relative; overflow: hidden; z-index: 1;
+            border-top: 1px solid rgba(124,179,66,0.12);
         }
-        .back-home:hover { background:#2d5a3d;color:#fff;box-shadow:0 6px 20px rgba(0,0,0,0.2); }
+        footer::before {
+            content: '';
+            position: absolute; top: -1px; left: 0; right: 0; height: 4px;
+            background: linear-gradient(90deg, transparent, var(--green-light), var(--accent), var(--green-light), transparent);
+        }
+        .footer-bg-deco {
+            position: absolute; bottom: -200px; right: -200px;
+            width: 600px; height: 600px;
+            background: radial-gradient(circle, rgba(124,179,66,0.06), transparent 65%);
+            pointer-events: none;
+        }
+        .footer-content {
+            max-width: 1280px; margin: 0 auto; padding: 0 2rem;
+            display: grid; grid-template-columns: 1.6fr 1fr 1fr 1.4fr; gap: 3rem;
+        }
+        .footer-brand .logo-foot { display: block; margin-bottom: 1rem; color: #fff; text-decoration: none; font-family: 'SAMAN___', 'DM Serif Display', serif; font-size: 2rem; }
+        .footer-brand p { color: rgba(255,255,255,0.55); font-size: 0.9rem; line-height: 1.75; max-width: 280px; }
+        .footer-section h4 { font-size: 0.8rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: rgba(255,255,255,0.45); margin-bottom: 1.2rem; }
+        .footer-section a { display: block; color: rgba(255,255,255,0.7); text-decoration: none; font-size: 0.93rem; margin-bottom: 0.6rem; transition: all 0.2s ease; }
+        .footer-section a:hover { color: var(--green-light); padding-left: 4px; }
+        .footer-contact-item { display: flex; align-items: flex-start; gap: 0.75rem; margin-bottom: 0.75rem; }
+        .footer-contact-item i { color: var(--green-light); font-size: 0.9rem; margin-top: 0.2rem; flex-shrink: 0; }
+        .footer-contact-item span, .footer-contact-item a { color: rgba(255,255,255,0.65); font-size: 0.9rem; line-height: 1.5; margin-bottom: 0; display: inline; transition: color 0.2s; }
+        .footer-contact-item a:hover { color: var(--green-light); padding-left: 0; }
+        .newsletter-form { display: flex; margin-top: 0.5rem; border-radius: 12px; overflow: hidden; border: 1px solid rgba(255,255,255,0.15); background: rgba(255,255,255,0.06); }
+        .newsletter-form input { padding: 0.8rem 1rem; border: none; background: transparent; color: #fff; font-size: 0.88rem; font-family: inherit; flex: 1; outline: none; }
+        .newsletter-form input::placeholder { color: rgba(255,255,255,0.35); }
+        .newsletter-form button { padding: 0.8rem 1.1rem; border: none; background: linear-gradient(135deg, var(--green-light), var(--green-base)); color: #fff; cursor: pointer; font-weight: 700; font-size: 0.85rem; font-family: inherit; transition: all 0.25s; white-space: nowrap; }
+        .newsletter-form button:hover { background: linear-gradient(135deg, #8bc34a, var(--green-light)); }
+        .footer-bottom-bar { margin-top: 4rem; border-top: 1px solid rgba(255,255,255,0.08); padding: 1.75rem 2rem; max-width: 1280px; margin-left: auto; margin-right: auto; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem; }
+        .footer-bottom-bar p { color: rgba(255,255,255,0.35); font-size: 0.85rem; }
+        .footer-social { display: flex; gap: 0.75rem; }
+        .footer-social a { width: 40px; height: 40px; border-radius: 50%; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.12); color: rgba(255,255,255,0.65); display: flex; align-items: center; justify-content: center; font-size: 1rem; text-decoration: none; transition: all 0.25s ease; }
+        .footer-social a:hover { color: #fff; transform: translateY(-3px); box-shadow: 0 6px 18px rgba(0,0,0,0.25); }
+        .footer-social a[aria-label="Facebook"]:hover  { background: #1877f2; border-color: #1877f2; }
+        .footer-social a[aria-label="Instagram"]:hover { background: radial-gradient(circle at 30% 110%, #fdf497 0%, #fd5949 45%, #d6249f 60%, #285AEB 90%); border-color: transparent; }
+        .footer-social a[aria-label="GitHub"]:hover    { background: #24292e; border-color: #24292e; }
+        .footer-social a[aria-label="LinkedIn"]:hover  { background: #0a66c2; border-color: #0a66c2; }
 
-        #msgArea { margin-bottom: 0.5rem; }
-        .php-message { padding:10px 16px;margin:8px 0;border-radius:10px;font-weight:600;text-align:center;animation:slideDown 0.3s ease-out;font-size:0.85rem;transition:opacity 0.3s ease-out; }
-        .php-success { background:#d4edda;color:#155724;border:2px solid #c3e6cb; }
-        .php-error   { background:#f8d7da;color:#721c24;border:2px solid #f5c6cb; }
-        .php-message.hide { opacity:0; }
+        /* Notification — matches index.html */
+        .notification {
+            position: fixed; top: 20px; right: 20px;
+            background: #fff; padding: 1rem 1.25rem;
+            border-radius: 14px; box-shadow: var(--shadow-lg);
+            z-index: 9999; display: flex; align-items: center; gap: 0.75rem;
+            animation: slideInRight 0.3s ease; max-width: 360px;
+            font-size: 0.92rem; border: 1px solid var(--border);
+        }
+        .notification-success { border-left: 3px solid var(--green-light); color: var(--green-mid); }
+        .notification-error   { border-left: 3px solid #f44336; color: #c62828; }
+        .notification button { background: none; border: none; cursor: pointer; color: var(--text-muted); font-size: 1rem; margin-left: auto; opacity: 0.7; transition: opacity 0.2s; }
+        .notification button:hover { opacity: 1; }
+        @keyframes slideInRight { from{opacity:0;transform:translateX(30px)} to{opacity:1;transform:translateX(0)} }
 
-        @keyframes fadeInUp  { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
-        @keyframes slideDown { from{opacity:0;transform:translateY(-20px)} to{opacity:1;transform:translateY(0)} }
-
-        /* ── RESPONSIVE ── */
+        /* ══ RESPONSIVE ══ */
+        @media (max-width: 900px) {
+            .auth-wrapper { flex-direction: column; max-width: 580px; }
+            .info-panel { width: 100%; position: static; }
+            .panel-stats { display: none; }
+            .footer-content { grid-template-columns: 1fr 1fr; gap: 2.5rem; }
+        }
         @media (max-width: 768px) {
-            body { padding:0.5rem; align-items:flex-start; padding-top:4.5rem; }
-            .auth-wrapper { width: 100%; }
-            .auth-container { flex-direction:column; min-height:auto; border-radius:16px; }
-            /* Disable zoom on mobile — too jarring */
-            .auth-container:hover { transform: none; box-shadow: 0 20px 60px rgba(0,0,0,0.15); }
-            .animation-side { width:100%; min-height:180px; padding:1.5rem; }
-            .form-side { padding:1.5rem; max-height:none; overflow-y:visible; }
-            .welcome-features { display:grid; grid-template-columns:1fr 1fr; gap:0.3rem; }
-            .social-login { flex-direction:column; }
-            .back-home { top:0.8rem; left:0.8rem; padding:0.6rem 1rem; }
+            .nav-center, .nav-auth { display: none; }
+            .mobile-toggle { display: flex; }
         }
-        @media (max-width: 480px) {
-            body { padding:0.3rem; padding-top:3.5rem; }
-            .auth-container { border-radius:12px; }
-            .animation-side { min-height:150px; }
-            .form-side { padding:1.2rem; }
-            .tab-btn { padding:0.7rem 0.8rem; }
-            .welcome-features { grid-template-columns:1fr; }
-            .back-home { top:0.5rem; left:0.5rem; padding:0.5rem 0.8rem; font-size:0.75rem; }
+        @media (max-width: 640px) {
+            .auth-section { padding: 6rem 1rem 3rem; }
+            .form-body { padding: 1.75rem 1.5rem; }
+            .form-row { grid-template-columns: 1fr; }
+            .social-login { flex-direction: column; }
+            .footer-content { grid-template-columns: 1fr; gap: 2rem; }
+            .footer-bottom-bar { flex-direction: column; text-align: center; }
         }
     </style>
 </head>
 <body>
 
+<!-- PAGE LOADER -->
 <div id="pageLoader">
     <div class="ld-logo">Trouble Sarthi</div>
-    <div class="ld-spin"></div>
+    <div class="ld-bar"><div class="ld-bar-fill"></div></div>
 </div>
 
-<div id="appContent">
-    <a href="index.html" class="back-home"><i class="fas fa-arrow-left"></i> Back to Home</a>
+<!-- Full-page dark green bg (fixed, behind everything) -->
+<div class="page-bg"></div>
+<div class="orb orb-1"></div>
+<div class="orb orb-2"></div>
 
-    <!-- Wrapper holds fixed size; card zooms inside without shifting layout -->
-    <div class="auth-wrapper">
-        <div class="auth-container">
-            <!-- LEFT: branding panel -->
-            <div class="animation-side">
-                <div class="floating-shapes">
-                    <div class="shape"></div><div class="shape"></div><div class="shape"></div>
-                    <div class="shape"></div><div class="shape"></div>
+<div id="appContent">
+<div class="page-shell">
+
+    <!-- ══ NAVBAR ══ -->
+    <header id="mainHeader">
+        <nav>
+            <a href="index.html" class="logo logo-font">Trouble Sarthi</a>
+            <ul class="nav-center">
+                <li><a href="index.html#home">Home</a></li>
+                <li><a href="index.html#services">Services</a></li>
+                <li><a href="index.html#about">About</a></li>
+                <li><a href="index.html#cofounders">Co-Founders</a></li>
+                <li><a href="contact.html">Contact</a></li>
+            </ul>
+            <div class="nav-auth">
+                <a href="login.html" class="nav-btn nav-login"><i class="fas fa-sign-in-alt"></i> Login</a>
+                <a href="login.html?tab=signup" class="nav-btn nav-signup">Get Started <i class="fas fa-arrow-right"></i></a>
+            </div>
+            <button class="mobile-toggle" onclick="toggleMobileMenu()" aria-label="Menu">
+                <i class="fas fa-bars" id="menuIcon"></i>
+            </button>
+        </nav>
+        <div class="mobile-menu" id="mobileMenu">
+            <ul>
+                <li><a href="index.html#home"       onclick="closeMobileMenu()"><i class="fas fa-home"        style="margin-right:0.6rem;color:var(--green-light)"></i>Home</a></li>
+                <li><a href="index.html#services"   onclick="closeMobileMenu()"><i class="fas fa-tools"       style="margin-right:0.6rem;color:var(--green-light)"></i>Services</a></li>
+                <li><a href="index.html#about"      onclick="closeMobileMenu()"><i class="fas fa-info-circle" style="margin-right:0.6rem;color:var(--green-light)"></i>About</a></li>
+                <li><a href="index.html#cofounders" onclick="closeMobileMenu()"><i class="fas fa-handshake"   style="margin-right:0.6rem;color:var(--green-light)"></i>Co-Founders</a></li>
+                <li><a href="contact.html"          onclick="closeMobileMenu()"><i class="fas fa-envelope"    style="margin-right:0.6rem;color:var(--green-light)"></i>Contact</a></li>
+            </ul>
+            <div class="mobile-auth">
+                <a href="login.html" class="nav-btn nav-login">Login</a>
+                <a href="login.html?tab=signup" class="nav-btn nav-signup">Sign Up</a>
+            </div>
+        </div>
+    </header>
+
+    <!-- ══ AUTH SECTION ══ -->
+    <div class="auth-section">
+        <div class="auth-wrapper">
+
+            <!-- Left info panel -->
+            <div class="info-panel">
+                <div>
+                    <div class="panel-label"><i class="fas fa-map-marker-alt"></i> Your Local Network</div>
+                    <h2 class="panel-heading">Connect with <em>skilled helpers</em> near you</h2>
+                    <p class="panel-sub">Join thousands of people who rely on Trouble Sarthi to solve everyday problems — fast, affordable, and trusted.</p>
                 </div>
-                <div class="welcome-content">
-                    <h1 class="welcome-title">Welcome to</h1>
-                    <h2 class="brand-name">Trouble Sarthi</h2>
-                    <p class="welcome-subtitle">Your Local Helper Network</p>
-                    <ul class="welcome-features">
-                        <li>Connect with local helpers</li>
-                        <li>Quick problem solving</li>
-                        <li>Trusted community</li>
-                        <li>Available 24/7</li>
-                    </ul>
+
+                <div class="feat-card">
+                    <div class="feat-icon"><i class="fas fa-shield-alt"></i></div>
+                    <div class="feat-text">
+                        <h4>Verified Helpers</h4>
+                        <p>Every helper is KYC verified and community rated for your peace of mind.</p>
+                    </div>
+                </div>
+                <div class="feat-card">
+                    <div class="feat-icon"><i class="fas fa-bolt"></i></div>
+                    <div class="feat-text">
+                        <h4>Quick Response</h4>
+                        <p>Most requests are matched within minutes, not hours.</p>
+                    </div>
+                </div>
+                <div class="feat-card">
+                    <div class="feat-icon"><i class="fas fa-lock"></i></div>
+                    <div class="feat-text">
+                        <h4>Secure & Private</h4>
+                        <p>Firebase authentication and end-to-end encrypted data storage.</p>
+                    </div>
+                </div>
+
+                <div class="panel-stats">
+                    <div class="pstat">
+                        <div class="pstat-num">10K+</div>
+                        <div class="pstat-lbl">Helpers</div>
+                    </div>
+                    <div class="pstat">
+                        <div class="pstat-num">50K+</div>
+                        <div class="pstat-lbl">Tasks Done</div>
+                    </div>
+                    <div class="pstat">
+                        <div class="pstat-num">4.8★</div>
+                        <div class="pstat-lbl">Rating</div>
+                    </div>
                 </div>
             </div>
 
-            <!-- RIGHT: form panel -->
-            <div class="form-side">
-                <div class="logo-title">Trouble Sarthi</div>
-                <p class="logo-subtitle">Your trusted local helper network</p>
-
-                <div id="msgArea"></div>
-
+            <!-- Right: Auth card -->
+            <div class="auth-card">
                 <div class="auth-tabs">
-                    <button class="tab-btn active" id="loginTab"  onclick="switchTab('login')">Login</button>
-                    <button class="tab-btn"        id="signupTab" onclick="switchTab('signup')">Sign Up</button>
+                    <button class="tab-btn active" id="loginTab" onclick="switchTab('login')">
+                        <i class="fas fa-sign-in-alt"></i> Login
+                    </button>
+                    <button class="tab-btn" id="signupTab" onclick="switchTab('signup')">
+                        <i class="fas fa-user-plus"></i> Sign Up
+                    </button>
                 </div>
 
-                <div class="form-container">
+                <div class="form-body">
+                    <div id="msgArea"></div>
 
                     <!-- LOGIN FORM -->
                     <div class="auth-form active" id="loginForm">
+                        <div class="form-heading">
+                            <h2>Sign <em>in</em></h2>
+                            <p>Enter your credentials to access your account.</p>
+                        </div>
                         <div class="form-group">
                             <label for="l_username">Username or Email</label>
-                            <input type="text" id="l_username" class="form-input" placeholder="Enter your username or email" autocomplete="username">
+                            <div class="input-wrap">
+                                <input type="text" id="l_username" class="form-input" placeholder="Enter your username or email" autocomplete="username">
+                                <i class="fas fa-user input-icon"></i>
+                            </div>
                         </div>
                         <div class="form-group">
                             <label for="l_password">Password</label>
-                            <div class="password-group">
+                            <div class="password-group input-wrap">
                                 <input type="password" id="l_password" class="form-input" placeholder="Enter your password" autocomplete="current-password">
+                                <i class="fas fa-lock input-icon"></i>
                                 <button type="button" class="password-toggle" onclick="togglePassword('l_password',this)"><i class="fa-solid fa-eye"></i></button>
                             </div>
                         </div>
                         <div class="form-options">
-                            <label class="remember-me">
-                                <input type="checkbox" id="rememberMe"> Remember me
-                            </label>
-                            <a href="#" class="forgot-password" onclick="handleForgot();return false;">Forgot Password?</a>
+                            <label class="remember-me"><input type="checkbox" id="rememberMe"> Remember me</label>
+                            <a href="#" class="forgot-link" onclick="handleForgot();return false;">Forgot Password?</a>
                         </div>
-                        <button class="submit-btn" id="loginBtn" onclick="doLogin()">Login</button>
+                        <button class="submit-btn" id="loginBtn" onclick="doLogin()"><i class="fas fa-sign-in-alt"></i> Login</button>
                         <div class="divider"><span>Or continue with</span></div>
                         <div class="social-login">
-                            <button class="social-btn google-btn"   onclick="doGoogle()"><i class="fa-brands fa-google"></i> Continue with Google</button>
-                            <button class="social-btn facebook-btn" onclick="doFacebook()"><i class="fa-brands fa-facebook"></i> Continue with Facebook</button>
+                            <button class="social-btn google-btn"   onclick="doGoogle()"><i class="fa-brands fa-google"></i> Google</button>
+                            <button class="social-btn facebook-btn" onclick="doFacebook()"><i class="fa-brands fa-facebook"></i> Facebook</button>
                         </div>
-                        <p class="switch-link">Don't have an account? <a href="#" onclick="switchTab('signup');return false;">Sign up</a></p>
+                        <p class="switch-link">Don't have an account? <a href="#" onclick="switchTab('signup');return false;">Sign up free</a></p>
                     </div>
 
                     <!-- SIGNUP FORM -->
                     <div class="auth-form" id="signupForm">
-                        <div class="form-group">
-                            <label for="s_name">Full Name</label>
-                            <input type="text" id="s_name" class="form-input" placeholder="Enter your full name" autocomplete="name">
+                        <div class="form-heading">
+                            <h2>Create <em>Account</em></h2>
+                            <p>Join thousands of people using Trouble Sarthi.</p>
                         </div>
-                        <div class="form-group">
-                            <label for="s_username">Username</label>
-                            <input type="text" id="s_username" class="form-input" placeholder="Choose a username" autocomplete="username">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="s_name">Full Name</label>
+                                <div class="input-wrap">
+                                    <input type="text" id="s_name" class="form-input" placeholder="Your full name" autocomplete="name">
+                                    <i class="fas fa-id-card input-icon"></i>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="s_username">Username</label>
+                                <div class="input-wrap">
+                                    <input type="text" id="s_username" class="form-input" placeholder="Choose a username" autocomplete="username">
+                                    <i class="fas fa-at input-icon"></i>
+                                </div>
+                            </div>
                         </div>
-                        <div class="form-group">
-                            <label for="s_email">Email Address</label>
-                            <input type="email" id="s_email" class="form-input" placeholder="Enter your email" autocomplete="email">
-                        </div>
-                        <div class="form-group">
-                            <label for="s_phone">Phone Number</label>
-                            <input type="tel" id="s_phone" class="form-input" placeholder="Enter 10-digit phone number" maxlength="10">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="s_email">Email Address</label>
+                                <div class="input-wrap">
+                                    <input type="email" id="s_email" class="form-input" placeholder="you@example.com" autocomplete="email">
+                                    <i class="fas fa-envelope input-icon"></i>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="s_phone">Phone Number</label>
+                                <div class="input-wrap">
+                                    <input type="tel" id="s_phone" class="form-input" placeholder="10-digit number" maxlength="10">
+                                    <i class="fas fa-phone input-icon"></i>
+                                </div>
+                            </div>
                         </div>
                         <div class="form-group">
                             <label for="s_password">Password</label>
-                            <div class="password-group">
+                            <div class="password-group input-wrap">
                                 <input type="password" id="s_password" class="form-input" placeholder="Create a strong password" autocomplete="new-password" oninput="onPasswordInput(this.value)">
+                                <i class="fas fa-lock input-icon"></i>
                                 <button type="button" class="password-toggle" onclick="togglePassword('s_password',this)"><i class="fa-solid fa-eye"></i></button>
                             </div>
                             <div class="password-strength" id="passwordStrength">
-                                <div class="strength-bar"><div class="strength-fill" id="strengthFill"></div></div>
+                                <div class="strength-bar">
+                                    <div class="strength-segment" id="seg1"></div>
+                                    <div class="strength-segment" id="seg2"></div>
+                                    <div class="strength-segment" id="seg3"></div>
+                                    <div class="strength-segment" id="seg4"></div>
+                                </div>
                                 <div class="strength-text" id="strengthText">Password strength</div>
                             </div>
                             <div class="password-requirements" id="passwordRequirements">
-                                <div class="requirement" id="lengthReq"><span class="requirement-icon">✗</span> At least 8 characters</div>
-                                <div class="requirement" id="uppercaseReq"><span class="requirement-icon">✗</span> One uppercase letter</div>
-                                <div class="requirement" id="lowercaseReq"><span class="requirement-icon">✗</span> One lowercase letter</div>
-                                <div class="requirement" id="numberReq"><span class="requirement-icon">✗</span> One number</div>
-                                <div class="requirement" id="specialReq"><span class="requirement-icon">✗</span> One special character (@$!%*?&)</div>
+                                <div class="requirement" id="lengthReq"><span class="requirement-icon">✗</span> 8+ characters</div>
+                                <div class="requirement" id="uppercaseReq"><span class="requirement-icon">✗</span> Uppercase letter</div>
+                                <div class="requirement" id="lowercaseReq"><span class="requirement-icon">✗</span> Lowercase letter</div>
+                                <div class="requirement" id="numberReq"><span class="requirement-icon">✗</span> Number</div>
+                                <div class="requirement" id="specialReq"><span class="requirement-icon">✗</span> Special char</div>
                             </div>
                         </div>
                         <div class="form-group">
                             <label for="s_confirm">Confirm Password</label>
-                            <div class="password-group">
-                                <input type="password" id="s_confirm" class="form-input" placeholder="Confirm your password" autocomplete="new-password" oninput="checkPasswordMatch()">
+                            <div class="password-group input-wrap">
+                                <input type="password" id="s_confirm" class="form-input" placeholder="Repeat your password" autocomplete="new-password" oninput="checkPasswordMatch()">
+                                <i class="fas fa-lock input-icon"></i>
                                 <div class="password-match" id="passwordMatch"></div>
                                 <button type="button" class="password-toggle" onclick="togglePassword('s_confirm',this)"><i class="fa-solid fa-eye"></i></button>
                             </div>
@@ -434,22 +757,75 @@
                             <input type="checkbox" id="termsCheck" onchange="updateSignupBtn()">
                             <label for="termsCheck">I agree to the <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a></label>
                         </div>
-                        <button class="submit-btn" id="signupBtn" onclick="doSignup()" disabled>Create Account</button>
+                        <button class="submit-btn" id="signupBtn" onclick="doSignup()" disabled><i class="fas fa-user-plus"></i> Create Account</button>
                         <div class="divider"><span>Or sign up with</span></div>
                         <div class="social-login">
-                            <button class="social-btn google-btn"   onclick="doGoogle()"><i class="fa-brands fa-google"></i> Continue with Google</button>
-                            <button class="social-btn facebook-btn" onclick="doFacebook()"><i class="fa-brands fa-facebook"></i> Continue with Facebook</button>
+                            <button class="social-btn google-btn"   onclick="doGoogle()"><i class="fa-brands fa-google"></i> Google</button>
+                            <button class="social-btn facebook-btn" onclick="doFacebook()"><i class="fa-brands fa-facebook"></i> Facebook</button>
                         </div>
                         <p class="switch-link">Already have an account? <a href="#" onclick="switchTab('login');return false;">Login</a></p>
                     </div>
-
                 </div>
             </div>
+
         </div>
     </div>
+
+    <!-- ══ FOOTER ══ -->
+    <footer id="contact">
+        <div class="footer-bg-deco"></div>
+        <div class="footer-content">
+            <div class="footer-brand">
+                <a href="index.html" class="logo-foot">Trouble Sarthi</a>
+                <p>Your local helper network, connecting communities with skilled professionals. From plumbing to vehicle repair — fast, affordable, reliable solutions.</p>
+            </div>
+            <div class="footer-section">
+                <h4>For Helpers</h4>
+                <a href="login.html?tab=signup">Register as a Helper</a>
+                <a href="index.html#about">How It Works</a>
+                <a href="#">KYC Verification</a>
+                <a href="#">Helper Dashboard</a>
+                <a href="contact.html">Support</a>
+            </div>
+            <div class="footer-section">
+                <h4>Contact Us</h4>
+                <div class="footer-contact-item">
+                    <i class="fas fa-envelope"></i>
+                    <a href="mailto:support@troublesarthi.com">support@troublesarthi.com</a>
+                </div>
+                <div class="footer-contact-item">
+                    <i class="fas fa-phone"></i>
+                    <a href="tel:+919876543210">+91 98765 43210</a>
+                </div>
+                <div class="footer-contact-item">
+                    <i class="fas fa-map-marker-alt"></i>
+                    <span>123 Community Hub, Mumbai, India</span>
+                </div>
+            </div>
+            <div class="footer-section">
+                <h4>Stay Updated</h4>
+                <p style="color:rgba(255,255,255,0.5);font-size:0.88rem;margin-bottom:0.75rem;">Subscribe for the latest updates and offers.</p>
+                <form class="newsletter-form" onsubmit="handleNewsletter(event)">
+                    <input type="email" placeholder="Enter your email" required>
+                    <button type="submit">Subscribe</button>
+                </form>
+            </div>
+        </div>
+        <div class="footer-bottom-bar">
+            <p>&copy; 2025 Trouble Sarthi. All rights reserved. | Connecting Communities, Solving Problems</p>
+            <div class="footer-social">
+                <a href="#" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+                <a href="https://github.com/vighyatojha" target="_blank" aria-label="GitHub"><i class="fab fa-github"></i></a>
+                <a href="https://www.instagram.com/ojhavighyat___/" target="_blank" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+                <a href="#" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+            </div>
+        </div>
+    </footer>
+
 </div>
+</div><!-- /appContent -->
 
-
+<!-- ════ FIREBASE ════ -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import {
@@ -473,7 +849,6 @@ const firebaseConfig = {
     messagingSenderId: "241665118590",
     appId:             "1:241665118590:web:e705c3ca12324b8c25632f"
 };
-
 const app  = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db   = getFirestore(app);
@@ -483,12 +858,11 @@ onAuthStateChanged(auth, async (user) => {
         try {
             const adminSnap = await getDoc(doc(db, 'admins', user.uid));
             if (adminSnap.exists()) { window.location.replace('admin.html'); return; }
-        } catch (e) {}
-        window.location.replace('dashboard.html');
-        return;
+        } catch(e) {}
+        window.location.replace('dashboard.html'); return;
     }
     document.getElementById('pageLoader').style.display = 'none';
-    document.getElementById('appContent').style.display = 'block';
+    document.getElementById('appContent').style.display = 'flex';
     if (new URLSearchParams(location.search).get('tab') === 'signup') switchTab('signup');
 });
 
@@ -497,229 +871,227 @@ const RL = {
     get()  { try { return JSON.parse(sessionStorage.getItem(this.key)||'{}'); } catch { return {}; } },
     set(d) { sessionStorage.setItem(this.key, JSON.stringify(d)); },
     reset(){ sessionStorage.removeItem(this.key); },
-    locked(){
-        const d = this.get();
-        if (d.at && Date.now()-d.at < 900000) return true;
-        if (d.at) this.reset();
-        return false;
-    },
-    fail(){
-        const d = this.get();
-        d.n = (d.n||0)+1;
-        if (d.n >= 5) d.at = Date.now();
-        this.set(d); return d.n;
-    }
+    locked(){ const d=this.get(); if(d.at&&Date.now()-d.at<900000) return true; if(d.at) this.reset(); return false; },
+    fail(){ const d=this.get(); d.n=(d.n||0)+1; if(d.n>=5) d.at=Date.now(); this.set(d); return d.n; }
 };
-let _cd = null;
+let _cd=null;
 function startCountdown(){
-    const d = RL.get(); if (!d.at) return;
-    const btn = document.getElementById('loginBtn');
-    clearInterval(_cd);
-    _cd = setInterval(()=>{
-        const rem = 900000-(Date.now()-d.at);
-        if (rem<=0){ clearInterval(_cd); btn.disabled=false; btn.textContent='Login'; RL.reset(); return; }
-        const m = String(Math.floor(rem/60000)).padStart(2,'0');
-        const s = String(Math.floor((rem%60000)/1000)).padStart(2,'0');
+    const d=RL.get(); if(!d.at) return;
+    const btn=document.getElementById('loginBtn'); clearInterval(_cd);
+    _cd=setInterval(()=>{
+        const rem=900000-(Date.now()-d.at);
+        if(rem<=0){clearInterval(_cd);btn.disabled=false;btn.innerHTML='<i class="fas fa-sign-in-alt"></i> Login';RL.reset();return;}
+        const m=String(Math.floor(rem/60000)).padStart(2,'0'),s=String(Math.floor((rem%60000)/1000)).padStart(2,'0');
         btn.disabled=true; btn.textContent=`Try again in ${m}:${s}`;
-    }, 1000);
+    },1000);
 }
-if (RL.locked()) startCountdown();
+if(RL.locked()) startCountdown();
 
 window.doLogin = async () => {
-    if (RL.locked()) { startCountdown(); return; }
-    const input = document.getElementById('l_username').value.trim();
-    const pw    = document.getElementById('l_password').value;
-    if (!input || !pw) { showMsg('Please enter your username/email and password.','error'); return; }
-    setBtn('loginBtn', true, 'Logging in...');
+    if(RL.locked()){startCountdown();return;}
+    const input=document.getElementById('l_username').value.trim();
+    const pw=document.getElementById('l_password').value;
+    if(!input||!pw){showMsg('Please enter your username/email and password.','error');return;}
+    setBtn('loginBtn',true,'Signing in...');
     try {
-        let email = input;
-        if (!input.includes('@')) {
-            const aq = await getDocs(query(collection(db,'admins'), where('username','==',input.toLowerCase())));
-            if (!aq.empty) { email = aq.docs[0].data().email; }
-            else {
-                const uq = await getDocs(query(collection(db,'users'), where('username','==',input.toLowerCase())));
-                if (uq.empty) throw { code:'auth/user-not-found' };
-                email = uq.docs[0].data().email;
+        let email=input;
+        if(!input.includes('@')){
+            const aq=await getDocs(query(collection(db,'admins'),where('username','==',input.toLowerCase())));
+            if(!aq.empty){email=aq.docs[0].data().email;}
+            else{
+                const uq=await getDocs(query(collection(db,'users'),where('username','==',input.toLowerCase())));
+                if(uq.empty) throw{code:'auth/user-not-found'};
+                email=uq.docs[0].data().email;
             }
         }
-        await setPersistence(auth, document.getElementById('rememberMe').checked ? browserLocalPersistence : browserSessionPersistence);
-        await signInWithEmailAndPassword(auth, email, pw);
+        await setPersistence(auth,document.getElementById('rememberMe').checked?browserLocalPersistence:browserSessionPersistence);
+        await signInWithEmailAndPassword(auth,email,pw);
         RL.reset();
-    } catch(e) {
-        const n = RL.fail();
-        if (n>=5) { startCountdown(); showMsg('Too many attempts. Try again in 15 minutes.','error'); }
-        else { showMsg(`Invalid username or password! (${5-n} attempt${5-n!==1?'s':''} left)`,'error'); }
-        setBtn('loginBtn', false, 'Login');
+    } catch(e){
+        const n=RL.fail();
+        if(n>=5){startCountdown();showMsg('Too many attempts. Try again in 15 minutes.','error');}
+        else{showMsg(`Invalid username or password! (${5-n} attempt${5-n!==1?'s':''} left)`,'error');}
+        setBtn('loginBtn',false,'<i class="fas fa-sign-in-alt"></i> Login');
     }
 };
 
 window.doSignup = async () => {
-    const name = document.getElementById('s_name').value.trim();
-    const uname= document.getElementById('s_username').value.trim().toLowerCase();
-    const email= document.getElementById('s_email').value.trim();
-    const phone= document.getElementById('s_phone').value.trim();
-    const pw   = document.getElementById('s_password').value;
-    const conf = document.getElementById('s_confirm').value;
-    if (!name||!uname||!email||!phone||!pw){ showMsg('All fields are required!','error'); return; }
-    if (pw!==conf){ showMsg('Passwords do not match!','error'); return; }
-    if (pw.length<8){ showMsg('Password must be at least 8 characters!','error'); return; }
-    if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])/.test(pw)){ showMsg('Password needs uppercase, lowercase, number & special character!','error'); return; }
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){ showMsg('Please enter a valid email address!','error'); return; }
-    if (!/^\d{10}$/.test(phone.replace(/\D/g,''))){ showMsg('Please enter a valid 10-digit phone number!','error'); return; }
-    setBtn('signupBtn', true, 'Creating account...');
+    const name=document.getElementById('s_name').value.trim();
+    const uname=document.getElementById('s_username').value.trim().toLowerCase();
+    const email=document.getElementById('s_email').value.trim();
+    const phone=document.getElementById('s_phone').value.trim();
+    const pw=document.getElementById('s_password').value;
+    const conf=document.getElementById('s_confirm').value;
+    if(!name||!uname||!email||!phone||!pw){showMsg('All fields are required!','error');return;}
+    if(pw!==conf){showMsg('Passwords do not match!','error');return;}
+    if(pw.length<8){showMsg('Password must be at least 8 characters!','error');return;}
+    if(!/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])/.test(pw)){showMsg('Password needs uppercase, lowercase, number & special character!','error');return;}
+    if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){showMsg('Please enter a valid email address!','error');return;}
+    if(!/^\d{10}$/.test(phone.replace(/\D/g,''))){showMsg('Please enter a valid 10-digit phone number!','error');return;}
+    setBtn('signupBtn',true,'Creating account...');
     try {
-        const uq = await getDocs(query(collection(db,'users'), where('username','==',uname)));
-        if (!uq.empty){ showMsg('Username already taken!','error'); setBtn('signupBtn',false,'Create Account'); return; }
-        const cred = await createUserWithEmailAndPassword(auth, email, pw);
-        await updateProfile(cred.user, { displayName: name });
-        await setDoc(doc(db,'users',cred.user.uid), {
-            uid:cred.user.uid, fullName:name, username:uname, email,
-            phone: phone.startsWith('+91')?phone:`+91${phone.replace(/\D/g,'')}`,
-            photoUrl:null, provider:'email', dob:null, gender:null, emergencyContact:null,
-            profileComplete:false, locationEnabled:false, address:null, role:'user',
-            createdAt:serverTimestamp(), updatedAt:serverTimestamp()
+        const uq=await getDocs(query(collection(db,'users'),where('username','==',uname)));
+        if(!uq.empty){showMsg('Username already taken!','error');setBtn('signupBtn',false,'<i class="fas fa-user-plus"></i> Create Account');return;}
+        const cred=await createUserWithEmailAndPassword(auth,email,pw);
+        await updateProfile(cred.user,{displayName:name});
+        await setDoc(doc(db,'users',cred.user.uid),{
+            uid:cred.user.uid,fullName:name,username:uname,email,
+            phone:phone.startsWith('+91')?phone:`+91${phone.replace(/\D/g,'')}`,
+            photoUrl:null,provider:'email',dob:null,gender:null,emergencyContact:null,
+            profileComplete:false,locationEnabled:false,address:null,role:'user',
+            createdAt:serverTimestamp(),updatedAt:serverTimestamp()
         });
         showMsg('Account created! Redirecting...','success');
-    } catch(e) {
+    } catch(e){
         showMsg(friendlyErr(e.code),'error');
-        setBtn('signupBtn', false, 'Create Account');
+        setBtn('signupBtn',false,'<i class="fas fa-user-plus"></i> Create Account');
     }
 };
 
 window.doGoogle = async () => {
     try {
-        const r = await signInWithPopup(auth, new GoogleAuthProvider());
-        const u = r.user;
-        if (!(await getDoc(doc(db,'users',u.uid))).exists()) {
-            const n = u.displayName||'user';
-            await setDoc(doc(db,'users',u.uid), {
-                uid:u.uid, fullName:n, username:n.toLowerCase().replace(/\s+/g,'_').slice(0,30),
-                email:u.email||'', phone:u.phoneNumber||'', photoUrl:u.photoURL||null, provider:'google',
-                dob:null,gender:null,emergencyContact:null,profileComplete:false,locationEnabled:false,
-                address:null,role:'user',createdAt:serverTimestamp(),updatedAt:serverTimestamp()
-            });
+        const r=await signInWithPopup(auth,new GoogleAuthProvider()); const u=r.user;
+        if(!(await getDoc(doc(db,'users',u.uid))).exists()){
+            const n=u.displayName||'user';
+            await setDoc(doc(db,'users',u.uid),{uid:u.uid,fullName:n,username:n.toLowerCase().replace(/\s+/g,'_').slice(0,30),email:u.email||'',phone:u.phoneNumber||'',photoUrl:u.photoURL||null,provider:'google',dob:null,gender:null,emergencyContact:null,profileComplete:false,locationEnabled:false,address:null,role:'user',createdAt:serverTimestamp(),updatedAt:serverTimestamp()});
         }
-    } catch(e) { showMsg(friendlyErr(e.code),'error'); }
+    } catch(e){showMsg(friendlyErr(e.code),'error');}
 };
 
 window.doFacebook = async () => {
     try {
-        const r = await signInWithPopup(auth, new FacebookAuthProvider());
-        const u = r.user;
-        if (!(await getDoc(doc(db,'users',u.uid))).exists()) {
-            const n = u.displayName||'user';
-            await setDoc(doc(db,'users',u.uid), {
-                uid:u.uid, fullName:n, username:n.toLowerCase().replace(/\s+/g,'_').slice(0,30),
-                email:u.email||'', phone:'', photoUrl:u.photoURL||null, provider:'facebook',
-                dob:null,gender:null,emergencyContact:null,profileComplete:false,locationEnabled:false,
-                address:null,role:'user',createdAt:serverTimestamp(),updatedAt:serverTimestamp()
-            });
+        const r=await signInWithPopup(auth,new FacebookAuthProvider()); const u=r.user;
+        if(!(await getDoc(doc(db,'users',u.uid))).exists()){
+            const n=u.displayName||'user';
+            await setDoc(doc(db,'users',u.uid),{uid:u.uid,fullName:n,username:n.toLowerCase().replace(/\s+/g,'_').slice(0,30),email:u.email||'',phone:'',photoUrl:u.photoURL||null,provider:'facebook',dob:null,gender:null,emergencyContact:null,profileComplete:false,locationEnabled:false,address:null,role:'user',createdAt:serverTimestamp(),updatedAt:serverTimestamp()});
         }
-    } catch(e) { showMsg(friendlyErr(e.code),'error'); }
+    } catch(e){showMsg(friendlyErr(e.code),'error');}
 };
 
 window.handleForgot = async () => {
-    const val = document.getElementById('l_username').value.trim();
-    const addr = val.includes('@') ? val : prompt('Enter your email address to reset password:');
-    if (!addr) return;
-    try { await sendPasswordResetEmail(auth, addr); showMsg('Password reset email sent!','success'); }
-    catch(e) { showMsg(friendlyErr(e.code),'error'); }
+    const val=document.getElementById('l_username').value.trim();
+    const addr=val.includes('@')?val:prompt('Enter your email address to reset password:');
+    if(!addr) return;
+    try{await sendPasswordResetEmail(auth,addr);showMsg('Password reset email sent!','success');}
+    catch(e){showMsg(friendlyErr(e.code),'error');}
 };
 
-function friendlyErr(code) {
-    return({
-        'auth/invalid-email':'Invalid email address.',
-        'auth/user-not-found':'Invalid username or password!',
-        'auth/wrong-password':'Invalid username or password!',
-        'auth/invalid-credential':'Invalid username or password!',
-        'auth/email-already-in-use':'An account with this email already exists!',
-        'auth/weak-password':'Password must be at least 6 characters.',
-        'auth/too-many-requests':'Too many attempts. Try again in 15 minutes.',
-        'auth/network-request-failed':'Network error. Check your connection.',
-        'auth/popup-closed-by-user':'Sign-in popup was closed.'
-    }[code]||'Something went wrong. Please try again.');
+function friendlyErr(code){
+    return({'auth/invalid-email':'Invalid email address.','auth/user-not-found':'Invalid username or password!','auth/wrong-password':'Invalid username or password!','auth/invalid-credential':'Invalid username or password!','auth/email-already-in-use':'An account with this email already exists!','auth/weak-password':'Password must be at least 6 characters.','auth/too-many-requests':'Too many attempts. Try again in 15 minutes.','auth/network-request-failed':'Network error. Check your connection.','auth/popup-closed-by-user':'Sign-in popup was closed.'}[code]||'Something went wrong. Please try again.');
 }
-function setBtn(id,disabled,text){ const b=document.getElementById(id); if(b){b.disabled=disabled;b.textContent=text;} }
+function setBtn(id,disabled,html){const b=document.getElementById(id);if(b){b.disabled=disabled;b.innerHTML=html;}}
 function showMsg(msg,type){
-    const a=document.getElementById('msgArea'); if(!a) return;
+    const a=document.getElementById('msgArea');if(!a) return;
     a.innerHTML=`<div class="php-message php-${type==='success'?'success':'error'}" id="_m">${msg}</div>`;
     clearTimeout(a._t);
-    a._t=setTimeout(()=>{ const e=document.getElementById('_m'); if(e){e.classList.add('hide');setTimeout(()=>e.remove(),300);} },5000);
+    a._t=setTimeout(()=>{const e=document.getElementById('_m');if(e){e.classList.add('hide');setTimeout(()=>e.remove(),300);}},5000);
 }
 </script>
 
 <script>
-function switchTab(tab) {
+/* Navbar scroll */
+window.addEventListener('scroll',()=>{
+    document.getElementById('mainHeader').classList.toggle('scrolled',window.scrollY>60);
+});
+
+/* Mobile menu */
+function toggleMobileMenu(){
+    const menu=document.getElementById('mobileMenu'),icon=document.getElementById('menuIcon');
+    const isOpen=menu.classList.toggle('open');
+    icon.className=isOpen?'fas fa-times':'fas fa-bars';
+}
+function closeMobileMenu(){
+    document.getElementById('mobileMenu').classList.remove('open');
+    document.getElementById('menuIcon').className='fas fa-bars';
+}
+document.addEventListener('click',e=>{if(!e.target.closest('header')) closeMobileMenu();});
+
+/* Tab switch */
+function switchTab(tab){
     ['login','signup'].forEach(t=>{
-        document.getElementById(t+'Tab').classList.toggle('active', t===tab);
-        document.getElementById(t+'Form').classList.toggle('active', t===tab);
+        document.getElementById(t+'Tab').classList.toggle('active',t===tab);
+        document.getElementById(t+'Form').classList.toggle('active',t===tab);
     });
     document.getElementById('msgArea').innerHTML='';
 }
 
-function togglePassword(id,btn) {
-    const inp=document.getElementById(id), ic=btn.querySelector('i');
-    if(inp.type==='password'){ inp.type='text'; ic.classList.replace('fa-eye','fa-eye-slash'); }
-    else { inp.type='password'; ic.classList.replace('fa-eye-slash','fa-eye'); }
+/* Password toggle */
+function togglePassword(id,btn){
+    const inp=document.getElementById(id),ic=btn.querySelector('i');
+    if(inp.type==='password'){inp.type='text';ic.classList.replace('fa-eye','fa-eye-slash');}
+    else{inp.type='password';ic.classList.replace('fa-eye-slash','fa-eye');}
 }
 
-let _allReqsMet=false, _pwMatch=false;
-
-function onPasswordInput(pw) {
-    checkPasswordStrength(pw);
-    checkPasswordMatch();
-    updateSignupBtn();
-    const show = pw.length>0;
+/* Password strength */
+let _allReqsMet=false,_pwMatch=false;
+function onPasswordInput(pw){
+    checkPasswordStrength(pw); checkPasswordMatch(); updateSignupBtn();
+    const show=pw.length>0;
     document.getElementById('passwordStrength').classList.toggle('show',show);
     document.getElementById('passwordRequirements').classList.toggle('show',show);
 }
-
-function checkPasswordStrength(pw) {
-    const req = { len:pw.length>=8, up:/[A-Z]/.test(pw), lo:/[a-z]/.test(pw), num:/\d/.test(pw), sp:/[@$!%*?&]/.test(pw) };
+function checkPasswordStrength(pw){
+    const req={len:pw.length>=8,up:/[A-Z]/.test(pw),lo:/[a-z]/.test(pw),num:/\d/.test(pw),sp:/[@$!%*?&]/.test(pw)};
     [['lengthReq',req.len],['uppercaseReq',req.up],['lowercaseReq',req.lo],['numberReq',req.num],['specialReq',req.sp]]
-    .forEach(([id,v])=>{ const el=document.getElementById(id),ic=el.querySelector('.requirement-icon'); el.classList.toggle('valid',v); ic.textContent=v?'✓':'✗'; });
-    const met=Object.values(req).filter(Boolean).length;
-    _allReqsMet=(met===5);
-    const fill=document.getElementById('strengthFill'), text=document.getElementById('strengthText');
-    if(!pw.length){ fill.className='strength-fill'; text.textContent='Password strength'; return; }
-    const lvl=met<=2?['weak','Weak']:met<=3?['fair','Fair']:met<=4?['good','Good']:['strong','Strong'];
-    fill.className=`strength-fill ${lvl[0]}`; text.className=`strength-text ${lvl[0]}`; text.textContent=lvl[1];
+    .forEach(([id,v])=>{const el=document.getElementById(id),ic=el.querySelector('.requirement-icon');el.classList.toggle('valid',v);ic.textContent=v?'✓':'✗';});
+    const met=Object.values(req).filter(Boolean).length; _allReqsMet=(met===5);
+    const t=document.getElementById('strengthText'),segs=['seg1','seg2','seg3','seg4'];
+    if(!pw.length){segs.forEach(s=>{document.getElementById(s).className='strength-segment';});t.className='strength-text';t.textContent='Password strength';return;}
+    const lvl=met<=2?['weak','Weak',1]:met<=3?['fair','Fair',2]:met<=4?['good','Good',3]:['strong','Strong',4];
+    segs.forEach((s,i)=>{document.getElementById(s).className='strength-segment'+(i<lvl[2]?' active '+lvl[0]:'');});
+    t.className=`strength-text ${lvl[0]}`;t.textContent=lvl[1];
 }
-
-function checkPasswordMatch() {
-    const pw=document.getElementById('s_password').value, cf=document.getElementById('s_confirm').value;
+function checkPasswordMatch(){
+    const pw=document.getElementById('s_password').value,cf=document.getElementById('s_confirm').value;
     const ind=document.getElementById('passwordMatch');
-    if(!cf.length){ ind.classList.remove('show'); _pwMatch=false; return; }
+    if(!cf.length){ind.classList.remove('show');_pwMatch=false;return;}
     const ok=pw===cf&&pw.length>0;
-    ind.classList.add('show'); ind.classList.toggle('valid',ok); ind.classList.toggle('invalid',!ok);
-    ind.textContent=ok?'✓':'✗'; _pwMatch=ok;
+    ind.classList.add('show');ind.classList.toggle('valid',ok);ind.classList.toggle('invalid',!ok);
+    ind.textContent=ok?'✓':'✗';_pwMatch=ok;
 }
-
-function updateSignupBtn() {
-    const terms=document.getElementById('termsCheck').checked, can=_allReqsMet&&_pwMatch&&terms;
+function updateSignupBtn(){
+    const terms=document.getElementById('termsCheck').checked,can=_allReqsMet&&_pwMatch&&terms;
     const btn=document.getElementById('signupBtn');
-    btn.disabled=!can; btn.style.opacity=can?'1':'0.6'; btn.style.cursor=can?'pointer':'not-allowed';
+    btn.disabled=!can;btn.style.opacity=can?'1':'0.6';btn.style.cursor=can?'pointer':'not-allowed';
 }
 
-document.addEventListener('DOMContentLoaded', ()=>{
+/* Newsletter */
+function handleNewsletter(e){
+    e.preventDefault();
+    const input=e.target.querySelector('input');
+    if(input.value&&/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(input.value)){
+        showNotification('Thank you for subscribing! 🎉','success');input.value='';
+    } else {showNotification('Please enter a valid email address.','error');}
+}
+function showNotification(msg,type){
+    document.querySelector('.notification')?.remove();
+    const n=document.createElement('div');
+    n.className=`notification notification-${type}`;
+    n.innerHTML=`<span>${msg}</span><button onclick="this.parentElement.remove()">×</button>`;
+    document.body.appendChild(n);
+    setTimeout(()=>n.remove(),5000);
+}
+
+/* Validation */
+document.addEventListener('DOMContentLoaded',()=>{
     document.getElementById('s_phone').addEventListener('input',function(){
         this.value=this.value.replace(/\D/g,'');
         if(this.value.length>10) this.value=this.value.slice(0,10);
-        this.style.borderColor=this.value.length===10?'#7cb342':(this.value.length?'#dc3545':'');
+        this.style.borderColor=this.value.length===10?'var(--green-light)':(this.value.length?'#ef5350':'');
     });
-    document.getElementById('s_username').addEventListener('input',function(){ this.value=this.value.replace(/[^a-zA-Z0-9_]/g,''); });
-    document.getElementById('s_name').addEventListener('input',function(){ this.value=this.value.replace(/[^a-zA-Z\s]/g,''); });
+    document.getElementById('s_username').addEventListener('input',function(){this.value=this.value.replace(/[^a-zA-Z0-9_]/g,'');});
+    document.getElementById('s_name').addEventListener('input',function(){this.value=this.value.replace(/[^a-zA-Z\s]/g,'');});
     document.getElementById('s_email').addEventListener('blur',function(){
         const ok=/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(this.value);
-        this.style.borderColor=this.value?(ok?'#7cb342':'#dc3545'):'';
+        this.style.borderColor=this.value?(ok?'var(--green-light)':'#ef5350'):'';
     });
-    document.getElementById('l_password').addEventListener('keydown', e=>{ if(e.key==='Enter') window.doLogin(); });
+    document.getElementById('l_password').addEventListener('keydown',e=>{if(e.key==='Enter') window.doLogin();});
     document.querySelectorAll('input[type="password"]').forEach(f=>{
         f.addEventListener('copy',e=>e.preventDefault());
         f.addEventListener('cut',e=>e.preventDefault());
         f.addEventListener('contextmenu',e=>e.preventDefault());
     });
-    window.addEventListener('beforeunload',()=>{ document.querySelectorAll('input[type="password"]').forEach(f=>f.value=''); });
+    window.addEventListener('beforeunload',()=>{document.querySelectorAll('input[type="password"]').forEach(f=>f.value='');});
 });
 </script>
 
