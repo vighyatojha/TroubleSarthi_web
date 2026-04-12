@@ -2412,13 +2412,28 @@ window.loadUserConversations=()=>{
 
 window.loadSupportConversations=()=>{
   if(suppConvUnsub){suppConvUnsub();suppConvUnsub=null;}
+  // Reset chat panel to empty state
+  activeSuppKey=null;
+  document.getElementById('suppChatEmpty').style.display='flex';
+  document.getElementById('suppChatActive').style.display='none';
   suppConvUnsub=onValue(ref(rtdb,'support_chats'),snap=>{
     if(!snap.exists()){
       document.getElementById('suppConvList').innerHTML='<div class="conv-empty"><i class="fa-solid fa-headset"></i><p>No support chats</p></div>';
       document.getElementById('suppConvCount').textContent='0';
       setNavBadge('support',0);return;
     }
-    const convs=[];snap.forEach(child=>convs.push({key:child.key,...child.val()}));
+    const convs=[];
+    snap.forEach(child=>{
+      // Each child can be either a direct conv OR a nested object with a messages subkey
+      // support_chats/{helperUid} — we need the metadata fields, skip pure message nodes
+      const val=child.val();
+      if(val&&typeof val==='object'){
+        // Build conv entry; if it has a messages subkey, strip it for meta
+        const {messages:_msgs,...meta}=val;
+        const helperName=meta.helperName||meta.senderName||meta.name||child.key;
+        convs.push({key:child.key,helperName,...meta});
+      }
+    });
     convs.sort((a,b)=>(b.lastMessageTime||0)-(a.lastMessageTime||0));
     allSuppConvs=convs;renderSuppConvList(convs);
     setNavBadge('support',convs.reduce((s,c)=>s+(c.unreadAdmin||0),0));
@@ -2646,7 +2661,7 @@ function renderHelpers(){
       <td><strong>${esc(h.name||'')}</strong></td>
       <td>${esc(h.phoneNumber||'')}</td>
       <td>${esc(h.category||'—')}</td>
-      <td>${esc(h.location||'N/A')}</td>
+      <td>${esc(typeof h.location==='object'&&h.location!==null?(h.location.city||h.location.name||h.location.address||JSON.stringify(h.location)):h.location||'N/A')}</td>
       <td class="status-cell"><span class="badge badge-${h.isAvailable?'active':'inactive'}">${h.isAvailable?'Active':'Inactive'}</span></td>
       <td class="kyc-cell"><span class="badge badge-${kbadge}">${klbl}</span></td>
       <td>⭐ ${parseFloat(h.rating||0).toFixed(1)}</td>
@@ -2657,6 +2672,7 @@ function renderHelpers(){
           :`<button class="btn btn-success btn-sm" onclick="toggleHelper('${h.id}',true,this)">Activate</button>`}
         ${kst==='pending'?`<button class="btn btn-info btn-sm" onclick="openKYCModal('${h.id}')"><i class="fa-solid fa-id-card"></i></button>`:''}
         <button class="btn btn-danger btn-sm" onclick="deleteHelper('${h.id}',this)"><i class="fa-solid fa-trash"></i></button>
+        <button class="btn btn-info btn-sm" title="Message Helper" onclick="adminMessageHelper('${esc(h.id)}','${esc(h.name||'')}')"><i class="fa-solid fa-comment"></i></button>
       </div></td>
     </tr>`;
   }).join('');
@@ -2697,6 +2713,29 @@ function renderKYC(){
     </div>`;
   }).join('');
 }
+
+window.adminMessageHelper=async(helperId, helperName)=>{
+  // Ensure support_chats/{helperId} node exists with metadata then open it
+  showSection('support');
+  setTimeout(()=>{
+    // Try to find existing conv
+    const existing=allSuppConvs.find(c=>c.key===helperId);
+    if(existing){
+      openSuppConv(helperId, helperName);
+    } else {
+      // Create the node so it appears in the list
+      update(ref(rtdb,`support_chats/${helperId}`),{
+        helperName: helperName,
+        lastMessage: '',
+        lastMessageTime: Date.now(),
+        unreadAdmin: 0,
+        status: 'open',
+      }).then(()=>{
+        openSuppConv(helperId, helperName);
+      });
+    }
+  }, 600);
+};
 
 window.openKYCModal=id=>{
   const h=allHelpers.find(x=>x.id===id);if(!h) return;
@@ -3201,6 +3240,15 @@ window.hideStatus=()=>{clearTimeout(document.getElementById('statusMessage')._t)
 <!-- UI JS (no Firebase) -->
 <script>
 window.showSection=name=>{
+  // Reset support chat panel when leaving
+  const prevActive=document.querySelector('.content-section.active')?.id;
+  if(prevActive==='support'&&name!=='support'){
+    if(suppMsgUnsub){suppMsgUnsub();suppMsgUnsub=null;}
+    activeSuppKey=null;
+    const se=document.getElementById('suppChatEmpty');if(se)se.style.display='flex';
+    const sa=document.getElementById('suppChatActive');if(sa)sa.style.display='none';
+    if(suppConvUnsub){suppConvUnsub();suppConvUnsub=null;allSuppConvs=[];}
+  }
   if(name==='profile'&&typeof auth!=='undefined'&&auth.currentUser){
     const u=auth.currentUser;
     const nameEl=document.getElementById('pp_name');if(nameEl)nameEl.value=u.displayName||'';
