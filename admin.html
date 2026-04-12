@@ -2148,7 +2148,7 @@ import { getAuth, onAuthStateChanged, signOut, createUserWithEmailAndPassword, u
 import { getFirestore, collection, getDocs, doc, getDoc, addDoc, setDoc, updateDoc,
          deleteDoc, serverTimestamp, query, orderBy, onSnapshot, writeBatch, deleteField }
   from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-import { getDatabase, ref, push, onValue, off, update, remove }
+import { getDatabase, ref, push, onValue, off, update, remove, increment }
   from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
 const firebaseConfig = {
@@ -2294,20 +2294,6 @@ function highlightRow(id){
   if(row){row.classList.add('updated');setTimeout(()=>row.classList.remove('updated'),600);}
 }
 
-/* ── DETECT MESSAGES PATH ── */
-async function detectMsgsPath(basePath){
-  return new Promise(resolve=>{
-    const msgsRef=ref(rtdb,basePath+'/messages');
-    onValue(msgsRef,snap=>{
-      off(msgsRef);
-      if(snap.exists()){
-        let looksLike=false;
-        snap.forEach(child=>{const v=child.val();if(v&&typeof v==='object'&&(v.text!==undefined||v.timestamp!==undefined)){looksLike=true;}});
-        resolve(looksLike?basePath+'/messages':basePath);
-      } else {resolve(basePath+'/messages');}
-    },{onlyOnce:true});
-  });
-}
 
 /* ── MIGRATION ── */
 async function migrateHelperDocuments(){
@@ -2409,7 +2395,7 @@ async function loadBookingsFallback(){try{const s=await getDocs(collection(db,'b
 function setupRTDBListeners(){loadUserConversations();loadSupportConversations();}
 
 window.loadUserConversations=()=>{
-  if(userConvUnsub){off(ref(rtdb,'chatMeta'));userConvUnsub=null;}
+  if(userConvUnsub){userConvUnsub();userConvUnsub=null;}
   userConvUnsub=onValue(ref(rtdb,'chatMeta'),snap=>{
     if(!snap.exists()){document.getElementById('convList').innerHTML='<div class="conv-empty"><i class="fa-solid fa-inbox"></i><p>No user chats yet</p></div>';return;}
     const convs=[];
@@ -2425,7 +2411,7 @@ window.loadUserConversations=()=>{
 };
 
 window.loadSupportConversations=()=>{
-  if(suppConvUnsub){off(ref(rtdb,'support_chats'));suppConvUnsub=null;}
+  if(suppConvUnsub){suppConvUnsub();suppConvUnsub=null;}
   suppConvUnsub=onValue(ref(rtdb,'support_chats'),snap=>{
     if(!snap.exists()){
       document.getElementById('suppConvList').innerHTML='<div class="conv-empty"><i class="fa-solid fa-headset"></i><p>No support chats</p></div>';
@@ -2498,15 +2484,15 @@ window.openUserConv=(convKey,name,email,phone)=>{
   document.getElementById('chatMsgs').innerHTML='';
   document.getElementById('chatInput').focus();
   update(ref(rtdb,`chatMeta/${convKey}`),{unreadAdmin:0}).catch(()=>{});
-  detectMsgsPath(`messages/${convKey}`).then(resolvedPath=>{
-    if(activeConvKey!==convKey) return;
-    const msgsRef=ref(rtdb,resolvedPath);
-    msgUnsub=onValue(msgsRef,snap=>{
-      const msgs=[];
-      if(snap.exists())snap.forEach(child=>{const v=child.val();if(v&&typeof v==='object'&&(v.text!==undefined||v.timestamp!==undefined||v.senderId!==undefined))msgs.push({key:child.key,...v});});
-      msgs.sort((a,b)=>(a.timestamp||0)-(b.timestamp||0));
-      renderChatMsgs(msgs,'user');
+  msgUnsub=onValue(ref(rtdb,`messages/${convKey}/messages`),snap=>{
+    const msgs=[];
+    if(snap.exists())snap.forEach(child=>{
+      const v=child.val();
+      if(v&&typeof v==='object')msgs.push({key:child.key,...v});
     });
+    msgs.sort((a,b)=>((a.timestamp||0)-(b.timestamp||0)));
+    renderChatMsgs(msgs,'user');
+  });
   });
   if(window.innerWidth<=768){document.getElementById('convPanel').classList.add('mob-conv-hidden');document.getElementById('chatPanel').classList.add('mob-chat-open');}
 };
@@ -2594,12 +2580,18 @@ window.sendMsg=async type=>{
   try{
     const now=Date.now();
     const msgData={text,senderId:'admin',senderName:currentAdmin.displayName||'Admin',senderRole:'admin',timestamp:now,read:false};
-    if(type==='user'){
+     if(type==='user'){
       await push(ref(rtdb,`messages/${convKey}/messages`),msgData);
       await update(ref(rtdb,`chatMeta/${convKey}`),{lastMessage:text,lastMessageTime:now,lastSenderId:'admin'});
     }else{
       await push(ref(rtdb,`support_chats/${convKey}/messages`),msgData);
-      await update(ref(rtdb,`support_chats/${convKey}`),{lastMessage:text,lastMessageTime:now,lastSenderId:'admin',status:'replied'});
+      await update(ref(rtdb,`support_chats/${convKey}`),{
+        lastMessage:text,
+        lastMessageTime:now,
+        lastSenderId:'admin',
+        status:'replied',
+        unreadHelper:increment(1),
+      });
     }
   }catch(e){
     showStatus('Send failed: '+e.message,'error');
