@@ -2493,7 +2493,6 @@ window.openUserConv=(convKey,name,email,phone)=>{
     msgs.sort((a,b)=>((a.timestamp||0)-(b.timestamp||0)));
     renderChatMsgs(msgs,'user');
   });
-  });
   if(window.innerWidth<=768){document.getElementById('convPanel').classList.add('mob-conv-hidden');document.getElementById('chatPanel').classList.add('mob-chat-open');}
 };
 
@@ -2507,15 +2506,14 @@ window.openSuppConv=(convKey,name)=>{
   document.getElementById('suppChatMsgs').innerHTML='';
   document.getElementById('suppChatInput').focus();
   update(ref(rtdb,`support_chats/${convKey}`),{unreadAdmin:0}).catch(()=>{});
-  detectMsgsPath(`support_chats/${convKey}`).then(resolvedPath=>{
-    if(activeSuppKey!==convKey) return;
-    const msgsRef=ref(rtdb,resolvedPath);
-    suppMsgUnsub=onValue(msgsRef,snap=>{
-      const msgs=[];
-      if(snap.exists())snap.forEach(child=>{const v=child.val();if(v&&typeof v==='object'&&(v.text!==undefined||v.timestamp!==undefined||v.senderId!==undefined))msgs.push({key:child.key,...v});});
-      msgs.sort((a,b)=>(a.timestamp||0)-(b.timestamp||0));
-      renderChatMsgs(msgs,'support');
+  suppMsgUnsub=onValue(ref(rtdb,`support_chats/${convKey}/messages`),snap=>{
+    const msgs=[];
+    if(snap.exists())snap.forEach(child=>{
+      const v=child.val();
+      if(v&&typeof v==='object')msgs.push({key:child.key,...v});
     });
+    msgs.sort((a,b)=>((a.timestamp||0)-(b.timestamp||0)));
+    renderChatMsgs(msgs,'support');
   });
   if(window.innerWidth<=768){document.getElementById('suppConvPanel').classList.add('mob-conv-hidden');document.getElementById('suppChatPanel').classList.add('mob-chat-open');}
 };
