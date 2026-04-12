@@ -2639,12 +2639,18 @@ window.markSuppResolved=async()=>{
 };
 
 window.deleteSuppChat=async()=>{
-  if(!activeSuppKey||!confirm('Delete all messages in this support chat?')) return;
+  if(!activeSuppKey||!confirm('Delete this support chat permanently? This cannot be undone.')) return;
+  const keyToDelete=activeSuppKey;
   try{
-    await remove(ref(rtdb,`support_chats/${activeSuppKey}/messages`));
-    await update(ref(rtdb,`support_chats/${activeSuppKey}`),{lastMessage:'Chat cleared',lastMessageTime:Date.now()});
-    showStatus('Support chat cleared ✓','success');
-    document.getElementById('suppChatMsgs').innerHTML='<div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;color:var(--text-3);gap:.6rem;"><i class="fa-solid fa-comment-slash" style="font-size:2rem;opacity:.12;"></i><p style="font-size:.8rem;">No messages yet</p></div>';
+    // Remove entire support_chats/{helperId} node — only affects this one helper
+    await remove(ref(rtdb,`support_chats/${keyToDelete}`));
+    showStatus('Support chat deleted ✓','success');
+    // Reset chat panel to empty state
+    activeSuppKey=null;
+    document.getElementById('suppChatEmpty').style.display='flex';
+    document.getElementById('suppChatActive').style.display='none';
+    // Stop listening to this conv's messages
+    if(suppMsgUnsub){suppMsgUnsub();suppMsgUnsub=null;}
   }catch(e){showStatus('Error: '+e.message,'error');}
 };
 
