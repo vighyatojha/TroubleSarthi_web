@@ -1893,6 +1893,7 @@ tr.updated{animation:rowFlash .5s ease;}
               </div>
               <div class="chat-hdr-actions">
                 <button class="icon-btn green" onclick="markSuppResolved()" title="Mark resolved"><i class="fa-solid fa-check-circle"></i></button>
+                <button class="icon-btn danger" onclick="deleteSuppChat()" title="Delete chat"><i class="fa-solid fa-trash"></i></button>
               </div>
             </div>
             <div class="chat-msgs" id="suppChatMsgs"></div>
@@ -2173,6 +2174,17 @@ let allUserConvs=[], allSuppConvs=[];
 let msgUnsub=null, suppMsgUnsub=null, userConvUnsub=null, suppConvUnsub=null;
 let helpersUnsub=null, usersUnsub=null, bookingsUnsub=null;
 let _firstRenderUser=true, _firstRenderSupp=true;
+
+// Expose to window so the non-module UI script can access these
+Object.defineProperties(window,{
+  _suppMsgUnsub:{get:()=>suppMsgUnsub,set:v=>{suppMsgUnsub=v;}},
+  _suppConvUnsub:{get:()=>suppConvUnsub,set:v=>{suppConvUnsub=v;}},
+  _msgUnsub:{get:()=>msgUnsub,set:v=>{msgUnsub=v;}},
+  _userConvUnsub:{get:()=>userConvUnsub,set:v=>{userConvUnsub=v;}},
+  _activeSuppKey:{get:()=>activeSuppKey,set:v=>{activeSuppKey=v;}},
+  _activeConvKey:{get:()=>activeConvKey,set:v=>{activeConvKey=v;}},
+  _allSuppConvs:{get:()=>allSuppConvs,set:v=>{allSuppConvs=v;}},
+});
 
 /* ── SERVICE CATEGORIES ── */
 const SERVICE_CATEGORIES = {
@@ -2624,6 +2636,16 @@ window.markSuppResolved=async()=>{
   if(!activeSuppKey||!confirm('Mark as resolved?')) return;
   try{await update(ref(rtdb,`support_chats/${activeSuppKey}`),{status:'resolved'});showStatus('Marked resolved ✓','success');}
   catch(e){showStatus('Error: '+e.message,'error');}
+};
+
+window.deleteSuppChat=async()=>{
+  if(!activeSuppKey||!confirm('Delete all messages in this support chat?')) return;
+  try{
+    await remove(ref(rtdb,`support_chats/${activeSuppKey}/messages`));
+    await update(ref(rtdb,`support_chats/${activeSuppKey}`),{lastMessage:'Chat cleared',lastMessageTime:Date.now()});
+    showStatus('Support chat cleared ✓','success');
+    document.getElementById('suppChatMsgs').innerHTML='<div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;color:var(--text-3);gap:.6rem;"><i class="fa-solid fa-comment-slash" style="font-size:2rem;opacity:.12;"></i><p style="font-size:.8rem;">No messages yet</p></div>';
+  }catch(e){showStatus('Error: '+e.message,'error');}
 };
 
 function setNavBadge(type,n){
@@ -3243,11 +3265,17 @@ window.showSection=name=>{
   // Reset support chat panel when leaving
   const prevActive=document.querySelector('.content-section.active')?.id;
   if(prevActive==='support'&&name!=='support'){
-    if(suppMsgUnsub){suppMsgUnsub();suppMsgUnsub=null;}
-    activeSuppKey=null;
+    if(window._suppMsgUnsub){window._suppMsgUnsub();window._suppMsgUnsub=null;}
+    window._activeSuppKey=null;
     const se=document.getElementById('suppChatEmpty');if(se)se.style.display='flex';
     const sa=document.getElementById('suppChatActive');if(sa)sa.style.display='none';
-    if(suppConvUnsub){suppConvUnsub();suppConvUnsub=null;allSuppConvs=[];}
+    if(window._suppConvUnsub){window._suppConvUnsub();window._suppConvUnsub=null;window._allSuppConvs=[];}
+  }
+  if(prevActive==='messages'&&name!=='messages'){
+    if(window._msgUnsub){window._msgUnsub();window._msgUnsub=null;}
+    window._activeConvKey=null;
+    const ce=document.getElementById('chatEmpty');if(ce)ce.style.display='flex';
+    const ca=document.getElementById('chatActive');if(ca)ca.style.display='none';
   }
   if(name==='profile'&&typeof auth!=='undefined'&&auth.currentUser){
     const u=auth.currentUser;
