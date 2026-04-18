@@ -2690,7 +2690,10 @@ function renderHelpers(){
       <td>${esc(h.phoneNumber||'')}</td>
       <td>${esc(h.category||'—')}</td>
       <td>${esc(typeof h.location==='object'&&h.location!==null?(h.location.city||h.location.name||h.location.address||JSON.stringify(h.location)):h.location||'N/A')}</td>
-      <td class="status-cell"><span class="badge badge-${h.isAvailable?'active':'inactive'}">${h.isAvailable?'Active':'Inactive'}</span></td>
+      <td class="status-cell">
+        <span class="badge badge-${h.isAvailable?'active':'inactive'}">${h.isAvailable?'Active':'Inactive'}</span>
+        ${h.isOnline?'<span class="badge badge-confirmed live-chip" style="margin-left:3px;font-size:.63rem;">● Live</span>':''}
+      </td>
       <td class="kyc-cell"><span class="badge badge-${kbadge}">${klbl}</span></td>
       <td>⭐ ${parseFloat(h.rating||0).toFixed(1)}</td>
       <td><div class="action-btns">
@@ -2698,6 +2701,9 @@ function renderHelpers(){
         ${h.isAvailable
           ?`<button class="btn btn-warning btn-sm" onclick="toggleHelper('${h.id}',false,this)">Deactivate</button>`
           :`<button class="btn btn-success btn-sm" onclick="toggleHelper('${h.id}',true,this)">Activate</button>`}
+        ${h.isOnline
+          ?`<button class="btn btn-danger btn-sm" onclick="toggleHelperOnline('${h.id}',false,this)" title="Force helper offline"><i class="fa-solid fa-wifi"></i> Live</button>`
+          :`<button class="btn btn-secondary btn-sm" onclick="toggleHelperOnline('${h.id}',true,this)" title="Force helper online"><i class="fa-solid fa-wifi-slash"></i> Offline</button>`}
         ${kst==='pending'?`<button class="btn btn-info btn-sm" onclick="openKYCModal('${h.id}')"><i class="fa-solid fa-id-card"></i></button>`:''}
         <button class="btn btn-danger btn-sm" onclick="deleteHelper('${h.id}',this)"><i class="fa-solid fa-trash"></i></button>
         <button class="btn btn-info btn-sm" title="Message Helper" onclick="adminMessageHelper('${esc(h.id)}','${esc(h.name||'')}')"><i class="fa-solid fa-comment"></i></button>
@@ -2827,6 +2833,38 @@ window.toggleHelper=async(id,active,btnEl)=>{
   }catch(e){showStatus('Error: '+e.message,'error');setBtnLoading(btnEl,false);}
 };
 
+window.toggleHelperOnline=async(id,online,btnEl)=>{
+  if(!confirm(`Force this helper ${online?'ONLINE':'OFFLINE'}? This overrides their own toggle.`)) return;
+  setBtnLoading(btnEl,true);
+  try{
+    await updateDoc(doc(db,'helpers',id),{isOnline:online});
+    showStatus(`Helper forced ${online?'online ✓':'offline ✓'}`,'success');
+    const row=document.querySelector(`tr[data-id="${id}"]`);
+    if(row){
+      // Swap the live/offline chip in the status cell
+      const sc=row.querySelector('.status-cell');
+      if(sc){
+        const oldChip=sc.querySelector('.live-chip');if(oldChip)oldChip.remove();
+        if(online){
+          const chip=document.createElement('span');
+          chip.className='badge badge-confirmed live-chip';
+          chip.style.cssText='margin-left:3px;font-size:.63rem;';
+          chip.textContent='● Live';sc.appendChild(chip);
+        }
+      }
+      // Swap the button itself
+      const nb=document.createElement('button');
+      nb.className=online?'btn btn-danger btn-sm':'btn btn-secondary btn-sm';
+      nb.title=online?'Force offline':'Force online';
+      nb.innerHTML=online
+        ?'<i class="fa-solid fa-wifi"></i> Live'
+        :'<i class="fa-solid fa-wifi-slash"></i> Offline';
+      nb.onclick=()=>toggleHelperOnline(id,!online,nb);
+      btnEl.replaceWith(nb);highlightRow(id);
+    }
+  }catch(e){showStatus('Error: '+e.message,'error');setBtnLoading(btnEl,false);}
+};
+
 window.deleteHelper=async(id,btnEl)=>{
   if(!confirm('Delete this helper permanently?')) return;
   setBtnLoading(btnEl,true);
@@ -2907,7 +2945,18 @@ let userSearch='';
 function renderUsers(){
   const tbody=document.getElementById('usersTable');
   let list=allUsers;
-  if(userSearch){const q=userSearch.toLowerCase();list=list.filter(u=>(u.fullName||'').toLowerCase().includes(q)||(u.email||'').toLowerCase().includes(q));}
+  if(userSearch){
+    const q=userSearch.toLowerCase();
+    list=list.filter(u=>
+      (u.fullName||'').toLowerCase().includes(q)||
+      (u.username||'').toLowerCase().includes(q)||
+      (u.name||'').toLowerCase().includes(q)||
+      (u.displayName||'').toLowerCase().includes(q)||
+      (u.email||'').toLowerCase().includes(q)||
+      (u.phone||'').replace('+91','').toLowerCase().includes(q)||
+      (u.id||'').toLowerCase().includes(q)
+    );
+  }
   if(!list.length){tbody.innerHTML='<tr><td colspan="8" class="empty-state">No users found.</td></tr>';return;}
   tbody.innerHTML=list.map(u=>{
     const joined=u.createdAt?.toDate?u.createdAt.toDate().toLocaleDateString('en-IN',{year:'numeric',month:'short',day:'numeric'}):'N/A';
