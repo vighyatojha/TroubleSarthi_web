@@ -8,6 +8,23 @@
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 <style>
+
+   /* ── CONV SELECT MODE ── */
+.conv-check{
+  display:none;width:16px;height:16px;flex-shrink:0;
+  accent-color:var(--brand);cursor:pointer;border-radius:4px;
+}
+.conv-panel[data-select-mode="true"] .conv-check{display:block;}
+.conv-panel[data-select-mode="true"] .conv-item{padding-left:.65rem;}
+.select-bar{
+  display:none;padding:.55rem .9rem;
+  background:var(--danger-dim);
+  border-bottom:1px solid rgba(239,68,68,.2);
+  align-items:center;justify-content:space-between;
+  gap:.5rem;flex-shrink:0;
+}
+.select-bar.show{display:flex;}
+.sel-count{font-size:.75rem;font-weight:700;color:var(--text-2);}
 /* ═══════════════════════════════════
    CUSTOM FONT
 ═══════════════════════════════════ */
@@ -1823,9 +1840,25 @@ tr.updated{animation:rowFlash .5s ease;}
       <div class="msg-wrapper" id="userMsgWrapper">
         <div class="conv-panel" id="convPanel">
           <div class="conv-header">
-            <h2>Users <span class="conv-count" id="convCount">0</span></h2>
-            <button class="refresh-btn" onclick="loadUserConversations()" title="Refresh"><i class="fa-solid fa-rotate-right"></i></button>
-          </div>
+  <h2>Users <span class="conv-count" id="convCount">0</span></h2>
+  <div style="display:flex;gap:.35rem;">
+    <button class="refresh-btn" id="userSelectBtn" onclick="toggleConvSelectMode('user')" title="Select chats to delete">
+      <i class="fa-regular fa-square-check"></i>
+    </button>
+    <button class="refresh-btn" onclick="loadUserConversations()" title="Refresh">
+      <i class="fa-solid fa-rotate-right"></i>
+    </button>
+  </div>
+</div>
+<div class="select-bar" id="userSelectBar">
+  <label style="display:flex;align-items:center;gap:.45rem;cursor:pointer;">
+    <input type="checkbox" id="userSelectAll" onchange="toggleSelectAll('user',this.checked)" style="accent-color:var(--brand);width:15px;height:15px;">
+    <span class="sel-count" id="userSelCount">0 selected</span>
+  </label>
+  <button class="btn btn-danger btn-sm" onclick="deleteSelectedConvs('user')">
+    <i class="fa-solid fa-trash"></i> Delete
+  </button>
+</div>
           <div class="conv-search-wrap">
             <div class="conv-search-inner"><i class="fa-solid fa-magnifying-glass"></i>
               <input type="text" id="convSearch" placeholder="Search users…" oninput="filterUserConvs(this.value)">
@@ -1879,9 +1912,25 @@ tr.updated{animation:rowFlash .5s ease;}
       <div class="msg-wrapper" id="supportMsgWrapper">
         <div class="conv-panel" id="suppConvPanel">
           <div class="conv-header">
-            <h2>Helpers <span class="conv-count" id="suppConvCount">0</span></h2>
-            <button class="refresh-btn" onclick="loadSupportConversations()"><i class="fa-solid fa-rotate-right"></i></button>
-          </div>
+  <h2>Helpers <span class="conv-count" id="suppConvCount">0</span></h2>
+  <div style="display:flex;gap:.35rem;">
+    <button class="refresh-btn" id="suppSelectBtn" onclick="toggleConvSelectMode('support')" title="Select chats to delete">
+      <i class="fa-regular fa-square-check"></i>
+    </button>
+    <button class="refresh-btn" onclick="loadSupportConversations()">
+      <i class="fa-solid fa-rotate-right"></i>
+    </button>
+  </div>
+</div>
+<div class="select-bar" id="suppSelectBar">
+  <label style="display:flex;align-items:center;gap:.45rem;cursor:pointer;">
+    <input type="checkbox" id="suppSelectAll" onchange="toggleSelectAll('support',this.checked)" style="accent-color:var(--brand);width:15px;height:15px;">
+    <span class="sel-count" id="suppSelCount">0 selected</span>
+  </label>
+  <button class="btn btn-danger btn-sm" onclick="deleteSelectedConvs('support')">
+    <i class="fa-solid fa-trash"></i> Delete
+  </button>
+</div>
           <div class="conv-search-wrap">
             <div class="conv-search-inner"><i class="fa-solid fa-magnifying-glass"></i>
               <input type="text" id="suppConvSearch" placeholder="Search helpers…" oninput="filterSuppConvs(this.value)">
@@ -2478,6 +2527,7 @@ function renderUserConvList(list){
       ?`<span style="font-size:.55rem;padding:.06rem .35rem;border-radius:4px;font-weight:700;color:${stColor};background:${stColor}22;">${st}</span>`
       :'';
     return`<div class="conv-item${activeConvKey===c.key?' active':''}" onclick="openUserConv('${esc(c.key)}','${esc(c.userName||'User')}','${esc(c.userEmail||'')}','${esc(c.userPhone||'')}')">
+      <input type="checkbox" class="conv-check" data-key="${esc(c.key)}" onclick="event.stopPropagation();updateSelCount('user')">
       <div class="conv-av" style="position:relative;">
         ${init}
         <span style="position:absolute;bottom:1px;right:1px;width:9px;height:9px;border-radius:50%;background:${stColor};border:2px solid var(--bg-card);display:block;"></span>
@@ -2504,6 +2554,7 @@ function renderSuppConvList(list){
     const time=c.lastMessageTime?fmtTime(new Date(c.lastMessageTime)):'';
     const status=c.status||'open';
     return`<div class="conv-item${activeSuppKey===c.key?' active':''}" onclick="openSuppConv('${esc(c.key)}','${esc(c.helperName||c.senderName||'Helper')}')">
+      <input type="checkbox" class="conv-check" data-key="${esc(c.key)}" onclick="event.stopPropagation();updateSelCount('support')">
       <div class="conv-av" style="background:linear-gradient(135deg,#b45309,#fb923c);color:#fff;">${init}</div>
       <div class="conv-body">
         <div class="conv-name">${esc(c.helperName||c.senderName||'Helper')} <span class="helper-tag">Helper</span></div>
@@ -2758,6 +2809,48 @@ window.deleteSuppChat=async()=>{
     // Stop listening to this conv's messages
     if(suppMsgUnsub){suppMsgUnsub();suppMsgUnsub=null;}
   }catch(e){showStatus('Error: '+e.message,'error');}
+};
+
+window.deleteSelectedConvs=async type=>{
+  const isUser=type==='user';
+  const panel=document.getElementById(isUser?'convPanel':'suppConvPanel');
+  const checked=[...panel.querySelectorAll('.conv-check:checked')];
+  if(!checked.length){showStatus('Select at least one chat','error');return;}
+  if(!confirm(`Permanently delete ${checked.length} chat(s)? This cannot be undone.`)) return;
+  let done=0,fail=0;
+  for(const cb of checked){
+    const key=cb.dataset.key;
+    try{
+      if(isUser){
+        await remove(ref(rtdb,`messages/${key}/messages`));
+        await remove(ref(rtdb,`chatMeta/${key}`));
+      }else{
+        await remove(ref(rtdb,`support_chats/${key}`));
+      }
+      done++;
+    }catch(e){fail++;console.error('Delete failed:',key,e);}
+  }
+  showStatus(`${done} chat(s) deleted${fail?` · ${fail} failed`:''}`,done?'success':'error');
+  // Reset select mode after deletion
+  window.toggleConvSelectMode(type);
+  // If deleted chat was active, reset panel
+  if(isUser){
+    const activeWasDeleted=checked.some(cb=>cb.dataset.key===activeConvKey);
+    if(activeWasDeleted){
+      if(msgUnsub){msgUnsub();msgUnsub=null;}
+      activeConvKey=null;
+      const ce=document.getElementById('chatEmpty');if(ce)ce.style.display='flex';
+      const ca=document.getElementById('chatActive');if(ca)ca.style.display='none';
+    }
+  }else{
+    const activeWasDeleted=checked.some(cb=>cb.dataset.key===activeSuppKey);
+    if(activeWasDeleted){
+      if(suppMsgUnsub){suppMsgUnsub();suppMsgUnsub=null;}
+      activeSuppKey=null;
+      const se=document.getElementById('suppChatEmpty');if(se)se.style.display='flex';
+      const sa=document.getElementById('suppChatActive');if(sa)sa.style.display='none';
+    }
+  }
 };
 
 function setNavBadge(type,n){
@@ -3607,6 +3700,42 @@ window.notifClick=i=>{if(_notifItems[i]&&_notifItems[i].action)_notifItems[i].ac
 /* ── PROFILE PANEL ── */
 window.toggleProfilePanel=()=>{ showSection('profile'); };
 window.closeProfilePanel=()=>{};
+
+window.toggleConvSelectMode=type=>{
+  const isUser=type==='user';
+  const panel=document.getElementById(isUser?'convPanel':'suppConvPanel');
+  const bar=document.getElementById(isUser?'userSelectBar':'suppSelectBar');
+  const btn=document.getElementById(isUser?'userSelectBtn':'suppSelectBtn');
+  const isOn=panel.dataset.selectMode==='true';
+  panel.dataset.selectMode=isOn?'false':'true';
+  bar.classList.toggle('show',!isOn);
+  // Highlight the toggle button when active
+  if(!isOn){
+    btn.style.color='var(--danger)';
+    btn.style.borderColor='rgba(239,68,68,.3)';
+    btn.style.background='var(--danger-dim)';
+  }else{
+    btn.style.color='';btn.style.borderColor='';btn.style.background='';
+    // Uncheck all on exit
+    panel.querySelectorAll('.conv-check').forEach(cb=>cb.checked=false);
+    const sa=document.getElementById(isUser?'userSelectAll':'suppSelectAll');
+    if(sa)sa.checked=false;
+    updateSelCount(type);
+  }
+};
+
+window.toggleSelectAll=(type,checked)=>{
+  const panel=document.getElementById(type==='user'?'convPanel':'suppConvPanel');
+  panel.querySelectorAll('.conv-check').forEach(cb=>cb.checked=checked);
+  updateSelCount(type);
+};
+
+window.updateSelCount=type=>{
+  const panel=document.getElementById(type==='user'?'convPanel':'suppConvPanel');
+  const n=panel.querySelectorAll('.conv-check:checked').length;
+  const el=document.getElementById(type==='user'?'userSelCount':'suppSelCount');
+  if(el)el.textContent=`${n} selected`;
+};
 
 /* ── SAVE ADMIN PROFILE ── */
 window.saveAdminProfile=async()=>{
