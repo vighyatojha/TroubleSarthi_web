@@ -1848,7 +1848,11 @@ tr.updated{animation:rowFlash .5s ease;}
                 <div class="chat-hdr-sub" id="chatHdrSub">Online</div>
               </div>
               <div class="chat-hdr-actions">
+                <button class="icon-btn" id="statusCycleBtn" onclick="cycleUserChatStatus()" title="Change status">
+                  <i class="fa-solid fa-circle" id="statusCycleDot" style="font-size:.55rem;color:var(--success);"></i>
+                </button>
                 <button class="icon-btn" onclick="showUserInfo()" title="User info"><i class="fa-solid fa-circle-info"></i></button>
+                <button class="icon-btn" onclick="exportUserChat()" title="Export chat"><i class="fa-solid fa-download"></i></button>
                 <button class="icon-btn danger" onclick="clearUserChat()" title="Clear chat"><i class="fa-solid fa-trash"></i></button>
               </div>
             </div>
@@ -2468,10 +2472,18 @@ function renderUserConvList(list){
     const init=initials(c.userName||'U');
     const unread=c.unreadAdmin||0;
     const time=c.lastMessageTime?fmtTime(new Date(c.lastMessageTime)):'';
+    const st=c.status||'open';
+    const stColor=STATUS_COLORS[st]||STATUS_COLORS.open;
+    const stBadge=st!=='open'
+      ?`<span style="font-size:.55rem;padding:.06rem .35rem;border-radius:4px;font-weight:700;color:${stColor};background:${stColor}22;">${st}</span>`
+      :'';
     return`<div class="conv-item${activeConvKey===c.key?' active':''}" onclick="openUserConv('${esc(c.key)}','${esc(c.userName||'User')}','${esc(c.userEmail||'')}','${esc(c.userPhone||'')}')">
-      <div class="conv-av">${init}</div>
+      <div class="conv-av" style="position:relative;">
+        ${init}
+        <span style="position:absolute;bottom:1px;right:1px;width:9px;height:9px;border-radius:50%;background:${stColor};border:2px solid var(--bg-card);display:block;"></span>
+      </div>
       <div class="conv-body">
-        <div class="conv-name">${esc(c.userName||'User')}</div>
+        <div class="conv-name" style="display:flex;align-items:center;gap:.3rem;">${esc(c.userName||'User')}${stBadge}</div>
         <div class="conv-preview">${esc(c.lastMessage||'No messages yet')}</div>
       </div>
       <div class="conv-meta">
@@ -2510,10 +2522,16 @@ window.filterSuppConvs=q=>{const f=allSuppConvs.filter(c=>(c.helperName||c.sende
 
 window.openUserConv=(convKey,name,email,phone)=>{
   if(msgUnsub){msgUnsub();msgUnsub=null;}
+  if(_statusUnsub){_statusUnsub();_statusUnsub=null;}
   activeConvKey=convKey;_firstRenderUser=true;renderUserConvList(allUserConvs);
   document.getElementById('chatHdrAv').innerHTML=`${initials(name)}<div class="live-dot"></div>`;
   document.getElementById('chatHdrName').textContent=name;
-  document.getElementById('chatHdrSub').textContent=email||'User';
+  // Reset status to open until RTDB responds
+  applyStatusUI('open');
+  // Listen for status changes in real-time
+  _statusUnsub=onValue(ref(rtdb,`chatMeta/${convKey}/status`),snap=>{
+    applyStatusUI(snap.val()||'open');
+  });
   document.getElementById('chatEmpty').style.display='none';
   document.getElementById('chatActive').style.display='flex';
   document.getElementById('chatMsgs').innerHTML='';
@@ -2635,9 +2653,89 @@ window.sendMsg=async type=>{
 window.handleKey=(e,type)=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendMsg(type);}};
 window.autoGrow=el=>{el.style.height='auto';el.style.height=Math.min(el.scrollHeight,110)+'px';};
 window.showUserInfo=()=>{const c=allUserConvs.find(x=>x.key===activeConvKey);if(!c)return;alert(`👤 ${c.userName||'N/A'}\n📧 ${c.userEmail||'N/A'}\n📱 ${c.userPhone||'N/A'}`);};
+// ── Status cycle ─────────────────────────────────────────────────────────────
+let _activeChatStatus = 'open';
+let _statusUnsub = null;
+
+const STATUS_CYCLE = { open:'working', working:'solved', solved:'closed', closed:'open' };
+const STATUS_COLORS = {
+  open   : 'var(--success)',
+  working: 'var(--info)',
+  solved : 'var(--brand)',
+  closed : 'var(--text-3)',
+};
+const STATUS_LABELS = {
+  open:'● Open', working:'⚙ Working', solved:'✓ Solved', closed:'✕ Closed'
+};
+
+function applyStatusUI(status) {
+  _activeChatStatus = status;
+  const color = STATUS_COLORS[status] || STATUS_COLORS.open;
+  const label = STATUS_LABELS[status] || STATUS_LABELS.open;
+  const sub   = document.getElementById('chatHdrSub');
+  const dot   = document.getElementById('statusCycleDot');
+  const btn   = document.getElementById('statusCycleBtn');
+  if (sub) { sub.textContent = label; sub.style.color = color; }
+  if (dot) dot.style.color = color;
+  if (btn) btn.title = `Status: ${status} — click to → ${STATUS_CYCLE[status]||'open'}`;
+}
+
+window.cycleUserChatStatus = async () => {
+  if (!activeConvKey) return;
+  const next = STATUS_CYCLE[_activeChatStatus] || 'open';
+  try {
+    await update(ref(rtdb, `chatMeta/${activeConvKey}`), { status: next });
+    applyStatusUI(next);
+    // Add a system message so user can see the status change
+    await push(ref(rtdb, `messages/${activeConvKey}/messages`), {
+      text     : `Admin changed status to: ${next.toUpperCase()}`,
+      senderId : 'admin',
+      senderName: 'System',
+      senderRole: 'system',
+      type     : 'system',
+      timestamp: Date.now(),
+      read     : true,
+    });
+    showStatus(`Chat status → ${next} ✓`, 'success');
+  } catch (e) { showStatus('Error: ' + e.message, 'error'); }
+};
+
+window.setUserChatStatusDirect = async (status) => {
+  if (!activeConvKey) return;
+  try {
+    await update(ref(rtdb, `chatMeta/${activeConvKey}`), { status });
+    applyStatusUI(status);
+    showStatus(`Status set to ${status} ✓`, 'success');
+  } catch (e) { showStatus('Error: ' + e.message, 'error'); }
+};
+
+window.exportUserChat = () => {
+  if (!activeConvKey) return;
+  const name = document.getElementById('chatHdrName')?.textContent || 'chat';
+  const msgs = document.querySelectorAll('#chatMsgs .msg-bubble');
+  if (!msgs.length) { showStatus('No messages to export', 'error'); return; }
+  const rows = [];
+  document.querySelectorAll('#chatMsgs .msg-row').forEach(row => {
+    const isOut = row.classList.contains('out');
+    const text  = row.querySelector('.msg-bubble')?.textContent?.trim() || '';
+    const time  = row.querySelector('.msg-time')?.textContent?.trim() || '';
+    rows.push(`[${time}] ${isOut ? 'Admin' : name}: ${text}`);
+  });
+  const blob = new Blob([rows.join('\n')], { type: 'text/plain' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `chat-${name.replace(/\s+/g,'-')}-${new Date().toLocaleDateString('en-IN').replace(/\//g,'-')}.txt`;
+  a.click();
+  showStatus('Chat exported ✓', 'success');
+};
+
 window.clearUserChat=async()=>{
-  if(!activeConvKey||!confirm('Clear all messages in this chat?')) return;
-  try{await remove(ref(rtdb,`messages/${activeConvKey}/messages`));await update(ref(rtdb,`chatMeta/${activeConvKey}`),{lastMessage:'Chat cleared',lastMessageTime:Date.now()});showStatus('Chat cleared','success');}
+  if(!activeConvKey||!confirm('Clear all messages in this chat? This cannot be undone.')) return;
+  try{
+    await remove(ref(rtdb,`messages/${activeConvKey}/messages`));
+    await update(ref(rtdb,`chatMeta/${activeConvKey}`),{lastMessage:'Chat cleared',lastMessageTime:Date.now()});
+    showStatus('Chat cleared ✓','success');
+  }
   catch(e){showStatus('Error: '+e.message,'error');}
 };
 window.markSuppResolved=async()=>{
