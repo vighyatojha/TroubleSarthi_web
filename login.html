@@ -558,6 +558,54 @@
         .light-hint { display: none; }
     }
 
+    /* ══ PHONES: the helpers become a little "at work" strip above the card ══ */
+    @media (max-width: 640px) {
+        .scenes {
+            position: absolute; inset: auto 0 auto 0; top: 66px; height: 150px;
+            display: flex; align-items: flex-end; justify-content: space-evenly; gap: 0;
+            padding: 0 6px;
+        }
+        .scene, .s-electrician { position: relative; inset: auto; opacity: 1; flex: 0 0 auto; }
+        .s-plumber, .s-mechanic { display: block; width: min(31vw, 140px); }
+        .s-electrician { width: min(27vw, 118px); margin-bottom: 4px; }
+        .s-health, .s-emergency, .s-robot { display: none; }
+        .chip {
+            display: inline-grid;
+            left: 50% !important; top: -24px !important; transform: translateX(-50%);
+            padding: 0.22rem 0.55rem; font-size: 0.66rem;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.25);
+        }
+        .s-electrician .chip { top: -10px !important; left: 46% !important; }
+        .auth-main { padding: 172px 12px 1.2rem; justify-content: flex-start; }
+        .bg-glow { top: 230px; }
+        .drift i { color: rgba(207,229,180,0.06); }
+
+        /* the logo already sits in the top bar, so the card opens straight on the tabs */
+        .card-brand { display: none; }
+        .auth-card { padding: 1rem 1.05rem 1.2rem; box-shadow: 0 18px 50px rgba(5,20,10,0.45), 0 0 0 1px rgba(255,255,255,0.06); }
+        .auth-tabs { margin-bottom: 1.05rem; }
+        .tab-btn { padding: 0.75rem 0.5rem; }
+        .form-heading { margin-bottom: 0.9rem; }
+        .form-heading h2 { font-size: 1.65rem; }
+        .form-heading p { font-size: 0.86rem; }
+        /* 16px inputs stop iPhones zooming in when a field is tapped */
+        .form-input { font-size: 16px; padding-top: 0.82rem; padding-bottom: 0.82rem; }
+        .submit-btn { padding: 1rem; }
+        .meaning { margin-top: 0.75rem; padding: 0.8rem 0.95rem; }
+        .page-foot { padding-top: 0.4rem; }
+    }
+    @media (max-width: 420px) {
+        .topbar { padding: 0.75rem 12px; }
+        /* keep Home and the light switch; Services and Contact are one tap away from Home */
+        .topbar nav a[href*="#services"], .topbar nav a[href="contact.html"] { display: none; }
+        .logo { font-size: 1.35rem; }
+    }
+    @media (max-width: 340px) {
+        .s-mechanic { display: none; }
+        .s-plumber { width: 46vw; }
+        .s-electrician { width: 30vw; }
+    }
+
     /* 'Reduce motion' on: stop the drifting tools, keep the helpers working */
     @media (prefers-reduced-motion: reduce) {
         .drift { display: none; }
