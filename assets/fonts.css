@@ -1,0 +1,37 @@
+/* Trouble Sarthi — all fonts are served locally so pages stay fast on slow connections. */
+@font-face {
+    font-family: 'SAMAN___';
+    src: url('../font/SAMAN___.TTF') format('truetype');
+    font-display: swap;
+}
+/* Display headings: Anek Latin (variable weight + width) */
+@font-face {
+    font-family: 'Anek Latin';
+    src: url('../font/anek-latin-latin-wdth-normal.woff2') format('woff2-variations'),
+         url('../font/anek-latin-latin-wdth-normal.woff2') format('woff2');
+    font-weight: 100 800;
+    font-stretch: 75% 125%;
+    font-display: swap;
+}
+/* Body text: Plus Jakarta Sans */
+@font-face { font-family: 'Plus Jakarta Sans'; src: url('../font/plus-jakarta-sans-latin-400-normal.woff2') format('woff2'); font-weight: 400; font-display: swap; }
+@font-face { font-family: 'Plus Jakarta Sans'; src: url('../font/plus-jakarta-sans-latin-500-normal.woff2') format('woff2'); font-weight: 500; font-display: swap; }
+@font-face { font-family: 'Plus Jakarta Sans'; src: url('../font/plus-jakarta-sans-latin-600-normal.woff2') format('woff2'); font-weight: 600; font-display: swap; }
+@font-face { font-family: 'Plus Jakarta Sans'; src: url('../font/plus-jakarta-sans-latin-700-normal.woff2') format('woff2'); font-weight: 700; font-display: swap; }
+/* Hindi display: Yatra One — painted-signboard style, used for the "सारथी" mark */
+@font-face {
+    font-family: 'Yatra One';
+    src: url('../font/yatra-one-devanagari-400-normal.woff2') format('woff2');
+    font-weight: 400;
+    font-display: swap;
+    unicode-range: U+0900-097F, U+1CD0-1CF9, U+200C-200D, U+20A8, U+20B9, U+25CC, U+A830-A839, U+A8E0-A8FF;
+}
+/* Hindi text: Anek Devanagari (variable weight) — for any Hindi body copy */
+@font-face {
+    font-family: 'Anek Devanagari';
+    src: url('../font/anek-devanagari-devanagari-wght-normal.woff2') format('woff2-variations'),
+         url('../font/anek-devanagari-devanagari-wght-normal.woff2') format('woff2');
+    font-weight: 100 800;
+    font-display: swap;
+    unicode-range: U+0900-097F, U+1CD0-1CF9, U+200C-200D, U+20A8, U+20B9, U+25CC, U+A830-A839, U+A8E0-A8FF;
+}

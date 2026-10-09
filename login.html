@@ -3,995 +3,1079 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Trouble Sarthi — Login & Sign Up</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Noto+Serif+Devanagari:wght@400;700&display=swap">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-
+    <title>Login — Trouble Sarthi</title>
+    <meta name="description" content="Log in or create your Trouble Sarthi account to book verified local helpers.">
+    <meta name="theme-color" content="#173d22">
+    <!-- Everything below is served from this site: no font or icon CDN, so the page stays quick on slow connections -->
+    <link rel="stylesheet" href="assets/fonts.css">
+    <link rel="stylesheet" href="assets/fa/css/all.min.css">
     <style>
-    @font-face {
-        font-family: 'SAMAN___';
-        src: url('font/SAMAN___.TTF');
-        font-display: swap;
-    }
-
-    /* ══════════════════════════════
-       DESIGN TOKENS
-    ══════════════════════════════ */
     :root {
-        --g-950: #071410;
-        --g-900: #0f1c14;
-        --g-800: #1a2e1f;
-        --g-700: #1e4d2b;
-        --g-600: #2d5a3d;
-        --g-500: #3a7d52;
-        --g-400: #4e9a68;
-        --g-300: #7cb342;
-        --g-200: #a8d96b;
-        --g-100: #c8eaaa;
-        --g-50:  #e8f5e9;
-        --accent: #f5a623;
-        --text-1: #0f1c14;
-        --text-2: #3d4f42;
-        --text-3: #6b7e72;
-        --bg-page: #f7f9f7;
-        --bg-card: #ffffff;
-        --border: rgba(45,90,61,0.13);
-        --shadow-sm: 0 2px 12px rgba(30,77,43,0.08);
-        --shadow-md: 0 8px 32px rgba(30,77,43,0.14);
-        --shadow-lg: 0 24px 70px rgba(0,0,0,0.28);
-        --radius: 22px;
-        --brand-glow: rgba(124,179,66,0.35);
+        --green-dark:  #173d22;
+        --green-deep:  #0f2a17;
+        --green-mid:   #245236;
+        --green-base:  #2f6e47;
+        --green-light: #7cb342;
+        --green-pale:  #e9f2e3;
+        --g-300:       #7cb342;          /* used by the existing input validation script */
+        --accent:      #f2a516;
+        --accent-ink:  #3a2600;
+        --stamp:       #b8420f;
+        --paper:       #fffdf7;
+        --ink:         #13201a;
+        --body:        #34453a;
+        --muted:       #56685c;
+        --line:        rgba(36,82,54,0.16);
+        --ease-out:    cubic-bezier(0.2, 0.8, 0.2, 1);
+        --font-display:'Anek Latin', 'Arial Narrow', sans-serif;
+        --font-body:   'Plus Jakarta Sans', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+        --font-hindi:  'Yatra One', 'Anek Devanagari', 'Noto Sans Devanagari', sans-serif;
     }
-
-    * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
-    html { scroll-behavior:smooth; }
-
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    html { -webkit-text-size-adjust: 100%; }
     body {
-        font-family: 'Plus Jakarta Sans', sans-serif;
-        color: var(--text-1);
-        overflow-x: hidden;
-        line-height: 1.7;
+        font-family: var(--font-body);
+        color: var(--body);
+        background: var(--green-dark);
         min-height: 100vh;
+        min-height: 100dvh;
+        overflow-x: hidden;
+        -webkit-font-smoothing: antialiased;
     }
+    a { color: inherit; }
+    button { font-family: inherit; }
+    :focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; border-radius: 6px; }
 
-    /* ══════════════════════════════
-       PAGE LOADER
-    ══════════════════════════════ */
+    /* ══ LOADER (shown only while the account check runs; hides itself quickly) ══ */
     #pageLoader {
-        position: fixed; inset: 0;
-        background: linear-gradient(160deg, #071410 0%, #0f2e18 40%, #1e4d2b 80%, #0f1c14 100%);
-        z-index: 9999;
-        display: flex; flex-direction: column;
-        align-items: center; justify-content: center; gap: 1.25rem;
+        position: fixed; inset: 0; z-index: 50;
+        display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1rem;
+        background: var(--green-dark);
+        transition: opacity 0.4s ease, visibility 0.4s;
     }
-    .ld-logo {
-        font-family: 'SAMAN___', 'DM Serif Display', serif;
-        font-size: 2.6rem; color: #fff;
-        letter-spacing: 1px;
-        animation: ldPulse 1.6s ease-in-out infinite;
-        text-shadow: 0 0 40px rgba(124,179,66,0.4);
-    }
-    .ld-bar {
-        width: 160px; height: 3px;
-        background: rgba(255,255,255,0.1);
-        border-radius: 3px; overflow: hidden;
-    }
-    .ld-bar-fill {
-        height: 100%; width: 0%;
-        background: linear-gradient(90deg, var(--g-300), var(--g-200));
-        border-radius: 3px;
-        animation: ldFill 1.5s ease-in-out forwards;
-    }
-    @keyframes ldFill  { 0%{width:0%} 60%{width:75%} 100%{width:100%} }
-    @keyframes ldPulse { 0%,100%{opacity:1;text-shadow:0 0 40px rgba(124,179,66,0.4)} 50%{opacity:0.65;text-shadow:0 0 60px rgba(124,179,66,0.6)} }
+    #pageLoader.gone { opacity: 0; visibility: hidden; }
+    .ld-logo { font-family: 'SAMAN___', var(--font-display); font-size: 2.2rem; color: #fff; }
+    .ld-wrench { color: var(--accent); font-size: 1.6rem; animation: ldSpin 1.1s ease-in-out infinite; }
+    @keyframes ldSpin { 0%,100% { transform: rotate(-30deg); } 50% { transform: rotate(30deg); } }
 
-    #appContent { display: none; flex-direction: column; min-height: 100vh; }
-
-    /* ══════════════════════════════
-       FULL-PAGE DARK GREEN BG
-       (from new file — atmospheric depth)
-    ══════════════════════════════ */
-    .page-bg {
-        position: fixed; inset: 0; z-index: 0;
-        background:
-            radial-gradient(ellipse 80% 60% at 20% 40%, rgba(58,125,82,0.5) 0%, transparent 60%),
-            radial-gradient(ellipse 60% 70% at 80% 70%, rgba(124,179,66,0.25) 0%, transparent 55%),
-            radial-gradient(ellipse 50% 50% at 50% 10%, rgba(245,166,35,0.1) 0%, transparent 50%),
-            linear-gradient(160deg, #071410 0%, #0f2e18 35%, #1e4d2b 65%, #111e15 100%);
-    }
-    .page-bg::after {
-        content: '';
-        position: absolute; inset: 0;
+    /* ══ BACKGROUND: lane grid + helpers at work ══ */
+    .bg-grid {
+        position: fixed; inset: 0; z-index: 0; pointer-events: none;
         background-image:
-            linear-gradient(rgba(255,255,255,0.035) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(255,255,255,0.035) 1px, transparent 1px);
-        background-size: 60px 60px;
-        mask-image: radial-gradient(ellipse 90% 90% at 50% 50%, black, transparent);
+            linear-gradient(rgba(255,255,255,0.045) 2px, transparent 2px),
+            linear-gradient(90deg, rgba(255,255,255,0.045) 2px, transparent 2px),
+            linear-gradient(rgba(255,255,255,0.022) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(255,255,255,0.022) 1px, transparent 1px);
+        background-size: 240px 240px, 240px 240px, 48px 48px, 48px 48px;
     }
+    .bg-glow {
+        position: fixed; z-index: 0; pointer-events: none;
+        width: 70vmax; height: 70vmax; left: 50%; top: 50%;
+        transform: translate(-50%, -50%);
+        background: radial-gradient(circle, rgba(124,179,66,0.16), transparent 60%);
+    }
+    /* warm light that floods the page when the bulb is switched on */
+    .room-light {
+        position: fixed; inset: 0; z-index: 1; pointer-events: none;
+        background:
+            radial-gradient(circle at var(--lx, 85%) var(--ly, 15%), rgba(255,214,107,0.42), rgba(255,214,107,0.12) 22%, rgba(255,214,107,0.04) 45%, transparent 70%);
+        opacity: 0;
+        transition: opacity 0.6s ease;
+    }
+    body.lights-on .room-light { opacity: 1; }
+    body.lights-on .bg-grid { opacity: 0.6; }
+    .scenes { position: fixed; inset: 0; z-index: 1; pointer-events: none; }
+    .scene { position: absolute; margin: 0; transition: filter 0.6s ease; }
+    .scene svg { display: block; width: 100%; height: auto; overflow: visible; }
+    body.lights-on .scene { filter: brightness(1.08) saturate(1.1); }
 
-    /* Floating orbs (from old file — shapes concept, upgraded) */
-    .orb {
-        position: fixed; border-radius: 50%;
-        filter: blur(70px); pointer-events: none; z-index: 0;
-    }
-    .orb-1 {
-        width: 520px; height: 520px;
-        background: radial-gradient(circle, rgba(124,179,66,0.16), transparent 70%);
-        top: -100px; right: -120px;
-        animation: floatOrb1 13s ease-in-out infinite;
-    }
-    .orb-2 {
-        width: 380px; height: 380px;
-        background: radial-gradient(circle, rgba(245,166,35,0.1), transparent 70%);
-        bottom: 60px; left: -90px;
-        animation: floatOrb2 16s ease-in-out infinite;
-    }
-    .orb-3 {
-        width: 200px; height: 200px;
-        background: radial-gradient(circle, rgba(58,125,82,0.2), transparent 70%);
-        top: 50%; left: 50%; transform: translate(-50%,-50%);
-        animation: floatOrb3 10s ease-in-out infinite;
-    }
-    @keyframes floatOrb1 { 0%,100%{transform:translate(0,0) scale(1)} 50%{transform:translate(-50px,35px) scale(1.1)} }
-    @keyframes floatOrb2 { 0%,100%{transform:translate(0,0) scale(1)} 50%{transform:translate(35px,-25px) scale(1.06)} }
-    @keyframes floatOrb3 { 0%,100%{transform:translate(-50%,-50%) scale(1)} 50%{transform:translate(-50%,-50%) scale(1.3)} }
+    .s-health      { left: 2%;   top: 82px;              width: clamp(180px, 17vw, 250px); }
+    .s-plumber     { left: 1.5%; top: calc(50% - 6.5vw); width: clamp(190px, 18vw, 270px); }
+    .s-mechanic    { left: 3%;   bottom: 2%;             width: clamp(190px, 18vw, 270px); }
+    .s-electrician { right: 3%;  top: 64px;              width: clamp(170px, 15vw, 220px); pointer-events: auto; cursor: pointer; }
+    .s-emergency   { right: 1.5%; top: 43%;              width: clamp(180px, 17vw, 250px); }
+    .s-robot       { right: 3%;  bottom: 1.5%;           width: clamp(130px, 11vw, 170px); }
 
-    /* ══════════════════════════════
-       NAVBAR — transparent → scrolled
-    ══════════════════════════════ */
-    header {
-        position: fixed; top: 0; left: 0; right: 0;
-        z-index: 1000; padding: 1.1rem 0;
-        transition: all 0.4s cubic-bezier(0.4,0,0.2,1);
+    /* role tags, which swap to a "job done" message when the fix completes */
+    .chip {
+        position: absolute;
+        display: inline-grid; grid-template-columns: auto auto; align-items: center; column-gap: 0.4rem;
+        padding: 0.32rem 0.7rem;
+        border-radius: 999px;
+        background: var(--paper);
+        color: var(--green-mid);
+        font-size: 0.72rem; font-weight: 700;
+        box-shadow: 0 6px 16px rgba(0,0,0,0.25);
+        white-space: nowrap;
     }
-    header.scrolled {
-        background: rgba(255,255,255,0.97);
-        backdrop-filter: blur(18px);
-        box-shadow: 0 1px 0 rgba(45,90,61,0.1), 0 8px 32px rgba(30,77,43,0.08);
-        padding: 0.7rem 0;
+    .chip i { color: var(--green-base); }
+    .chip .c-lbl, .chip .c-done { grid-column: 2; grid-row: 1; transition: opacity 0.3s; }
+    .chip .c-done { opacity: 0; color: var(--green-base); }
+    .s-health .chip      { left: 4%;  top: -4%; }
+    .s-plumber .chip     { left: 2%;  top: -6%; }
+    .s-mechanic .chip    { left: 2%;  top: -8%; }
+    .s-electrician .chip { left: -14%; top: 66%; }
+    .s-emergency .chip   { left: 4%;  top: -6%; }
+    .s-plumber .c-lbl  { animation: lblA 6s infinite; }  .s-plumber .c-done  { animation: doneA 6s infinite; }
+    .s-mechanic .c-lbl { animation: lblM 7s infinite; }  .s-mechanic .c-done { animation: doneM 7s infinite; }
+    .s-health .c-lbl   { animation: lblA 6s infinite 1.5s; } .s-health .c-done { animation: doneA 6s infinite 1.5s; }
+    .s-emergency .c-lbl { animation: lblA 6s infinite 3s; }  .s-emergency .c-done { animation: doneA 6s infinite 3s; }
+    @keyframes lblA  { 0%,52% { opacity: 1; } 56%,90% { opacity: 0; } 94%,100% { opacity: 1; } }
+    @keyframes doneA { 0%,52% { opacity: 0; } 56%,90% { opacity: 1; } 94%,100% { opacity: 0; } }
+    @keyframes lblM  { 0%,60% { opacity: 1; } 64%,92% { opacity: 0; } 96%,100% { opacity: 1; } }
+    @keyframes doneM { 0%,60% { opacity: 0; } 64%,92% { opacity: 1; } 96%,100% { opacity: 0; } }
+    body.lights-on .s-electrician .c-lbl  { opacity: 0; }
+    body.lights-on .s-electrician .c-done { opacity: 1; }
+
+    .light-hint {
+        position: absolute; right: 4%; top: 102%;
+        padding: 0.3rem 0.6rem;
+        border-radius: 8px;
+        background: rgba(15,42,23,0.85);
+        border: 1px dashed rgba(255,214,107,0.6);
+        color: #ffd36b;
+        font-size: 0.68rem; font-weight: 700;
+        white-space: nowrap;
+        animation: hintBob 2.4s ease-in-out infinite;
+        transition: opacity 0.3s;
     }
-    nav {
-        max-width: 1280px; margin: 0 auto; padding: 0 2rem;
-        display: flex; align-items: center; justify-content: space-between; gap: 1.5rem;
+    .light-hint .h-tap { display: none; }
+    @media (hover: none) { .light-hint .h-hover { display: none; } .light-hint .h-tap { display: inline; } }
+    body.lights-on .light-hint { opacity: 0; }
+    @keyframes hintBob { 50% { transform: translateY(-4px); } }
+
+    /* faces blink now and then */
+    .eyes { transform-box: fill-box; transform-origin: center; animation: blink 5s infinite; }
+    .s-plumber .eyes { animation-delay: -1.2s; } .s-mechanic .eyes { animation-delay: -2.6s; }
+    .s-health .eyes { animation-delay: -3.4s; } .s-emergency .eyes { animation-delay: -0.6s; }
+    @keyframes blink { 0%,94%,100% { transform: scaleY(1); } 96% { transform: scaleY(0.12); } }
+
+    /* — Plumber: wrench turns, leak stops — */
+    .pl-arm   { transform-origin: 112px 114px; animation: plArm 6s ease-in-out infinite; }
+    @keyframes plArm { 0%,16% { transform: rotate(0); } 24% { transform: rotate(-12deg); } 30% { transform: rotate(2deg); } 38% { transform: rotate(-12deg); } 44% { transform: rotate(2deg); } 50%,100% { transform: rotate(0); } }
+    .pl-leak  { animation: plLeak 6s linear infinite; }
+    @keyframes plLeak { 0%,44% { opacity: 1; } 50%,94% { opacity: 0; } 100% { opacity: 1; } }
+    .drop     { animation: drop 1.1s cubic-bezier(0.5,0,1,1) infinite; }
+    .drop.d2  { animation-delay: 0.37s; }
+    .drop.d3  { animation-delay: 0.74s; }
+    @keyframes drop { from { transform: translateY(0); opacity: 1; } 85% { opacity: 1; } to { transform: translateY(62px); opacity: 0; } }
+    .pl-puddle { transform-origin: 176px 203px; animation: puddle 6s ease-in-out infinite; }
+    @keyframes puddle { 0% { transform: scaleX(0.4); } 46% { transform: scaleX(1); } 70%,100% { transform: scaleX(0.4); opacity: 0.25; } }
+    .pl-shine { transform-origin: 176px 120px; animation: shine 6s ease-out infinite; }
+    @keyframes shine { 0%,50% { opacity: 0; transform: scale(0.3) rotate(0); } 56% { opacity: 1; transform: scale(1.1) rotate(45deg); } 66%,100% { opacity: 0; transform: scale(0.6) rotate(90deg); } }
+
+    /* — Electrician: keeps trying the bulb until someone switches it on — */
+    .el-reach { transform-origin: 192px 198px; animation: elReach 3s ease-in-out infinite; }
+    @keyframes elReach { 0%,100% { transform: rotate(4deg); } 50% { transform: rotate(-5deg); } }
+    .el-bulb, .el-filament { transition: fill 0.25s, stroke 0.25s; }
+    .el-glow, .el-rays { opacity: 0; transition: opacity 0.35s; }
+    .el-bulb { animation: idleFlicker 7s steps(1) infinite; }
+    @keyframes idleFlicker { 0%,80% { fill: #4f6156; } 82% { fill: #c7a24a; } 83% { fill: #4f6156; } 85% { fill: #c7a24a; } 86%,100% { fill: #4f6156; } }
+    body.lights-on .el-bulb { animation: none; fill: #ffd36b; }
+    body.lights-on .el-filament { stroke: #fff6d8; }
+    body.lights-on .el-glow { opacity: 1; animation: glowPulse 2.4s ease-in-out infinite; }
+    body.lights-on .el-rays { opacity: 1; }
+    body.lights-on .el-reach { animation: none; transform: rotate(-30deg); }
+    @keyframes glowPulse { 50% { opacity: 0.8; } }
+    .s-electrician:hover .light-hint { opacity: 0; }
+
+    /* — Mechanic: wrench works the hub, wheel spins free — */
+    .mc-arm   { transform-origin: 106px 114px; animation: mcArm 1.6s ease-in-out infinite; }
+    @keyframes mcArm { 0%,100% { transform: rotate(0); } 50% { transform: rotate(-7deg); } }
+    .mc-spokes { transform-origin: 198px 160px; animation: spin 7s linear infinite; }
+    @keyframes spin { 0%,55% { transform: rotate(0); } 100% { transform: rotate(720deg); } }
+    .mc-spark { animation: spark 1.6s steps(1) infinite; }
+    @keyframes spark { 0%,40% { opacity: 0; } 46% { opacity: 1; } 56%,100% { opacity: 0; } }
+
+    /* — Health care: heartbeat on the monitor — */
+    .ecg { stroke-dasharray: 160; stroke-dashoffset: 160; animation: ecg 2s linear infinite; }
+    @keyframes ecg { 0% { stroke-dashoffset: 160; } 70% { stroke-dashoffset: 0; opacity: 1; } 100% { stroke-dashoffset: 0; opacity: 0; } }
+    .hb { transform-origin: 268px 86px; animation: heart 1s ease-in-out infinite; }
+    @keyframes heart { 0%,100% { transform: scale(1); } 15% { transform: scale(1.25); } 30% { transform: scale(1); } 45% { transform: scale(1.15); } }
+
+    /* — Emergency support: radio calls in, siren flashes — */
+    .radio-waves path { opacity: 0; animation: wave 1.8s ease-out infinite; }
+    .radio-waves .w2 { animation-delay: 0.2s; } .radio-waves .w3 { animation-delay: 0.4s; }
+    @keyframes wave { 0% { opacity: 0; } 20% { opacity: 1; } 60%,100% { opacity: 0; } }
+    .siren-r { animation: sirenR 0.9s steps(1) infinite; }
+    .siren-b { animation: sirenB 0.9s steps(1) infinite; }
+    @keyframes sirenR { 0% { opacity: 1; } 50% { opacity: 0.25; } }
+    @keyframes sirenB { 0% { opacity: 0.25; } 50% { opacity: 1; } }
+
+    /* — AI Sarthi robot: floats, waves, talks — */
+    .bot { animation: botFloat 3.2s ease-in-out infinite; }
+    @keyframes botFloat { 50% { transform: translateY(-7px); } }
+    .bot-shadow { transform-origin: 110px 218px; animation: botShadow 3.2s ease-in-out infinite; }
+    @keyframes botShadow { 50% { transform: scaleX(0.82); opacity: 0.7; } }
+    .bot-wave { transform-origin: 158px 140px; animation: botWave 2.4s ease-in-out infinite; }
+    @keyframes botWave { 0%,60%,100% { transform: rotate(0); } 70% { transform: rotate(18deg); } 80% { transform: rotate(-8deg); } 90% { transform: rotate(14deg); } }
+    .bot-eyes { transform-box: fill-box; transform-origin: center; animation: blink 4s infinite; }
+    .bot-bubble {
+        position: absolute; right: 78%; top: 2%;
+        width: max-content; max-width: 200px;
+        padding: 0.65rem 0.85rem;
+        border-radius: 16px 16px 4px 16px;
+        background: var(--green-mid);
+        color: #fff;
+        box-shadow: 0 10px 24px rgba(0,0,0,0.3);
+        font-size: 0.8rem; line-height: 1.35;
     }
-    .logo {
-        font-family: 'SAMAN___', 'DM Serif Display', serif;
-        font-size: 2rem; color: #fff;
-        text-decoration: none; letter-spacing: 0.5px;
-        text-shadow: 0 2px 12px rgba(0,0,0,0.3);
-        transition: color 0.3s, text-shadow 0.3s;
+    .bot-bubble span { display: block; }
+    .bot-hi b { color: #ffd36b; }
+    .bot-tip { margin-top: 0.15rem; color: rgba(255,255,255,0.85); transition: opacity 0.35s; }
+    .bot-tip.swap { opacity: 0; }
+
+    /* floating tools drifting up in the far background */
+    .drift { position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
+    .drift i {
+        position: absolute; bottom: -40px;
+        color: rgba(207,229,180,0.09);
+        animation: driftUp linear infinite;
+    }
+    @keyframes driftUp { to { transform: translateY(-115vh) rotate(160deg); } }
+
+    /* ══ PAGE FRAME ══ */
+    #appContent {
+        position: relative; z-index: 2;
+        pointer-events: none;            /* empty areas pass the pointer through to the scenes */
+        display: flex; flex-direction: column;
+        min-height: 100vh; min-height: 100dvh;
+    }
+    .topbar, .auth-card, .meaning, .page-foot { pointer-events: auto; }
+    .topbar {
+        display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+        padding: 0.9rem clamp(1rem, 3vw, 2rem);
+    }
+    .brand { display: inline-flex; align-items: center; gap: 0.6rem; text-decoration: none; }
+    .brand-mark, .card-mark {
+        display: grid; place-items: center;
+        border-radius: 12px;
+        font-family: var(--font-hindi); line-height: 1;
         flex-shrink: 0;
     }
-    header.scrolled .logo { color: var(--g-600); text-shadow: none; }
+    .brand-mark {
+        width: 40px; height: 40px;
+        background: var(--accent); color: var(--green-dark);
+        font-size: 1.15rem; padding-top: 0.2rem;
+    }
+    .logo {
+        font-family: 'SAMAN___', var(--font-display);
+        font-size: 1.9rem; color: #fff; text-decoration: none;
+        text-shadow: 0 2px 12px rgba(0,0,0,0.3);
+    }
+    .light-switch {
+        width: 38px; height: 38px;
+        display: inline-grid; place-items: center;
+        border-radius: 999px;
+        border: 1px solid rgba(255,255,255,0.14);
+        background: rgba(15,42,23,0.55);
+        color: rgba(255,255,255,0.75);
+        cursor: pointer;
+        transition: background-color 0.25s, color 0.25s, box-shadow 0.25s;
+    }
+    .light-switch:hover { color: #ffd36b; }
+    .light-switch[aria-pressed="true"] { background: #ffd36b; color: var(--green-dark); box-shadow: 0 0 18px rgba(255,211,107,0.7); }
+    .topbar nav { display: flex; gap: 0.4rem; }
+    .topbar nav a {
+        display: inline-flex; align-items: center; gap: 0.45rem;
+        padding: 0.5rem 0.9rem;
+        border-radius: 999px;
+        font-size: 0.88rem; font-weight: 600;
+        color: rgba(255,255,255,0.9); text-decoration: none;
+        background: rgba(15,42,23,0.55);
+        border: 1px solid rgba(255,255,255,0.14);
+        -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);
+        transition: background-color 0.2s, color 0.2s;
+    }
+    .topbar nav a:hover { background: #fff; color: var(--green-dark); }
 
-    .nav-center { display: flex; list-style: none; gap: 0.2rem; align-items: center; }
-    .nav-center a {
-        color: rgba(255,255,255,0.88); text-decoration: none;
-        font-weight: 500; font-size: 0.88rem;
-        padding: 0.48rem 0.75rem; border-radius: 8px;
-        transition: all 0.22s ease;
-    }
-    .nav-center a:hover { color: #fff; background: rgba(255,255,255,0.14); }
-    header.scrolled .nav-center a { color: var(--text-2); }
-    header.scrolled .nav-center a:hover { color: var(--g-600); background: var(--g-50); }
-
-    .nav-auth { display: flex; gap: 0.7rem; align-items: center; flex-shrink: 0; }
-    .nav-btn {
-        padding: 0.52rem 1.2rem; border-radius: 50px;
-        font-weight: 600; font-size: 0.86rem; cursor: pointer;
-        transition: all 0.25s ease; text-decoration: none;
-        display: inline-flex; align-items: center; gap: 0.4rem;
-        white-space: nowrap; font-family: inherit; border: none;
-    }
-    .nav-login {
-        background: transparent; color: #fff;
-        border: 1.5px solid rgba(255,255,255,0.65);
-    }
-    .nav-login:hover { background: rgba(255,255,255,0.15); border-color: #fff; }
-    header.scrolled .nav-login { color: var(--g-600); border-color: var(--g-600); border: 1.5px solid; }
-    header.scrolled .nav-login:hover { background: var(--g-50); }
-    .nav-signup {
-        background: linear-gradient(135deg, var(--g-300), var(--g-500));
-        color: #fff; border: 1.5px solid transparent;
-        box-shadow: 0 4px 14px rgba(124,179,66,0.38);
-    }
-    .nav-signup:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(124,179,66,0.5); }
-
-    .mobile-toggle {
-        display: none; background: transparent; border: none; outline: none;
-        color: #fff; width: 36px; height: 36px; border-radius: 50%;
-        font-size: 1.2rem; cursor: pointer; transition: all 0.25s;
-        align-items: center; justify-content: center; flex-shrink: 0;
-    }
-    .mobile-toggle:hover { background: rgba(255,255,255,0.15); }
-    header.scrolled .mobile-toggle { color: var(--g-600); }
-    header.scrolled .mobile-toggle:hover { background: var(--g-50); }
-
-    .mobile-menu {
-        display: none; position: absolute; top: calc(100% + 8px);
-        left: 1rem; right: 1rem; background: #fff; border-radius: 18px;
-        box-shadow: var(--shadow-lg); overflow: hidden; border: 1px solid var(--border);
-    }
-    .mobile-menu.open { display: block; }
-    .mobile-menu ul { list-style: none; padding: 0.5rem 0; }
-    .mobile-menu li { border-bottom: 1px solid rgba(45,90,61,0.06); }
-    .mobile-menu li:last-child { border-bottom: none; }
-    .mobile-menu a {
-        display: block; padding: 0.88rem 1.5rem;
-        color: var(--text-2); text-decoration: none;
-        font-weight: 500; font-size: 0.95rem; transition: all 0.2s;
-    }
-    .mobile-menu a:hover { color: var(--g-600); background: var(--g-50); padding-left: 2rem; }
-    .mobile-auth { display: flex; gap: 0.7rem; padding: 1rem 1.5rem 1.3rem; }
-    .mobile-auth .nav-btn { flex: 1; justify-content: center; }
-    .mobile-auth .nav-login { color: var(--g-600); border: 1.5px solid var(--g-600); }
-
-    /* ══════════════════════════════
-       SHELL
-    ══════════════════════════════ */
-    .page-shell {
-        position: relative; z-index: 1;
-        display: flex; flex-direction: column; min-height: 100vh;
-    }
-
-    /* ══════════════════════════════
-       AUTH MAIN SECTION
-    ══════════════════════════════ */
-    .auth-section {
+    .auth-main {
         flex: 1;
-        display: flex; justify-content: center; align-items: flex-start;
-        padding: 7.5rem 1.5rem 5rem;
+        display: flex; flex-direction: column; align-items: center; justify-content: center;
+        padding: 0.5rem 1rem 1.5rem;
     }
 
-    /* Main wrapper — card zoom on hover (from old file — "auth-container:hover scale(1.025)") */
-    .auth-wrapper {
-        width: 100%; max-width: 1040px;
-        display: flex; gap: 2.5rem; align-items: flex-start;
-        animation: wrapperIn 0.7s ease-out 0.1s both;
-        /* zoom wrapper: prevents layout shift during scale */
-    }
-    @keyframes wrapperIn {
-        from { opacity: 0; transform: translateY(32px) scale(0.97); }
-        to   { opacity: 1; transform: translateY(0) scale(1); }
-    }
-
-    /* ── LEFT PANEL (glassmorphism from new file + stats from old) ── */
-    .info-panel {
-        width: 320px; flex-shrink: 0;
-        position: sticky; top: 100px;
-        display: flex; flex-direction: column; gap: 1.2rem;
-    }
-
-    .panel-label {
-        display: inline-flex; align-items: center; gap: 0.5rem;
-        color: var(--g-200); font-size: 0.76rem; font-weight: 700;
-        letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 0.4rem;
-    }
-    .panel-label::before {
-        content: ''; display: block; width: 18px; height: 2px;
-        background: var(--g-300); border-radius: 2px;
-    }
-
-    /* DM Serif Display heading — from new file */
-    .panel-heading {
-        font-family: 'DM Serif Display', serif;
-        font-size: clamp(1.65rem, 2.6vw, 2.05rem);
-        font-weight: 400; color: #fff; line-height: 1.18;
-        margin-bottom: 0.5rem;
-    }
-    .panel-heading em { font-style: italic; color: var(--g-200); }
-    .panel-sub { color: rgba(255,255,255,0.58); font-size: 0.9rem; line-height: 1.7; margin-bottom: 1rem; }
-
-    /* Glassmorphism feature cards (new file style) */
-    .feat-card {
-        padding: 1.15rem 1.3rem;
-        border-radius: 16px;
-        background: rgba(255,255,255,0.07);
-        border: 1px solid rgba(255,255,255,0.12);
-        backdrop-filter: blur(12px);
-        transition: all 0.32s cubic-bezier(0.4,0,0.2,1);
-        display: flex; align-items: flex-start; gap: 0.95rem;
-        position: relative; overflow: hidden;
-    }
-    .feat-card::after {
-        content: ''; position: absolute; inset: 0;
-        background: linear-gradient(135deg, rgba(124,179,66,0.1), transparent 70%);
-        opacity: 0; transition: opacity 0.3s;
-    }
-    .feat-card:hover {
-        background: rgba(255,255,255,0.12);
-        border-color: rgba(124,179,66,0.4);
-        transform: translateY(-3px);
-        box-shadow: 0 8px 28px rgba(0,0,0,0.25);
-    }
-    .feat-card:hover::after { opacity: 1; }
-    .feat-icon {
-        width: 42px; height: 42px; flex-shrink: 0;
-        background: linear-gradient(135deg, var(--g-600), var(--g-300));
-        border-radius: 12px;
-        display: flex; align-items: center; justify-content: center;
-        font-size: 1rem; color: #fff;
-        box-shadow: 0 4px 14px rgba(45,90,61,0.45);
-        position: relative; z-index: 1;
-    }
-    .feat-text { position: relative; z-index: 1; }
-    .feat-text h4 { font-size: 0.88rem; font-weight: 700; color: #fff; margin-bottom: 0.12rem; }
-    .feat-text p  { font-size: 0.78rem; color: rgba(255,255,255,0.52); line-height: 1.5; }
-
-    /* Stats row (from old file — welcome-features style, new treatment) */
-    .panel-stats {
-        display: flex;
-        background: rgba(255,255,255,0.06);
-        border: 1px solid rgba(255,255,255,0.1);
-        border-radius: var(--radius); overflow: hidden;
-    }
-    .pstat { flex: 1; text-align: center; padding: 1rem 0.5rem; }
-    .pstat + .pstat { border-left: 1px solid rgba(255,255,255,0.08); }
-    .pstat-num {
-        font-family: 'DM Serif Display', serif;
-        font-size: 1.5rem; color: #fff; line-height: 1;
-        margin-bottom: 0.18rem; letter-spacing: -0.02em;
-    }
-    .pstat-lbl { font-size: 0.64rem; color: rgba(255,255,255,0.4); text-transform: uppercase; letter-spacing: 0.07em; }
-
-    /* ── AUTH CARD (old file zoom + new file polish) ── */
+    /* ══ THE CARD ══ */
     .auth-card {
-        flex: 1;
-        /* Card zoom on hover — from old file */
-        transition: transform 0.38s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.38s ease;
-        transform-origin: center center;
-        border-radius: 28px;
-        /* White frosted card */
-        background: rgba(255,255,255,0.97);
-        backdrop-filter: blur(20px);
-        border: 1px solid rgba(255,255,255,0.22);
-        box-shadow: 0 24px 80px rgba(0,0,0,0.32), 0 0 0 1px rgba(124,179,66,0.07);
-        overflow: hidden;
+        position: relative;
+        width: 100%; max-width: 470px;
+        background: var(--paper);
+        border-radius: 22px;
+        box-shadow: 0 30px 80px rgba(5,20,10,0.45), 0 0 0 1px rgba(255,255,255,0.06);
+        padding: 1.4rem clamp(1.15rem, 4vw, 2rem) 1.4rem;
+        animation: cardIn 0.7s var(--ease-out) both;
     }
-    @media (min-width: 769px) {
-        .auth-card:hover {
-            transform: scale(1.024);
-            box-shadow: 0 40px 100px rgba(0,0,0,0.38), 0 0 0 1px rgba(124,179,66,0.12);
-        }
-    }
+    @keyframes cardIn { from { opacity: 0; transform: translateY(28px) scale(0.98); } }
 
-    /* Floating shapes inside card (from old file — .floating-shapes) */
-    .card-shapes {
-        position: absolute; inset: 0; overflow: hidden; pointer-events: none; border-radius: 28px;
+    .card-brand { display: flex; align-items: center; gap: 0.8rem; margin-bottom: 1.1rem; }
+    .card-mark {
+        width: 50px; height: 50px;
+        background: var(--green-dark); color: var(--accent);
+        font-size: 1.3rem; padding-top: 0.2rem;
     }
-    .card-shape {
-        position: absolute; border-radius: 50%;
-        background: rgba(124,179,66,0.06);
-        animation: shapeFloat 7s ease-in-out infinite;
-    }
-    .cs1 { width:90px;height:90px;top:10%;right:5%;animation-delay:0s; }
-    .cs2 { width:55px;height:55px;top:65%;right:15%;animation-delay:2.5s; }
-    .cs3 { width:40px;height:40px;top:35%;right:3%;animation-delay:4.5s; }
-    @keyframes shapeFloat { 0%,100%{transform:translateY(0) scale(1)} 50%{transform:translateY(-18px) scale(1.08)} }
+    .card-brand .welcome { display: block; margin-bottom: 0.35rem; font-size: 0.8rem; font-weight: 600; color: var(--muted); }
+    .card-brand .brand-name { display: block; font-family: 'SAMAN___', var(--font-display); font-weight: normal; font-size: 1.95rem; line-height: 1.05; color: var(--green-dark); white-space: nowrap; }
 
-    /* Tabs */
+    /* what the name means, set like a dictionary entry */
+    .meaning {
+        width: 100%; max-width: 470px;
+        margin-top: 0.85rem;
+        padding: 0.8rem 1.1rem;
+        border-radius: 16px;
+        background: rgba(15,42,23,0.78);
+        border: 1px solid rgba(207,229,180,0.16);
+        -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);
+        color: rgba(255,255,255,0.78);
+        font-size: 0.8rem; line-height: 1.5;
+        animation: cardIn 0.7s var(--ease-out) 0.15s both;
+    }
+    .meaning .m-head { display: flex; align-items: baseline; flex-wrap: wrap; gap: 0.3rem 0.6rem; margin-bottom: 0.3rem; color: #fff; }
+    .meaning .m-head .logo { font-size: 1.25rem; text-shadow: none; }
+    .meaning .m-hi { font-family: var(--font-hindi); color: var(--accent); font-size: 1.05rem; }
+    .meaning .m-pos { font-style: italic; color: rgba(255,255,255,0.55); font-size: 0.78rem; }
+    .meaning dl { display: grid; gap: 0.1rem; margin-bottom: 0.3rem; }
+    .meaning dt { display: inline; font-weight: 700; color: #fff; }
+    .meaning dd { display: inline; }
+    .meaning .m-hi-inline { font-family: var(--font-hindi); color: var(--accent); }
+    .meaning .m-sum { color: #e9f2e3; }
+    .meaning .m-sum b { color: var(--accent); }
+    .auth-main { flex-direction: column; }
+
     .auth-tabs {
+        position: relative;
         display: grid; grid-template-columns: 1fr 1fr;
-        border-bottom: 1px solid var(--border);
-        position: relative; z-index: 1;
+        background: var(--green-pale);
+        border-radius: 12px;
+        padding: 4px;
+        margin-bottom: 1.3rem;
     }
+    .auth-tabs::before {
+        content: '';
+        position: absolute; top: 4px; bottom: 4px; left: 4px;
+        width: calc(50% - 4px);
+        border-radius: 9px;
+        background: var(--green-dark);
+        box-shadow: 0 4px 12px rgba(23,61,34,0.3);
+        transition: transform 0.4s var(--ease-out);
+    }
+    .auth-tabs[data-tab="signup"]::before { transform: translateX(100%); }
     .tab-btn {
-        padding: 1.2rem 1.5rem; border: none; background: transparent;
-        font-family: 'Plus Jakarta Sans', sans-serif;
-        font-size: 0.93rem; font-weight: 600; color: var(--text-3);
-        cursor: pointer; transition: all 0.28s ease;
-        position: relative; display: flex; align-items: center; justify-content: center; gap: 0.5rem;
+        position: relative; z-index: 1;
+        display: inline-flex; align-items: center; justify-content: center; gap: 0.45rem;
+        padding: 0.7rem 0.5rem;
+        border: none; background: transparent;
+        font-size: 0.92rem; font-weight: 700;
+        color: var(--green-mid);
+        cursor: pointer;
+        border-radius: 9px;
+        transition: color 0.3s ease;
     }
-    .tab-btn::after {
-        content: ''; position: absolute;
-        bottom: -1px; left: 50%; right: 50%; height: 3px;
-        background: linear-gradient(90deg, var(--g-300), var(--accent));
-        border-radius: 3px 3px 0 0;
-        transition: all 0.35s cubic-bezier(0.4,0,0.2,1);
+    .tab-btn.active { color: #fff; }
+
+    #msgArea:empty { display: none; }
+    .php-message {
+        display: flex; align-items: flex-start; gap: 0.5rem;
+        padding: 0.7rem 0.9rem;
+        margin-bottom: 1rem;
+        border-radius: 10px;
+        font-size: 0.86rem; font-weight: 600;
+        animation: msgIn 0.35s var(--ease-out);
+        transition: opacity 0.3s, transform 0.3s;
     }
-    .tab-btn.active { color: var(--g-600); background: rgba(124,179,66,0.04); }
-    .tab-btn.active::after { left: 12%; right: 12%; }
-    .tab-btn i { font-size: 0.88rem; }
+    .php-success { background: #e3f4dc; color: #1f5a2c; border: 1px solid #b9dfab; }
+    .php-error   { background: #fbe4e1; color: #8a1c12; border: 1px solid #f1bcb5; }
+    .php-message.hide { opacity: 0; transform: translateY(-6px); }
+    @keyframes msgIn { from { opacity: 0; transform: translateY(-8px); } }
 
-    /* Form body */
-    .form-body { padding: 2.5rem 2.5rem 2.2rem; position: relative; z-index: 1; }
+    .auth-form { display: none; }
+    .auth-form.active { display: block; animation: formIn 0.45s var(--ease-out); }
+    @keyframes formIn { from { opacity: 0; transform: translateY(10px); } }
 
-    .form-heading { margin-bottom: 1.75rem; }
+    .form-heading { margin-bottom: 1.1rem; }
     .form-heading h2 {
-        font-family: 'DM Serif Display', serif;
-        font-size: 1.9rem; font-weight: 400;
-        color: var(--text-1); margin-bottom: 0.3rem; line-height: 1.18;
+        font-family: var(--font-display);
+        font-stretch: 82%;
+        font-weight: 800;
+        font-size: 1.9rem;
+        line-height: 1;
+        color: var(--ink);
+        margin-bottom: 0.35rem;
     }
-    .form-heading h2 em { font-style: italic; color: var(--g-600); }
-    .form-heading p { font-size: 0.88rem; color: var(--text-3); }
+    .form-heading p { font-size: 0.9rem; color: var(--muted); }
 
-    .auth-form { display: none; animation: formSlideIn 0.4s cubic-bezier(0.4,0,0.2,1); }
-    .auth-form.active { display: block; }
-    @keyframes formSlideIn { from{opacity:0;transform:translateY(14px)} to{opacity:1;transform:translateY(0)} }
-
-    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
-    .form-group { margin-bottom: 1.1rem; }
-    .form-group label {
-        display: block; margin-bottom: 0.42rem;
-        color: var(--text-2); font-weight: 600; font-size: 0.78rem;
-        letter-spacing: 0.04em; text-transform: uppercase;
-    }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0 0.85rem; }
+    .form-group { margin-bottom: 0.95rem; }
+    .form-group > label { display: block; margin-bottom: 0.4rem; font-size: 0.82rem; font-weight: 700; color: var(--ink); }
     .input-wrap { position: relative; }
     .input-icon {
-        position: absolute; left: 14px; top: 50%; transform: translateY(-50%);
-        color: var(--text-3); font-size: 0.88rem; pointer-events: none; transition: color 0.22s;
+        position: absolute; left: 0.9rem; top: 50%; transform: translateY(-50%);
+        color: #8a9a8f; font-size: 0.9rem; pointer-events: none;
+        transition: color 0.2s;
     }
     .form-input {
-        width: 100%; padding: 0.85rem 1rem 0.85rem 2.7rem;
-        border: 2px solid var(--border); border-radius: 14px;
-        font-size: 0.92rem; font-family: inherit; color: var(--text-1);
-        background: var(--bg-page);
-        transition: border-color 0.25s, box-shadow 0.25s, background 0.25s;
-    }
-    .form-input:focus {
-        outline: none;
-        border-color: var(--g-300);
-        box-shadow: 0 0 0 4px rgba(124,179,66,0.13);
+        width: 100%;
+        padding: 0.78rem 0.9rem 0.78rem 2.5rem;
+        border: 1.5px solid #d8e2d5;
+        border-radius: 10px;
         background: #fff;
+        font: inherit; font-size: 0.95rem; color: var(--ink);
+        transition: border-color 0.2s, box-shadow 0.2s;
     }
-    .input-wrap:focus-within .input-icon { color: var(--g-300); }
-    .form-input::placeholder { color: var(--text-3); opacity: 0.65; }
+    .form-input::placeholder { color: #9aa79f; }
+    .form-input:hover { border-color: #b7c9b3; }
+    .form-input:focus { outline: none; border-color: var(--green-base); box-shadow: 0 0 0 4px rgba(47,110,71,0.14); }
+    .input-wrap:focus-within .input-icon { color: var(--green-base); }
+    .password-group .form-input { padding-right: 4.6rem; }
 
-    .password-group { position: relative; }
     .password-toggle {
-        position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
-        background: none; border: none; color: var(--text-3); cursor: pointer;
-        font-size: 0.92rem; padding: 0.4rem; border-radius: 8px; z-index: 3; transition: color 0.22s;
+        position: absolute; right: 0.4rem; top: 50%; transform: translateY(-50%);
+        width: 36px; height: 36px;
+        border: none; border-radius: 8px;
+        background: transparent; color: var(--muted);
+        cursor: pointer;
+        transition: background-color 0.2s, color 0.2s;
     }
-    .password-toggle:hover { color: var(--g-600); background: var(--g-50); }
-    .password-group .form-input { padding-right: 3rem; }
-
-    /* Password strength — segmented bar (new file style) */
-    .password-strength { margin-top: 0.55rem; display: none; }
-    .password-strength.show { display: block; }
-    .strength-bar { height: 5px; border-radius: 3px; display: flex; gap: 3px; margin-bottom: 0.38rem; }
-    .strength-segment { flex: 1; border-radius: 3px; background: var(--border); transition: background 0.3s; }
-    .strength-segment.active.weak   { background: #ef5350; }
-    .strength-segment.active.fair   { background: #fb8c00; }
-    .strength-segment.active.good   { background: #fbc02d; }
-    .strength-segment.active.strong { background: var(--g-300); }
-    .strength-text { font-size: 0.77rem; font-weight: 700; color: var(--text-3); }
-    .strength-text.weak   { color: #ef5350; }
-    .strength-text.fair   { color: #fb8c00; }
-    .strength-text.good   { color: #fbc02d; }
-    .strength-text.strong { color: var(--g-300); }
-
-    .password-requirements { margin-top: 0.55rem; font-size: 0.76rem; display: none; }
-    .password-requirements.show { display: grid; grid-template-columns: 1fr 1fr; gap: 0.2rem 0.5rem; }
-    .requirement { display: flex; align-items: center; gap: 0.38rem; color: var(--text-3); transition: color 0.22s; }
-    .requirement.valid { color: var(--g-500); }
-    .requirement-icon {
-        width: 14px; height: 14px; border-radius: 50%;
-        border: 1.5px solid currentColor;
-        display: flex; align-items: center; justify-content: center;
-        font-size: 8px; transition: all 0.22s; flex-shrink: 0;
-    }
-    .requirement.valid .requirement-icon { background: var(--g-500); border-color: var(--g-500); color: #fff; }
-
+    .password-toggle:hover { background: var(--green-pale); color: var(--green-mid); }
     .password-match {
-        position: absolute; right: 50px; top: 50%; transform: translateY(-50%);
+        position: absolute; right: 2.75rem; top: 50%; transform: translateY(-50%) scale(0.5);
         width: 20px; height: 20px; border-radius: 50%;
-        display: none; align-items: center; justify-content: center;
-        font-size: 11px; z-index: 2;
+        display: grid; place-items: center;
+        font-size: 0.7rem; font-weight: 800; color: #fff;
+        opacity: 0;
+        transition: opacity 0.2s, transform 0.3s cubic-bezier(0.3,1.6,0.5,1);
     }
-    .password-match.show { display: flex; }
-    .password-match.valid   { background: var(--g-500); color: #fff; }
-    .password-match.invalid { background: #ef5350; color: #fff; }
+    .password-match.show { opacity: 1; transform: translateY(-50%) scale(1); }
+    .password-match.valid { background: var(--green-base); }
+    .password-match.invalid { background: #c62828; }
 
-    /* Form options */
+    .password-strength, .password-requirements { display: none; }
+    .password-strength.show { display: block; margin-top: 0.55rem; }
+    .password-requirements.show { display: flex; flex-wrap: wrap; gap: 0.3rem; margin-top: 0.5rem; }
+    .strength-bar { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; }
+    .strength-segment { height: 5px; border-radius: 3px; background: #e2e9df; transition: background-color 0.3s; }
+    .strength-segment.active.weak   { background: #c62828; }
+    .strength-segment.active.fair   { background: #e8710a; }
+    .strength-segment.active.good   { background: #c99a06; }
+    .strength-segment.active.strong { background: var(--green-base); }
+    .strength-text { margin-top: 0.3rem; font-size: 0.76rem; font-weight: 700; color: var(--muted); }
+    .strength-text.weak { color: #b71c1c; }
+    .strength-text.fair { color: #b65300; }
+    .strength-text.good { color: #8a6a00; }
+    .strength-text.strong { color: var(--green-base); }
+    .requirement {
+        display: inline-flex; align-items: center; gap: 0.3rem;
+        padding: 0.2rem 0.55rem;
+        border-radius: 999px;
+        background: #f1f4ef;
+        font-size: 0.72rem; font-weight: 600; color: var(--muted);
+        transition: background-color 0.25s, color 0.25s;
+    }
+    .requirement.valid { background: #e3f4dc; color: #1f5a2c; }
+    .requirement-icon { font-size: 0.7rem; }
+
     .form-options {
-        display: flex; justify-content: space-between; align-items: center;
-        margin-bottom: 1.5rem; font-size: 0.85rem; flex-wrap: wrap; gap: 0.5rem;
+        display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.5rem;
+        margin: 0.2rem 0 1.15rem;
+        font-size: 0.86rem;
     }
-    .remember-me { display: flex; align-items: center; gap: 0.5rem; cursor: pointer; color: var(--text-2); font-weight: 500; }
-    .remember-me input[type="checkbox"] { accent-color: var(--g-300); width: 16px; height: 16px; cursor: pointer; }
-    .forgot-link { color: var(--g-500); text-decoration: none; font-weight: 700; font-size: 0.85rem; transition: color 0.2s; }
-    .forgot-link:hover { color: var(--g-700); }
+    .remember-me { display: inline-flex; align-items: center; gap: 0.45rem; cursor: pointer; color: var(--body); }
+    input[type="checkbox"] { width: 17px; height: 17px; accent-color: var(--green-base); cursor: pointer; }
+    .forgot-link, .switch-link a, .terms-group a { color: var(--green-base); font-weight: 700; text-decoration: none; }
+    .forgot-link:hover, .switch-link a:hover, .terms-group a:hover { text-decoration: underline; }
+    .terms-group { display: flex; align-items: flex-start; gap: 0.55rem; font-size: 0.85rem; }
+    .terms-group input { margin-top: 0.1rem; flex-shrink: 0; }
 
-    /* Submit button — pill gradient (both files agree on this) */
     .submit-btn {
-        width: 100%; padding: 1rem 1.5rem;
-        background: linear-gradient(135deg, var(--g-300), var(--g-200));
-        color: var(--g-900); border: none; border-radius: 50px;
-        font-size: 1rem; font-weight: 800; cursor: pointer; font-family: inherit;
-        letter-spacing: 0.01em;
-        transition: transform 0.3s cubic-bezier(0.4,0,0.2,1), box-shadow 0.3s, opacity 0.3s;
-        margin-bottom: 1.25rem;
-        box-shadow: 0 8px 28px rgba(124,179,66,0.42);
-        display: flex; align-items: center; justify-content: center; gap: 0.5rem;
+        position: relative; overflow: hidden; isolation: isolate;
+        width: 100%;
+        display: inline-flex; align-items: center; justify-content: center; gap: 0.55rem;
+        padding: 0.92rem 1rem;
+        border: none; border-radius: 11px;
+        background: var(--accent); color: var(--accent-ink);
+        font-size: 1rem; font-weight: 800;
+        cursor: pointer;
+        transition: transform 0.15s, opacity 0.2s;
     }
-    .submit-btn:hover:not(:disabled) { transform: translateY(-3px); box-shadow: 0 14px 42px rgba(124,179,66,0.55); }
-    .submit-btn:active:not(:disabled) { opacity: 0.9; transform: translateY(0); }
-    .submit-btn:disabled { background: #ddd; color: #999; cursor: not-allowed; box-shadow: none; transform: none; }
-
-    /* Divider */
-    .divider {
-        text-align: center; margin: 1.2rem 0;
-        color: var(--text-3); font-size: 0.8rem;
-        display: flex; align-items: center;
+    .submit-btn::before {
+        content: ''; position: absolute; inset: 0; z-index: -1;
+        background: var(--green-dark);
+        transform: translateY(101%);
+        transition: transform 0.4s var(--ease-out);
     }
-    .divider::before, .divider::after { content: ''; flex: 1; height: 1px; background: var(--border); }
-    .divider::before { margin-right: 1rem; }
-    .divider::after  { margin-left: 1rem; }
+    .submit-btn:not(:disabled):hover { color: #fff; }
+    .submit-btn:not(:disabled):hover::before { transform: translateY(0); }
+    .submit-btn:not(:disabled):active { transform: translateY(1px); }
+    .submit-btn:disabled { cursor: not-allowed; }
 
-    /* Social buttons */
-    .social-login { display: flex; gap: 0.8rem; margin-bottom: 0.8rem; }
+    .divider { display: flex; align-items: center; gap: 0.75rem; margin: 1.15rem 0 0.9rem; font-size: 0.78rem; color: var(--muted); }
+    .divider::before, .divider::after { content: ''; flex: 1; height: 1px; background: var(--line); }
+    .social-login { display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem; }
     .social-btn {
-        flex: 1; padding: 0.78rem 1rem;
-        border: 2px solid var(--border); border-radius: 14px;
-        background: #fff; color: var(--text-2);
-        display: flex; align-items: center; justify-content: center;
-        gap: 0.6rem; font-size: 0.87rem; font-weight: 600;
-        cursor: pointer; font-family: inherit;
-        transition: border-color 0.25s, box-shadow 0.25s, background 0.25s, transform 0.2s;
+        display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem;
+        padding: 0.7rem;
+        border: 1.5px solid #d8e2d5; border-radius: 10px;
+        background: #fff; color: var(--ink);
+        font-size: 0.88rem; font-weight: 700;
+        cursor: pointer;
+        transition: border-color 0.2s, transform 0.2s, box-shadow 0.2s;
     }
-    .social-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,0.1); }
-    .google-btn:hover   { border-color: #db4437; color: #db4437; background: #fdf3f2; }
-    .facebook-btn:hover { border-color: #3b5998; color: #3b5998; background: #f0f3ff; }
-    .social-btn .fa-google   { color: #db4437; font-size: 1rem; }
-    .social-btn .fa-facebook { color: #3b5998; font-size: 1rem; }
+    .social-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(23,61,34,0.12); }
+    .google-btn i { color: #c5221f; }
+    .facebook-btn i { color: #1877f2; }
+    .google-btn:hover { border-color: #c5221f; }
+    .facebook-btn:hover { border-color: #1877f2; }
+    .switch-link { margin-top: 1.1rem; text-align: center; font-size: 0.88rem; color: var(--muted); }
 
-    .switch-link { text-align: center; font-size: 0.87rem; color: var(--text-3); margin-top: 1rem; }
-    .switch-link a { color: var(--g-500); text-decoration: none; font-weight: 700; }
-    .switch-link a:hover { color: var(--g-700); }
+    .page-foot { padding: 0 1rem 1.2rem; text-align: center; font-size: 0.78rem; color: rgba(255,255,255,0.5); }
 
-    .terms-group {
-        display: flex; align-items: flex-start; gap: 0.5rem;
-        font-size: 0.84rem; color: var(--text-3); margin-bottom: 1.1rem;
+    /* ══ RESPONSIVE ══ */
+    @media (max-height: 820px) and (min-width: 1181px) {
+        .s-health, .s-emergency { display: none; }
+        .s-plumber { top: 90px; }
     }
-    .terms-group input { accent-color: var(--g-300); width: 16px; height: 16px; margin-top: 3px; flex-shrink: 0; cursor: pointer; }
-    .terms-group a { color: var(--g-500); text-decoration: none; font-weight: 700; }
-    .terms-group a:hover { color: var(--g-700); }
-
-    /* Message area */
-    #msgArea { margin-bottom: 0.65rem; }
-    .php-message {
-        padding: 10px 16px; margin: 8px 0; border-radius: 12px;
-        font-weight: 600; text-align: center;
-        animation: slideDown 0.3s ease-out; font-size: 0.84rem; transition: opacity 0.3s;
+    @media (max-width: 1180px) {
+        .s-mechanic, .s-emergency { display: none; }
+        .s-plumber { top: auto; bottom: 3%; }
+        .bot-bubble { right: 20%; top: auto; bottom: 102%; border-radius: 16px 16px 4px 16px; }
     }
-    .php-success { background: #e8f5e9; color: var(--g-800); border: 2px solid rgba(124,179,66,0.4); }
-    .php-error   { background: #fdecea; color: #b71c1c; border: 2px solid rgba(239,83,80,0.4); }
-    .php-message.hide { opacity: 0; }
-    @keyframes slideDown { from{opacity:0;transform:translateY(-10px)} to{opacity:1;transform:translateY(0)} }
-
-    /* ══════════════════════════════
-       FOOTER — frosted over dark bg
-    ══════════════════════════════ */
-    footer {
-        background: rgba(7,20,16,0.88);
-        backdrop-filter: blur(24px);
-        color: #fff; padding: 4.5rem 0 0;
-        position: relative; overflow: hidden; z-index: 1;
-        border-top: 1px solid rgba(124,179,66,0.1);
-    }
-    footer::before {
-        content: '';
-        position: absolute; top: -1px; left: 0; right: 0; height: 3px;
-        background: linear-gradient(90deg, transparent, var(--g-300), var(--accent), var(--g-300), transparent);
-    }
-    .footer-bg-deco {
-        position: absolute; bottom: -200px; right: -200px;
-        width: 600px; height: 600px;
-        background: radial-gradient(circle, rgba(124,179,66,0.05), transparent 65%);
-        pointer-events: none;
-    }
-    .footer-content {
-        max-width: 1280px; margin: 0 auto; padding: 0 2rem;
-        display: grid; grid-template-columns: 1.6fr 1fr 1fr 1.4fr; gap: 3rem;
-    }
-    .footer-brand .logo-foot {
-        display: block; margin-bottom: 1rem; color: #fff; text-decoration: none;
-        font-family: 'SAMAN___', 'DM Serif Display', serif; font-size: 2rem;
-    }
-    .footer-brand p { color: rgba(255,255,255,0.52); font-size: 0.88rem; line-height: 1.75; max-width: 280px; }
-    .footer-section h4 {
-        font-size: 0.75rem; font-weight: 700; letter-spacing: 0.12em;
-        text-transform: uppercase; color: rgba(255,255,255,0.4); margin-bottom: 1.1rem;
-    }
-    .footer-section a {
-        display: block; color: rgba(255,255,255,0.65); text-decoration: none;
-        font-size: 0.9rem; margin-bottom: 0.55rem; transition: all 0.2s ease;
-    }
-    .footer-section a:hover { color: var(--g-300); padding-left: 4px; }
-    .footer-contact-item { display: flex; align-items: flex-start; gap: 0.7rem; margin-bottom: 0.7rem; }
-    .footer-contact-item i { color: var(--g-300); font-size: 0.88rem; margin-top: 0.2rem; flex-shrink: 0; }
-    .footer-contact-item span,
-    .footer-contact-item a { color: rgba(255,255,255,0.62); font-size: 0.88rem; line-height: 1.5; margin: 0; display: inline; transition: color 0.2s; }
-    .footer-contact-item a:hover { color: var(--g-300); padding: 0; }
-    .newsletter-form {
-        display: flex; margin-top: 0.5rem;
-        border-radius: 12px; overflow: hidden;
-        border: 1px solid rgba(255,255,255,0.13);
-        background: rgba(255,255,255,0.06);
-    }
-    .newsletter-form input {
-        padding: 0.75rem 1rem; border: none; background: transparent;
-        color: #fff; font-size: 0.86rem; font-family: inherit; flex: 1; outline: none;
-    }
-    .newsletter-form input::placeholder { color: rgba(255,255,255,0.32); }
-    .newsletter-form button {
-        padding: 0.75rem 1rem; border: none;
-        background: linear-gradient(135deg, var(--g-300), var(--g-500));
-        color: #fff; cursor: pointer; font-weight: 700; font-size: 0.83rem;
-        font-family: inherit; transition: all 0.25s; white-space: nowrap;
-    }
-    .newsletter-form button:hover { background: linear-gradient(135deg, var(--g-200), var(--g-300)); }
-    .footer-bottom-bar {
-        margin-top: 4rem; border-top: 1px solid rgba(255,255,255,0.07);
-        padding: 1.75rem 2rem; max-width: 1280px; margin-left: auto; margin-right: auto;
-        display: flex; align-items: center; justify-content: space-between;
-        flex-wrap: wrap; gap: 1rem;
-    }
-    .footer-bottom-bar p { color: rgba(255,255,255,0.32); font-size: 0.83rem; }
-    .footer-social { display: flex; gap: 0.7rem; }
-    .footer-social a {
-        width: 38px; height: 38px; border-radius: 50%;
-        background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.11);
-        color: rgba(255,255,255,0.62);
-        display: flex; align-items: center; justify-content: center;
-        font-size: 0.95rem; text-decoration: none; transition: all 0.25s;
-    }
-    .footer-social a:hover { color: #fff; transform: translateY(-3px); box-shadow: 0 6px 18px rgba(0,0,0,0.25); }
-    .footer-social a[aria-label="Facebook"]:hover  { background: #1877f2; border-color: #1877f2; }
-    .footer-social a[aria-label="Instagram"]:hover { background: radial-gradient(circle at 30% 110%, #fdf497 0%, #fd5949 45%, #d6249f 60%, #285AEB 90%); border-color: transparent; }
-    .footer-social a[aria-label="GitHub"]:hover    { background: #24292e; border-color: #24292e; }
-    .footer-social a[aria-label="LinkedIn"]:hover  { background: #0a66c2; border-color: #0a66c2; }
-
-    /* ══════════════════════════════
-       NOTIFICATION
-    ══════════════════════════════ */
-    .notification {
-        position: fixed; top: 20px; right: 20px;
-        background: #fff; padding: 1rem 1.25rem;
-        border-radius: 14px; box-shadow: var(--shadow-lg);
-        z-index: 9999; display: flex; align-items: center; gap: 0.75rem;
-        animation: slideInRight 0.3s ease; max-width: 360px;
-        font-size: 0.9rem; border: 1px solid var(--border);
-    }
-    .notification-success { border-left: 3px solid var(--g-300); color: var(--g-700); }
-    .notification-error   { border-left: 3px solid #f44336; color: #c62828; }
-    .notification button  { background: none; border: none; cursor: pointer; color: var(--text-3); font-size: 1rem; margin-left: auto; opacity: 0.7; transition: opacity 0.2s; }
-    .notification button:hover { opacity: 1; }
-    @keyframes slideInRight { from{opacity:0;transform:translateX(30px)} to{opacity:1;transform:translateX(0)} }
-
-    /* ══════════════════════════════
-       RESPONSIVE
-    ══════════════════════════════ */
     @media (max-width: 900px) {
-        .auth-wrapper { flex-direction: column; max-width: 560px; }
-        .info-panel { width: 100%; position: static; flex-direction: row; flex-wrap: wrap; }
-        .info-panel > div:first-child { width: 100%; }
-        .feat-card { flex: 1; min-width: 200px; }
-        .panel-stats { display: none; }
-        .footer-content { grid-template-columns: 1fr 1fr; gap: 2.5rem; }
+        .scene { opacity: 0.5; }
+        .s-electrician { opacity: 0.85; }
+        .chip, .bot-bubble, .s-health, .s-robot { display: none; }
+        .s-electrician { width: 160px; right: -16px; top: 62px; }
+        .s-plumber { width: 210px; left: -24px; bottom: 1%; }
     }
-    @media (max-width: 768px) {
-        .nav-center, .nav-auth { display: none; }
-        .mobile-toggle { display: flex; }
-    }
-    @media (max-width: 640px) {
-        .auth-section { padding: 6rem 1rem 3rem; }
-        .form-body { padding: 1.75rem 1.4rem; }
+    @media (max-width: 520px) {
+        .topbar nav a span { display: none; }
+        .logo { font-size: 1.3rem; white-space: nowrap; }
+        .brand-mark { width: 34px; height: 34px; font-size: 1rem; }
+        .topbar nav { gap: 0.3rem; }
+        .topbar nav a, .light-switch { width: 36px; height: 36px; padding: 0; justify-content: center; }
+        .card-brand .brand-name { font-size: 1.6rem; }
         .form-row { grid-template-columns: 1fr; }
-        .social-login { flex-direction: column; }
-        .footer-content { grid-template-columns: 1fr; gap: 2rem; }
-        .footer-bottom-bar { flex-direction: column; text-align: center; }
-        .info-panel { flex-direction: column; }
+        .auth-card { border-radius: 18px; }
+        .scene { opacity: 0.4; }
+        .light-hint { display: none; }
+    }
+
+    /* 'Reduce motion' on: stop the drifting tools, keep the helpers working */
+    @media (prefers-reduced-motion: reduce) {
+        .drift { display: none; }
     }
     </style>
 </head>
 <body>
 
-<!-- PAGE LOADER -->
-<div id="pageLoader">
+<!-- LOADER — the Firebase check hides it; a fallback in the UI script hides it after 1.5 s on slow connections -->
+<div id="pageLoader" role="status" aria-label="Loading">
     <div class="ld-logo">Trouble Sarthi</div>
-    <div class="ld-bar"><div class="ld-bar-fill"></div></div>
+    <i class="fas fa-wrench ld-wrench" aria-hidden="true"></i>
 </div>
 
-<!-- Fixed dark green bg + orbs -->
-<div class="page-bg"></div>
-<div class="orb orb-1"></div>
-<div class="orb orb-2"></div>
-<div class="orb orb-3"></div>
+<!-- ══ BACKGROUND: helpers fixing things (pure SVG + CSS, no images to download) ══ -->
+<div class="bg-grid" aria-hidden="true"></div>
+<div class="bg-glow" aria-hidden="true"></div>
+<div class="drift" aria-hidden="true">
+    <i class="fas fa-wrench"         style="left:8%;  font-size:28px; animation-duration:26s; animation-delay:-4s"></i>
+    <i class="fas fa-bolt"           style="left:22%; font-size:22px; animation-duration:31s; animation-delay:-18s"></i>
+    <i class="fas fa-hammer"         style="left:37%; font-size:26px; animation-duration:28s; animation-delay:-9s"></i>
+    <i class="fas fa-faucet-drip"    style="left:55%; font-size:24px; animation-duration:33s; animation-delay:-24s"></i>
+    <i class="fas fa-screwdriver"    style="left:70%; font-size:22px; animation-duration:27s; animation-delay:-13s"></i>
+    <i class="fas fa-paint-roller"   style="left:86%; font-size:26px; animation-duration:30s; animation-delay:-2s"></i>
+</div>
+
+<div class="room-light" aria-hidden="true"></div>
+
+<div class="scenes">
+
+    <figure class="scene s-health" aria-hidden="true">
+<svg viewBox="0 0 300 215">
+  <line x1="10" y1="206" x2="290" y2="206" stroke="rgba(207,229,180,0.25)" stroke-width="2" stroke-dasharray="6 8"/>
+  <rect x="176" y="70" width="112" height="72" rx="12" fill="#0c2416" stroke="rgba(207,229,180,0.45)" stroke-width="2"/>
+  <path class="ecg" d="M184 108 H206 L212 96 L220 124 L228 84 L236 116 L242 108 H280" fill="none" stroke="#7cf29c" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>
+  <path class="hb" d="M268 82 c-3 -5 -11 -3 -9 3 c1 3 9 9 9 9 s8 -6 9 -9 c2 -6 -6 -8 -9 -3 Z" fill="#ff5b5b"/>
+  <rect x="226" y="142" width="12" height="40" fill="rgba(207,229,180,0.35)"/>
+  <rect x="208" y="180" width="48" height="8" rx="4" fill="rgba(207,229,180,0.35)"/>
+  <path d="M60 70 Q50 130 66 156 L118 156 Q134 130 124 70 Z" fill="#3a2418"/>
+  
+    <rect x="73" y="146" width="15" height="50" rx="6" fill="#39a7a0"/>
+    <rect x="95" y="146" width="15" height="50" rx="6" fill="#39a7a0"/>
+    <ellipse cx="80" cy="197" rx="11" ry="6" fill="#2b2b33"/>
+    <ellipse cx="103" cy="197" rx="11" ry="6" fill="#2b2b33"/>
+  <rect x="66" y="100" width="52" height="60" rx="17" fill="#fbfbfb"/>
+  <path d="M84 102 L92 122 L100 102" fill="#39a7a0"/>
+  <path d="M80 104 Q78 132 92 134 Q106 132 104 104" fill="none" stroke="#2f3b4a" stroke-width="2.6"/>
+  <circle cx="92" cy="136" r="4" fill="#c9d3cf" stroke="#2f3b4a" stroke-width="1.5"/>
+  <path d="M70 112 L82 146" stroke="#fbfbfb" stroke-width="11" stroke-linecap="round"/><circle cx="82" cy="146" r="6.5" fill="#f6c7a1"/>
+  <path d="M114 112 L106 146" stroke="#fbfbfb" stroke-width="11" stroke-linecap="round"/><circle cx="106" cy="146" r="6.5" fill="#f6c7a1"/>
+  <g class="kit">
+    <rect x="74" y="140" width="40" height="30" rx="6" fill="#e5413a"/>
+    <path d="M86 140 V135 H102 V140" fill="none" stroke="#b92c25" stroke-width="3"/>
+    <rect x="90.5" y="147" width="7" height="16" rx="1.5" fill="#fff"/>
+    <rect x="86" y="151.5" width="16" height="7" rx="1.5" fill="#fff"/>
+  </g>
+  <circle cx="92" cy="67" r="33" fill="#3a2418"/>
+  
+    <circle cx="64" cy="74" r="7.2" fill="#eeb48b"/>
+    <circle cx="120" cy="74" r="7.2" fill="#eeb48b"/>
+    <circle cx="92" cy="70" r="30" fill="#f6c7a1"/>
+    <g class="eyes">
+      <ellipse cx="82.1" cy="73.6" rx="4.2" ry="5.7" fill="#2a1a12"/>
+      <ellipse cx="101.9" cy="73.6" rx="4.2" ry="5.7" fill="#2a1a12"/>
+      <circle cx="83.6" cy="70.9" r="1.8" fill="#fff"/>
+      <circle cx="103.4" cy="70.9" r="1.8" fill="#fff"/>
+    </g>
+    <ellipse cx="75.2" cy="82.0" rx="5.1" ry="3.0" fill="#ff8a80" opacity="0.55"/>
+    <ellipse cx="108.8" cy="82.0" rx="5.1" ry="3.0" fill="#ff8a80" opacity="0.55"/>
+    <path d="M85.4 82.0 Q92 93.4 98.6 82.0 Z" fill="#8e3426"/>
+  <path d="M60 66 Q64 34 98 36 Q126 40 124 72 Q108 53.5 86 56.5 Q71.0 61.0 60 66 Z" fill="#3a2418"/>
+  <circle cx="127" cy="60" r="8" fill="#3a2418"/>
+</svg>
+        <span class="chip"><i class="fas fa-kit-medical"></i><span class="c-lbl">Health care</span><span class="c-done">Help arriving</span></span>
+    </figure>
+
+    <figure class="scene s-plumber" aria-hidden="true">
+<svg viewBox="0 0 300 215">
+  <line x1="10" y1="206" x2="290" y2="206" stroke="rgba(207,229,180,0.25)" stroke-width="2" stroke-dasharray="6 8"/>
+  <path d="M150 120 H272 a12 12 0 0 1 12 12 V206" fill="none" stroke="#9fb8a8" stroke-width="15"/>
+  <rect x="142" y="104" width="9" height="32" rx="2" fill="#cfe5b4"/>
+  <rect x="165" y="107" width="22" height="26" rx="4" fill="#cfe5b4"/>
+  <ellipse class="pl-puddle" cx="176" cy="203" rx="26" ry="4.5" fill="#7fd3ff" opacity="0.55"/>
+  <g class="pl-leak">
+    <circle class="drop" cx="176" cy="138" r="4.2" fill="#7fd3ff"/>
+    <circle class="drop d2" cx="176" cy="138" r="3.6" fill="#7fd3ff"/>
+    <circle class="drop d3" cx="176" cy="138" r="3.1" fill="#7fd3ff"/>
+  </g>
+  <path class="pl-shine" d="M176 103 L179.5 116.5 L193 120 L179.5 123.5 L176 137 L172.5 123.5 L159 120 L172.5 116.5 Z" fill="#fffdf7"/>
+  
+    <rect x="73" y="146" width="15" height="50" rx="6" fill="#2856b8"/>
+    <rect x="95" y="146" width="15" height="50" rx="6" fill="#2856b8"/>
+    <ellipse cx="80" cy="197" rx="11" ry="6" fill="#2b2b33"/>
+    <ellipse cx="103" cy="197" rx="11" ry="6" fill="#2b2b33"/>
+  <rect x="68" y="100" width="48" height="52" rx="16" fill="#4a86e8"/>
+  <rect x="75" y="118" width="34" height="34" rx="6" fill="#2856b8"/>
+  <path d="M79 118 L76 102 M105 118 L108 102" stroke="#2856b8" stroke-width="5" stroke-linecap="round"/>
+  <circle cx="80" cy="124" r="2.4" fill="#f2a516"/><circle cx="104" cy="124" r="2.4" fill="#f2a516"/>
+  <!-- thumbs up -->
+  <path d="M72 112 L50 120" stroke="#4a86e8" stroke-width="11" stroke-linecap="round"/><circle cx="50" cy="120" r="6.5" fill="#f6c7a1"/>
+  <rect x="45.5" y="104" width="6" height="12" rx="3" fill="#f6c7a1"/>
+  <circle cx="92" cy="69" r="33" fill="#3a2418"/>
+  
+    <circle cx="64" cy="76" r="7.2" fill="#eeb48b"/>
+    <circle cx="120" cy="76" r="7.2" fill="#eeb48b"/>
+    <circle cx="92" cy="72" r="30" fill="#f6c7a1"/>
+    <g class="eyes">
+      <ellipse cx="82.1" cy="75.6" rx="4.2" ry="5.7" fill="#2a1a12"/>
+      <ellipse cx="101.9" cy="75.6" rx="4.2" ry="5.7" fill="#2a1a12"/>
+      <circle cx="83.6" cy="72.9" r="1.8" fill="#fff"/>
+      <circle cx="103.4" cy="72.9" r="1.8" fill="#fff"/>
+    </g>
+    <ellipse cx="75.2" cy="84.0" rx="5.1" ry="3.0" fill="#ff8a80" opacity="0.55"/>
+    <ellipse cx="108.8" cy="84.0" rx="5.1" ry="3.0" fill="#ff8a80" opacity="0.55"/>
+    <path d="M85.4 84.0 Q92 95.4 98.6 84.0 Z" fill="#8e3426"/>
+  
+    <path d="M59 63.6 A33 33 0 0 1 125 63.6 Z" fill="#2f6fd6"/>
+    <path d="M57 63.0 Q92 68.4 127 63.0 L127 66.6 Q92 72.6 57 66.6 Z" fill="#1f4fa8"/>
+    <path d="M92 42.6 C99 50.4 99 55.5 92 56.4 C85 55.5 85 50.4 92 42.6 Z" fill="#fff"/>
+  <g class="pl-arm">
+    <path d="M112 114 L148 128" stroke="#4a86e8" stroke-width="11" stroke-linecap="round"/><circle cx="148" cy="128" r="6.5" fill="#f6c7a1"/>
+    <path d="M144 131 L172 119" stroke="#d8392b" stroke-width="8" stroke-linecap="round"/>
+    <rect x="168" y="108" width="13" height="22" rx="3" fill="#c9d3cf"/>
+    <rect x="168" y="108" width="13" height="7" rx="2" fill="#d8392b"/>
+  </g>
+</svg>
+        <span class="chip"><i class="fas fa-droplet"></i><span class="c-lbl">Plumber</span><span class="c-done">Leak fixed</span></span>
+    </figure>
+
+    <figure class="scene s-mechanic" aria-hidden="true">
+<svg viewBox="0 0 300 215">
+  <line x1="10" y1="206" x2="290" y2="206" stroke="rgba(207,229,180,0.25)" stroke-width="2" stroke-dasharray="6 8"/>
+  <rect x="252" y="178" width="40" height="27" rx="4" fill="#e5413a"/>
+  <path d="M263 178 V170 H281 V178" fill="none" stroke="#e5413a" stroke-width="4"/>
+  <circle cx="198" cy="160" r="40" fill="none" stroke="#10161f" stroke-width="13"/>
+  <circle cx="198" cy="160" r="31" fill="none" stroke="#cfe5b4" stroke-width="2.5"/>
+  <g class="mc-spokes" stroke="#cfe5b4" stroke-width="2.5">
+    <line x1="198" y1="130" x2="198" y2="190"/><line x1="168" y1="160" x2="228" y2="160"/>
+    <line x1="176.8" y1="138.8" x2="219.2" y2="181.2"/><line x1="219.2" y1="138.8" x2="176.8" y2="181.2"/>
+  </g>
+  <circle cx="198" cy="160" r="7" fill="#cfe5b4"/>
+  <g class="mc-spark" stroke="#ffd36b" stroke-width="2.6" stroke-linecap="round">
+    <path d="M212 146 L221 137"/><path d="M214 158 L226 156"/><path d="M206 138 L208 127"/>
+  </g>
+  
+    <rect x="67" y="146" width="15" height="50" rx="6" fill="#22335c"/>
+    <rect x="89" y="146" width="15" height="50" rx="6" fill="#22335c"/>
+    <ellipse cx="74" cy="197" rx="11" ry="6" fill="#2b2b33"/>
+    <ellipse cx="97" cy="197" rx="11" ry="6" fill="#2b2b33"/>
+  <rect x="62" y="100" width="48" height="52" rx="16" fill="#2a3c6e"/>
+  <rect x="91" y="112" width="13" height="7" rx="2" fill="#e9f2e3"/>
+  <path d="M86 102 L86 150" stroke="#22335c" stroke-width="2"/>
+  <path d="M66 112 L60 140" stroke="#2a3c6e" stroke-width="11" stroke-linecap="round"/><circle cx="60" cy="140" r="6.5" fill="#f6c7a1"/>
+  <circle cx="86" cy="71" r="33" fill="#3a2418"/>
+  
+    <circle cx="58" cy="78" r="7.2" fill="#eeb48b"/>
+    <circle cx="114" cy="78" r="7.2" fill="#eeb48b"/>
+    <circle cx="86" cy="74" r="30" fill="#f6c7a1"/>
+    <g class="eyes">
+      <ellipse cx="76.1" cy="77.6" rx="4.2" ry="5.7" fill="#2a1a12"/>
+      <ellipse cx="95.9" cy="77.6" rx="4.2" ry="5.7" fill="#2a1a12"/>
+      <circle cx="77.6" cy="74.9" r="1.8" fill="#fff"/>
+      <circle cx="97.4" cy="74.9" r="1.8" fill="#fff"/>
+    </g>
+    <ellipse cx="69.2" cy="86.0" rx="5.1" ry="3.0" fill="#ff8a80" opacity="0.55"/>
+    <ellipse cx="102.8" cy="86.0" rx="5.1" ry="3.0" fill="#ff8a80" opacity="0.55"/>
+    <path d="M79.4 86.0 Q86 97.4 92.6 86.0 Z" fill="#8e3426"/>
+  
+    <path d="M53 65.6 A33 33 0 0 1 119 65.6 Z" fill="#263a66"/>
+    <path d="M51 65.0 Q86 70.4 121 65.0 L121 68.6 Q86 74.6 51 68.6 Z" fill="#1a2a4d"/>
+    <circle cx="86" cy="51.8" r="7.5" fill="#fff"/><path d="M82.5 55.3 L89 48.8" stroke="#263a66" stroke-width="2.6" stroke-linecap="round"/><circle cx="89.6" cy="48.2" r="2.4" fill="none" stroke="#263a66" stroke-width="1.8"/>
+  <g class="mc-arm">
+    <path d="M106 114 L150 146" stroke="#2a3c6e" stroke-width="11" stroke-linecap="round"/><circle cx="150" cy="146" r="6.5" fill="#f6c7a1"/>
+    <path d="M150 146 L188 156" stroke="#d7dde2" stroke-width="7" stroke-linecap="round"/>
+    <circle cx="198" cy="160" r="8" fill="none" stroke="#d7dde2" stroke-width="5"/>
+  </g>
+</svg>
+        <span class="chip"><i class="fas fa-wrench"></i><span class="c-lbl">Mechanic</span><span class="c-done">Bike ready</span></span>
+    </figure>
+
+    <!-- Hover (or tap) the electrician's bulb to switch the light on -->
+    <figure class="scene s-electrician" id="lightScene" aria-hidden="true" title="Switch on the light">
+<svg viewBox="0 0 300 330">
+  <defs>
+    <radialGradient id="bulbGlow">
+      <stop offset="0" stop-color="#ffd36b" stop-opacity="0.85"/>
+      <stop offset="0.4" stop-color="#ffd36b" stop-opacity="0.25"/>
+      <stop offset="1" stop-color="#ffd36b" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <line x1="60" y1="10" x2="290" y2="10" stroke="rgba(207,229,180,0.3)" stroke-width="3"/>
+  <circle class="el-glow" cx="236" cy="112" r="96" fill="url(#bulbGlow)"/>
+  <line x1="236" y1="10" x2="236" y2="86" stroke="#9fb8a8" stroke-width="3"/>
+  <rect x="228" y="84" width="16" height="13" rx="2" fill="#9fb8a8"/>
+  <g class="el-rays" stroke="#ffd36b" stroke-width="3.5" stroke-linecap="round">
+    <path d="M236 142 V152"/><path d="M262 112 H272"/><path d="M210 112 H200"/>
+    <path d="M255 131 L262 138"/><path d="M217 131 L210 138"/>
+  </g>
+  <circle class="el-bulb" cx="236" cy="112" r="17" fill="#4f6156"/>
+  <path class="el-filament" d="M229 112 q3.5 -7 7 0 q3.5 7 7 0" fill="none" stroke="#8a978e" stroke-width="2"/>
+  <g stroke="#cfe5b4" stroke-width="5" stroke-linecap="round">
+    <line x1="118" y1="328" x2="152" y2="176"/>
+    <line x1="196" y1="328" x2="230" y2="176"/>
+    <line x1="125" y1="296" x2="203" y2="296"/>
+    <line x1="132" y1="264" x2="210" y2="264"/>
+    <line x1="139" y1="232" x2="217" y2="232"/>
+    <line x1="146" y1="200" x2="224" y2="200"/>
+  </g>
+  
+    <rect x="154" y="234" width="15" height="24" rx="6" fill="#3b4a6b"/>
+    <rect x="175" y="234" width="15" height="24" rx="6" fill="#3b4a6b"/>
+    <ellipse cx="161" cy="259" rx="11" ry="6" fill="#2b2b33"/>
+    <ellipse cx="183" cy="259" rx="11" ry="6" fill="#2b2b33"/>
+  <rect x="148" y="188" width="48" height="50" rx="16" fill="#2c3a5a"/>
+  <rect x="148" y="226" width="48" height="9" rx="3" fill="#a0672f"/>
+  <rect x="152" y="230" width="12" height="14" rx="3" fill="#8a5527"/>
+  <rect x="181" y="230" width="12" height="14" rx="3" fill="#8a5527"/>
+  <circle cx="161" cy="204" r="10" fill="none" stroke="#e5413a" stroke-width="3"/>
+  <circle cx="161" cy="204" r="6.5" fill="none" stroke="#f6c12e" stroke-width="3"/>
+  <circle cx="161" cy="204" r="3" fill="none" stroke="#2f6fd6" stroke-width="2.5"/>
+  <path d="M152 200 L140 222" stroke="#2c3a5a" stroke-width="11" stroke-linecap="round"/><circle cx="140" cy="222" r="6.5" fill="#f6c7a1"/>
+  <circle cx="172" cy="159" r="33" fill="#3a2418"/>
+  
+    <circle cx="144" cy="166" r="7.2" fill="#eeb48b"/>
+    <circle cx="200" cy="166" r="7.2" fill="#eeb48b"/>
+    <circle cx="172" cy="162" r="30" fill="#f6c7a1"/>
+    <g class="eyes">
+      <ellipse cx="162.1" cy="165.6" rx="4.2" ry="5.7" fill="#2a1a12"/>
+      <ellipse cx="181.9" cy="165.6" rx="4.2" ry="5.7" fill="#2a1a12"/>
+      <circle cx="163.6" cy="162.9" r="1.8" fill="#fff"/>
+      <circle cx="183.4" cy="162.9" r="1.8" fill="#fff"/>
+    </g>
+    <ellipse cx="155.2" cy="174.0" rx="5.1" ry="3.0" fill="#ff8a80" opacity="0.55"/>
+    <ellipse cx="188.8" cy="174.0" rx="5.1" ry="3.0" fill="#ff8a80" opacity="0.55"/>
+    <path d="M165.4 174.0 Q172 185.4 178.6 174.0 Z" fill="#8e3426"/>
+  <path d="M137 156.0 A35 36 0 0 1 207 156.0 Z" fill="#f6c12e"/>
+  <rect x="133" y="153.0" width="78" height="8" rx="4" fill="#e0a800"/>
+  <rect x="168" y="127" width="8" height="21.0" rx="3" fill="#e0a800"/>
+  <path d="M183 132.6 l-7 10 h5 l-4 9 l9 -12 h-5 l4 -7 Z" fill="#e07800"/>
+  <g class="el-reach">
+    <path d="M192 198 L226 136" stroke="#2c3a5a" stroke-width="11" stroke-linecap="round"/><circle cx="226" cy="136" r="6.5" fill="#f6c7a1"/>
+  </g>
+</svg>
+        <span class="chip"><i class="fas fa-bolt"></i><span class="c-lbl">Electrician</span><span class="c-done">Light&#39;s on</span></span>
+        <span class="light-hint"><span class="h-hover">Hover to switch on the light</span><span class="h-tap">Tap the bulb</span></span>
+    </figure>
+
+    <figure class="scene s-emergency" aria-hidden="true">
+<svg viewBox="0 0 300 215">
+  <line x1="10" y1="206" x2="290" y2="206" stroke="rgba(207,229,180,0.25)" stroke-width="2" stroke-dasharray="6 8"/>
+  <rect x="196" y="120" width="92" height="56" rx="10" fill="#f4f7f5"/>
+  <rect x="196" y="160" width="92" height="7" fill="#e5413a"/>
+  <rect x="236" y="132" width="7" height="20" rx="1.5" fill="#e5413a"/>
+  <rect x="229.5" y="138.5" width="20" height="7" rx="1.5" fill="#e5413a"/>
+  <circle cx="218" cy="178" r="11" fill="#10161f"/><circle cx="268" cy="178" r="11" fill="#10161f"/>
+  <circle cx="218" cy="178" r="4" fill="#cfe5b4"/><circle cx="268" cy="178" r="4" fill="#cfe5b4"/>
+  <rect class="siren-r" x="222" y="110" width="16" height="10" rx="4" fill="#ff4d4d"/>
+  <rect class="siren-b" x="242" y="110" width="16" height="10" rx="4" fill="#4d8bff"/>
+  
+    <rect x="73" y="146" width="15" height="50" rx="6" fill="#1d2c50"/>
+    <rect x="95" y="146" width="15" height="50" rx="6" fill="#1d2c50"/>
+    <ellipse cx="80" cy="197" rx="11" ry="6" fill="#2b2b33"/>
+    <ellipse cx="103" cy="197" rx="11" ry="6" fill="#2b2b33"/>
+  <rect x="68" y="100" width="48" height="52" rx="16" fill="#23345e"/>
+  <path d="M74 112 h10 v10 q-5 4 -10 0 Z" fill="#f2a516"/>
+  <rect x="96" y="112" width="13" height="6" rx="2" fill="#cfe5b4"/>
+  <path d="M72 112 L66 140" stroke="#23345e" stroke-width="11" stroke-linecap="round"/><circle cx="66" cy="140" r="6.5" fill="#f6c7a1"/>
+  <circle cx="92" cy="71" r="33" fill="#3a2418"/>
+  
+    <circle cx="64" cy="78" r="7.2" fill="#eeb48b"/>
+    <circle cx="120" cy="78" r="7.2" fill="#eeb48b"/>
+    <circle cx="92" cy="74" r="30" fill="#f6c7a1"/>
+    <g class="eyes">
+      <ellipse cx="82.1" cy="77.6" rx="4.2" ry="5.7" fill="#2a1a12"/>
+      <ellipse cx="101.9" cy="77.6" rx="4.2" ry="5.7" fill="#2a1a12"/>
+      <circle cx="83.6" cy="74.9" r="1.8" fill="#fff"/>
+      <circle cx="103.4" cy="74.9" r="1.8" fill="#fff"/>
+    </g>
+    <ellipse cx="75.2" cy="86.0" rx="5.1" ry="3.0" fill="#ff8a80" opacity="0.55"/>
+    <ellipse cx="108.8" cy="86.0" rx="5.1" ry="3.0" fill="#ff8a80" opacity="0.55"/>
+    <path d="M85.4 86.0 Q92 97.4 98.6 86.0 Z" fill="#8e3426"/>
+  
+    <path d="M59 65.6 A33 33 0 0 1 125 65.6 Z" fill="#23345e"/>
+    <path d="M57 65.0 Q92 70.4 127 65.0 L127 68.6 Q92 74.6 57 68.6 Z" fill="#18264a"/>
+    <path d="M92 44.0 L99 47.0 V53.6 Q99 60.2 92 62.0 Q85 60.2 85 53.6 V47.0 Z" fill="#fff"/><path d="M89 53.0 l2.5 3 l4.5 -5" fill="none" stroke="#1a2a4d" stroke-width="2"/>
+  <path d="M112 112 L128 92" stroke="#23345e" stroke-width="11" stroke-linecap="round"/><circle cx="128" cy="92" r="6.5" fill="#f6c7a1"/>
+  <rect x="122" y="70" width="14" height="28" rx="3" fill="#1b1f27"/>
+  <rect x="131" y="58" width="3" height="14" rx="1.5" fill="#1b1f27"/>
+  <rect x="125" y="76" width="8" height="6" rx="1" fill="#7cf29c"/>
+  <g class="radio-waves" fill="none" stroke="#cfe5b4" stroke-width="2.6" stroke-linecap="round">
+    <path class="w1" d="M144 70 q6 8 0 16"/><path class="w2" d="M151 64 q10 14 0 28"/><path class="w3" d="M158 58 q14 20 0 40"/>
+  </g>
+</svg>
+        <span class="chip"><i class="fas fa-shield-halved"></i><span class="c-lbl">Emergency support</span><span class="c-done">Help dispatched</span></span>
+    </figure>
+
+    <figure class="scene s-robot" aria-hidden="true">
+<svg viewBox="0 0 220 230">
+  <ellipse class="bot-shadow" cx="110" cy="218" rx="46" ry="7" fill="rgba(0,0,0,0.3)"/>
+  <g class="bot">
+    <rect x="70" y="128" width="80" height="70" rx="28" fill="#f4f7f5"/>
+    <path d="M110 146 c-11 0 -18 8 -18 17 c0 12 18 24 18 24 s18 -12 18 -24 c0 -9 -7 -17 -18 -17 Z" fill="#2f8f5b"/>
+    <path d="M102 158 h16 M110 158 v18" stroke="#fff" stroke-width="4" stroke-linecap="round"/>
+    <rect x="52" y="140" width="20" height="44" rx="10" fill="#f4f7f5"/>
+    <circle cx="62" cy="186" r="9" fill="#2f8f5b"/>
+    <g class="bot-wave">
+      <rect x="148" y="98" width="20" height="46" rx="10" fill="#f4f7f5"/>
+      <circle cx="158" cy="96" r="10" fill="#2f8f5b"/>
+    </g>
+    <path d="M58 76 A52 52 0 0 1 162 76" fill="none" stroke="#2f8f5b" stroke-width="9" stroke-linecap="round"/>
+    <ellipse cx="110" cy="86" rx="54" ry="46" fill="#f4f7f5"/>
+    <ellipse cx="110" cy="90" rx="40" ry="29" fill="#1c2742"/>
+    <g class="bot-eyes" fill="none" stroke="#69e3f0" stroke-width="5" stroke-linecap="round">
+      <path d="M88 92 q8 -10 16 0"/><path d="M116 92 q8 -10 16 0"/>
+    </g>
+    <path d="M102 104 q8 6 16 0" fill="none" stroke="#69e3f0" stroke-width="3" stroke-linecap="round"/>
+    <rect x="46" y="70" width="18" height="34" rx="9" fill="#2f8f5b"/>
+    <rect x="156" y="70" width="18" height="34" rx="9" fill="#2f8f5b"/>
+  </g>
+</svg>
+        <div class="bot-bubble"><span class="bot-hi">Hi! I'm your <b>AI Sarthi</b></span><span class="bot-tip" id="botTip">Need a hand signing in?</span></div>
+    </figure>
+</div>
 
 <div id="appContent">
-<div class="page-shell">
 
-    <!-- ══ NAVBAR ══ -->
-    <header id="mainHeader">
-        <nav>
-            <a href="index.html" class="logo">Trouble Sarthi</a>
-            <ul class="nav-center">
-                <li><a href="index.html#home">Home</a></li>
-                <li><a href="index.html#services">Services</a></li>
-                <li><a href="index.html#about">About</a></li>
-                <li><a href="index.html#cofounders">Co-Founders</a></li>
-                <li><a href="contact.html">Contact</a></li>
-            </ul>
-            <div class="nav-auth">
-                <a href="login.html" class="nav-btn nav-login"><i class="fas fa-sign-in-alt"></i> Login</a>
-                <a href="login.html?tab=signup" class="nav-btn nav-signup">Get Started <i class="fas fa-arrow-right"></i></a>
-            </div>
-            <button class="mobile-toggle" onclick="toggleMobileMenu()" aria-label="Menu">
-                <i class="fas fa-bars" id="menuIcon"></i>
+    <header class="topbar">
+        <a href="index.html" class="brand" aria-label="Trouble Sarthi home">
+            <span class="brand-mark" aria-hidden="true">सा</span>
+            <span class="logo">Trouble Sarthi</span>
+        </a>
+        <nav aria-label="Main">
+            <a href="index.html"><i class="fas fa-house" aria-hidden="true"></i><span>Home</span></a>
+            <a href="index.html#services"><i class="fas fa-screwdriver-wrench" aria-hidden="true"></i><span>Services</span></a>
+            <a href="contact.html"><i class="fas fa-envelope" aria-hidden="true"></i><span>Contact</span></a>
+            <button type="button" class="light-switch" id="lightBtn" aria-pressed="false" aria-label="Switch the light on">
+                <i class="fas fa-lightbulb" aria-hidden="true"></i>
             </button>
         </nav>
-        <div class="mobile-menu" id="mobileMenu">
-            <ul>
-                <li><a href="index.html#home"       onclick="closeMobileMenu()"><i class="fas fa-home"        style="margin-right:0.6rem;color:var(--g-300)"></i>Home</a></li>
-                <li><a href="index.html#services"   onclick="closeMobileMenu()"><i class="fas fa-tools"       style="margin-right:0.6rem;color:var(--g-300)"></i>Services</a></li>
-                <li><a href="index.html#about"      onclick="closeMobileMenu()"><i class="fas fa-info-circle" style="margin-right:0.6rem;color:var(--g-300)"></i>About</a></li>
-                <li><a href="index.html#cofounders" onclick="closeMobileMenu()"><i class="fas fa-handshake"   style="margin-right:0.6rem;color:var(--g-300)"></i>Co-Founders</a></li>
-                <li><a href="contact.html"          onclick="closeMobileMenu()"><i class="fas fa-envelope"    style="margin-right:0.6rem;color:var(--g-300)"></i>Contact</a></li>
-            </ul>
-            <div class="mobile-auth">
-                <a href="login.html" class="nav-btn nav-login">Login</a>
-                <a href="login.html?tab=signup" class="nav-btn nav-signup">Sign Up</a>
-            </div>
-        </div>
     </header>
 
-    <!-- ══ AUTH SECTION ══ -->
-    <div class="auth-section">
-        <div class="auth-wrapper">
+    <main class="auth-main">
+        <div class="auth-card">
 
-            <!-- Left info panel -->
-            <div class="info-panel">
+            <div class="card-brand">
+                <div class="card-mark" aria-hidden="true">सा</div>
                 <div>
-                    <div class="panel-label"><i class="fas fa-map-marker-alt"></i> Your Local Network</div>
-                    <h2 class="panel-heading">Connect with <em>skilled helpers</em> near you</h2>
-                    <p class="panel-sub">Join thousands of people who rely on Trouble Sarthi to solve everyday problems — fast, affordable, and trusted.</p>
-                </div>
-
-                <div class="feat-card">
-                    <div class="feat-icon"><i class="fas fa-shield-alt"></i></div>
-                    <div class="feat-text">
-                        <h4>Verified Helpers</h4>
-                        <p>Every helper is KYC verified and community rated for your peace of mind.</p>
-                    </div>
-                </div>
-                <div class="feat-card">
-                    <div class="feat-icon"><i class="fas fa-bolt"></i></div>
-                    <div class="feat-text">
-                        <h4>Quick Response</h4>
-                        <p>Most requests are matched within minutes, not hours.</p>
-                    </div>
-                </div>
-                <div class="feat-card">
-                    <div class="feat-icon"><i class="fas fa-lock"></i></div>
-                    <div class="feat-text">
-                        <h4>Secure & Private</h4>
-                        <p>Firebase authentication and end-to-end encrypted data storage.</p>
-                    </div>
-                </div>
-
-                <div class="panel-stats">
-                    <div class="pstat">
-                        <div class="pstat-num">10K+</div>
-                        <div class="pstat-lbl">Helpers</div>
-                    </div>
-                    <div class="pstat">
-                        <div class="pstat-num">50K+</div>
-                        <div class="pstat-lbl">Tasks Done</div>
-                    </div>
-                    <div class="pstat">
-                        <div class="pstat-num">4.8★</div>
-                        <div class="pstat-lbl">Rating</div>
-                    </div>
+                    <span class="welcome">Welcome to</span>
+                    <strong class="brand-name">Trouble Sarthi</strong>
                 </div>
             </div>
 
-            <!-- Right: Auth card (with floating shapes + zoom on hover) -->
-            <div class="auth-card" style="position:relative;">
-                <!-- Floating shapes inside card (old file magic) -->
-                <div class="card-shapes">
-                    <div class="card-shape cs1"></div>
-                    <div class="card-shape cs2"></div>
-                    <div class="card-shape cs3"></div>
-                </div>
+            <!-- Tabs -->
+            <div class="auth-tabs" id="authTabs" data-tab="login" role="tablist">
+                <button type="button" class="tab-btn active" id="loginTab" role="tab" onclick="switchTab('login')">
+                    <i class="fas fa-right-to-bracket" aria-hidden="true"></i> Login
+                </button>
+                <button type="button" class="tab-btn" id="signupTab" role="tab" onclick="switchTab('signup')">
+                    <i class="fas fa-user-plus" aria-hidden="true"></i> Sign up
+                </button>
+            </div>
 
-                <!-- Tabs -->
-                <div class="auth-tabs">
-                    <button class="tab-btn active" id="loginTab" onclick="switchTab('login')">
+            <div class="form-body">
+                <div id="msgArea" aria-live="polite"></div>
+
+                <!-- ── LOGIN FORM ── -->
+                <div class="auth-form active" id="loginForm">
+                    <div class="form-heading">
+                        <h2>Sign in</h2>
+                        <p>Log in to book a helper or check your bookings.</p>
+                    </div>
+                    <div class="form-group">
+                        <label for="l_username">Username or email</label>
+                        <div class="input-wrap">
+                            <i class="fas fa-user input-icon" aria-hidden="true"></i>
+                            <input type="text" id="l_username" class="form-input" placeholder="Enter your username or email" autocomplete="username">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="l_password">Password</label>
+                        <div class="password-group input-wrap">
+                            <i class="fas fa-lock input-icon" aria-hidden="true"></i>
+                            <input type="password" id="l_password" class="form-input" placeholder="Enter your password" autocomplete="current-password">
+                            <button type="button" class="password-toggle" aria-label="Show password" onclick="togglePassword('l_password',this)"><i class="fa-solid fa-eye"></i></button>
+                        </div>
+                    </div>
+                    <div class="form-options">
+                        <label class="remember-me">
+                            <input type="checkbox" id="rememberMe"> Remember me
+                        </label>
+                        <a href="#" class="forgot-link" onclick="handleForgot();return false;">Forgot password?</a>
+                    </div>
+                    <button type="button" class="submit-btn" id="loginBtn" onclick="doLogin()">
                         <i class="fas fa-sign-in-alt"></i> Login
                     </button>
-                    <button class="tab-btn" id="signupTab" onclick="switchTab('signup')">
-                        <i class="fas fa-user-plus"></i> Sign Up
-                    </button>
+                    <div class="divider"><span>Or continue with</span></div>
+                    <div class="social-login">
+                        <button type="button" class="social-btn google-btn"   onclick="doGoogle()"><i class="fa-brands fa-google"></i> Google</button>
+                        <button type="button" class="social-btn facebook-btn" onclick="doFacebook()"><i class="fa-brands fa-facebook"></i> Facebook</button>
+                    </div>
+                    <p class="switch-link">New to Trouble Sarthi? <a href="#" onclick="switchTab('signup');return false;">Create a free account</a></p>
                 </div>
 
-                <div class="form-body">
-                    <div id="msgArea"></div>
-
-                    <!-- ── LOGIN FORM ── -->
-                    <div class="auth-form active" id="loginForm">
-                        <div class="form-heading">
-                            <h2>Sign <em>in</em></h2>
-                            <p>Enter your credentials to access your account.</p>
-                        </div>
+                <!-- ── SIGNUP FORM ── -->
+                <div class="auth-form" id="signupForm">
+                    <div class="form-heading">
+                        <h2>Create your account</h2>
+                        <p>It takes a minute, and it's free.</p>
+                    </div>
+                    <div class="form-row">
                         <div class="form-group">
-                            <label for="l_username">Username or Email</label>
+                            <label for="s_name">Full name</label>
                             <div class="input-wrap">
-                                <i class="fas fa-user input-icon"></i>
-                                <input type="text" id="l_username" class="form-input" placeholder="Enter your username or email" autocomplete="username">
+                                <i class="fas fa-id-card input-icon" aria-hidden="true"></i>
+                                <input type="text" id="s_name" class="form-input" placeholder="Your full name" autocomplete="name">
                             </div>
                         </div>
                         <div class="form-group">
-                            <label for="l_password">Password</label>
-                            <div class="password-group input-wrap">
-                                <i class="fas fa-lock input-icon"></i>
-                                <input type="password" id="l_password" class="form-input" placeholder="Enter your password" autocomplete="current-password">
-                                <button type="button" class="password-toggle" onclick="togglePassword('l_password',this)"><i class="fa-solid fa-eye"></i></button>
+                            <label for="s_username">Username</label>
+                            <div class="input-wrap">
+                                <i class="fas fa-at input-icon" aria-hidden="true"></i>
+                                <input type="text" id="s_username" class="form-input" placeholder="Choose a username" autocomplete="username">
                             </div>
                         </div>
-                        <div class="form-options">
-                            <label class="remember-me">
-                                <input type="checkbox" id="rememberMe"> Remember me
-                            </label>
-                            <a href="#" class="forgot-link" onclick="handleForgot();return false;">Forgot Password?</a>
-                        </div>
-                        <button class="submit-btn" id="loginBtn" onclick="doLogin()">
-                            <i class="fas fa-sign-in-alt"></i> Login
-                        </button>
-                        <div class="divider"><span>Or continue with</span></div>
-                        <div class="social-login">
-                            <button class="social-btn google-btn"   onclick="doGoogle()"><i class="fa-brands fa-google"></i> Google</button>
-                            <button class="social-btn facebook-btn" onclick="doFacebook()"><i class="fa-brands fa-facebook"></i> Facebook</button>
-                        </div>
-                        <p class="switch-link">Don't have an account? <a href="#" onclick="switchTab('signup');return false;">Sign up free</a></p>
                     </div>
-
-                    <!-- ── SIGNUP FORM ── -->
-                    <div class="auth-form" id="signupForm">
-                        <div class="form-heading">
-                            <h2>Create <em>Account</em></h2>
-                            <p>Join thousands of people using Trouble Sarthi.</p>
-                        </div>
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label for="s_name">Full Name</label>
-                                <div class="input-wrap">
-                                    <i class="fas fa-id-card input-icon"></i>
-                                    <input type="text" id="s_name" class="form-input" placeholder="Your full name" autocomplete="name">
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <label for="s_username">Username</label>
-                                <div class="input-wrap">
-                                    <i class="fas fa-at input-icon"></i>
-                                    <input type="text" id="s_username" class="form-input" placeholder="Choose a username" autocomplete="username">
-                                </div>
-                            </div>
-                        </div>
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label for="s_email">Email Address</label>
-                                <div class="input-wrap">
-                                    <i class="fas fa-envelope input-icon"></i>
-                                    <input type="email" id="s_email" class="form-input" placeholder="you@example.com" autocomplete="email">
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <label for="s_phone">Phone Number</label>
-                                <div class="input-wrap">
-                                    <i class="fas fa-phone input-icon"></i>
-                                    <input type="tel" id="s_phone" class="form-input" placeholder="10-digit number" maxlength="10">
-                                </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="s_email">Email</label>
+                            <div class="input-wrap">
+                                <i class="fas fa-envelope input-icon" aria-hidden="true"></i>
+                                <input type="email" id="s_email" class="form-input" placeholder="you@example.com" autocomplete="email">
                             </div>
                         </div>
                         <div class="form-group">
-                            <label for="s_password">Password</label>
-                            <div class="password-group input-wrap">
-                                <i class="fas fa-lock input-icon"></i>
-                                <input type="password" id="s_password" class="form-input" placeholder="Create a strong password" autocomplete="new-password" oninput="onPasswordInput(this.value)">
-                                <button type="button" class="password-toggle" onclick="togglePassword('s_password',this)"><i class="fa-solid fa-eye"></i></button>
-                            </div>
-                            <div class="password-strength" id="passwordStrength">
-                                <div class="strength-bar">
-                                    <div class="strength-segment" id="seg1"></div>
-                                    <div class="strength-segment" id="seg2"></div>
-                                    <div class="strength-segment" id="seg3"></div>
-                                    <div class="strength-segment" id="seg4"></div>
-                                </div>
-                                <div class="strength-text" id="strengthText">Password strength</div>
-                            </div>
-                            <div class="password-requirements" id="passwordRequirements">
-                                <div class="requirement" id="lengthReq"><span class="requirement-icon">✗</span> 8+ characters</div>
-                                <div class="requirement" id="uppercaseReq"><span class="requirement-icon">✗</span> Uppercase</div>
-                                <div class="requirement" id="lowercaseReq"><span class="requirement-icon">✗</span> Lowercase</div>
-                                <div class="requirement" id="numberReq"><span class="requirement-icon">✗</span> Number</div>
-                                <div class="requirement" id="specialReq"><span class="requirement-icon">✗</span> Special char</div>
+                            <label for="s_phone">Phone number</label>
+                            <div class="input-wrap">
+                                <i class="fas fa-phone input-icon" aria-hidden="true"></i>
+                                <input type="tel" id="s_phone" class="form-input" placeholder="10-digit number" maxlength="10" inputmode="numeric">
                             </div>
                         </div>
-                        <div class="form-group">
-                            <label for="s_confirm">Confirm Password</label>
-                            <div class="password-group input-wrap">
-                                <i class="fas fa-lock input-icon"></i>
-                                <input type="password" id="s_confirm" class="form-input" placeholder="Repeat your password" autocomplete="new-password" oninput="checkPasswordMatch()">
-                                <div class="password-match" id="passwordMatch"></div>
-                                <button type="button" class="password-toggle" onclick="togglePassword('s_confirm',this)"><i class="fa-solid fa-eye"></i></button>
-                            </div>
-                        </div>
-                        <div class="form-group terms-group">
-                            <input type="checkbox" id="termsCheck" onchange="updateSignupBtn()">
-                            <label for="termsCheck">I agree to the <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a></label>
-                        </div>
-                        <button class="submit-btn" id="signupBtn" onclick="doSignup()" disabled>
-                            <i class="fas fa-user-plus"></i> Create Account
-                        </button>
-                        <div class="divider"><span>Or sign up with</span></div>
-                        <div class="social-login">
-                            <button class="social-btn google-btn"   onclick="doGoogle()"><i class="fa-brands fa-google"></i> Google</button>
-                            <button class="social-btn facebook-btn" onclick="doFacebook()"><i class="fa-brands fa-facebook"></i> Facebook</button>
-                        </div>
-                        <p class="switch-link">Already have an account? <a href="#" onclick="switchTab('login');return false;">Login</a></p>
                     </div>
+                    <div class="form-group">
+                        <label for="s_password">Password</label>
+                        <div class="password-group input-wrap">
+                            <i class="fas fa-lock input-icon" aria-hidden="true"></i>
+                            <input type="password" id="s_password" class="form-input" placeholder="Create a strong password" autocomplete="new-password" oninput="onPasswordInput(this.value)">
+                            <button type="button" class="password-toggle" aria-label="Show password" onclick="togglePassword('s_password',this)"><i class="fa-solid fa-eye"></i></button>
+                        </div>
+                        <div class="password-strength" id="passwordStrength">
+                            <div class="strength-bar">
+                                <div class="strength-segment" id="seg1"></div>
+                                <div class="strength-segment" id="seg2"></div>
+                                <div class="strength-segment" id="seg3"></div>
+                                <div class="strength-segment" id="seg4"></div>
+                            </div>
+                            <div class="strength-text" id="strengthText">Password strength</div>
+                        </div>
+                        <div class="password-requirements" id="passwordRequirements">
+                            <div class="requirement" id="lengthReq"><span class="requirement-icon">✗</span> 8+ characters</div>
+                            <div class="requirement" id="uppercaseReq"><span class="requirement-icon">✗</span> Uppercase</div>
+                            <div class="requirement" id="lowercaseReq"><span class="requirement-icon">✗</span> Lowercase</div>
+                            <div class="requirement" id="numberReq"><span class="requirement-icon">✗</span> Number</div>
+                            <div class="requirement" id="specialReq"><span class="requirement-icon">✗</span> Special (@$!%*?&amp;)</div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="s_confirm">Confirm password</label>
+                        <div class="password-group input-wrap">
+                            <i class="fas fa-lock input-icon" aria-hidden="true"></i>
+                            <input type="password" id="s_confirm" class="form-input" placeholder="Repeat your password" autocomplete="new-password" oninput="checkPasswordMatch()">
+                            <div class="password-match" id="passwordMatch"></div>
+                            <button type="button" class="password-toggle" aria-label="Show password" onclick="togglePassword('s_confirm',this)"><i class="fa-solid fa-eye"></i></button>
+                        </div>
+                    </div>
+                    <div class="form-group terms-group">
+                        <input type="checkbox" id="termsCheck" onchange="updateSignupBtn()">
+                        <label for="termsCheck">I agree to the <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a></label>
+                    </div>
+                    <button type="button" class="submit-btn" id="signupBtn" onclick="doSignup()" disabled>
+                        <i class="fas fa-user-plus"></i> Create Account
+                    </button>
+                    <div class="divider"><span>Or sign up with</span></div>
+                    <div class="social-login">
+                        <button type="button" class="social-btn google-btn"   onclick="doGoogle()"><i class="fa-brands fa-google"></i> Google</button>
+                        <button type="button" class="social-btn facebook-btn" onclick="doFacebook()"><i class="fa-brands fa-facebook"></i> Facebook</button>
+                    </div>
+                    <p class="switch-link">Already have an account? <a href="#" onclick="switchTab('login');return false;">Log in</a></p>
                 </div>
-            </div>
-
-        </div>
-    </div>
-
-    <!-- ══ FOOTER ══ -->
-    <footer id="contact">
-        <div class="footer-bg-deco"></div>
-        <div class="footer-content">
-            <div class="footer-brand">
-                <a href="index.html" class="logo-foot">Trouble Sarthi</a>
-                <p>Your local helper network, connecting communities with skilled professionals. From plumbing to vehicle repair — fast, affordable, reliable solutions.</p>
-            </div>
-            <div class="footer-section">
-                <h4>For Helpers</h4>
-                <a href="login.html?tab=signup">Register as a Helper</a>
-                <a href="index.html#about">How It Works</a>
-                <a href="#">KYC Verification</a>
-                <a href="#">Helper Dashboard</a>
-                <a href="contact.html">Support</a>
-            </div>
-            <div class="footer-section">
-                <h4>Contact Us</h4>
-                <div class="footer-contact-item">
-                    <i class="fas fa-envelope"></i>
-                    <a href="mailto:support@troublesarthi.com">support@troublesarthi.com</a>
-                </div>
-                <div class="footer-contact-item">
-                    <i class="fas fa-phone"></i>
-                    <a href="tel:+919876543210">+91 98765 43210</a>
-                </div>
-                <div class="footer-contact-item">
-                    <i class="fas fa-map-marker-alt"></i>
-                    <span>123 Community Hub, Mumbai, India</span>
-                </div>
-            </div>
-            <div class="footer-section">
-                <h4>Stay Updated</h4>
-                <p style="color:rgba(255,255,255,0.48);font-size:0.86rem;margin-bottom:0.7rem;">Subscribe for the latest updates and offers.</p>
-                <form class="newsletter-form" onsubmit="handleNewsletter(event)">
-                    <input type="email" placeholder="Enter your email" required>
-                    <button type="submit">Subscribe</button>
-                </form>
-            </div>
-        </div>
-        <div class="footer-bottom-bar">
-            <p>&copy; 2025 Trouble Sarthi. All rights reserved. | Connecting Communities, Solving Problems</p>
-            <div class="footer-social">
-                <a href="#" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
-                <a href="https://github.com/vighyatojha" target="_blank" aria-label="GitHub"><i class="fab fa-github"></i></a>
-                <a href="https://www.instagram.com/ojhavighyat___/" target="_blank" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
-                <a href="#" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
             </div>
         </div>
-    </footer>
 
-</div><!-- /page-shell -->
+        <section class="meaning" aria-label="What Trouble Sarthi means">
+            <p class="m-head"><span class="logo">Trouble Sarthi</span><span class="m-hi" lang="hi">ट्रबल सारथी</span><span class="m-pos">noun</span></p>
+            <dl>
+                <div><dt>Trouble:</dt> <dd>a problem you need a hand with.</dd></div>
+                <div><dt>Sarthi (<span class="m-hi-inline" lang="hi">सारथी</span>):</dt> <dd>a guide or companion who steers you along the way.</dd></div>
+            </dl>
+            <p class="m-sum">Together: <b>your companion in trouble</b>, who finds you the right helper nearby.</p>
+        </section>
+    </main>
+
+    <p class="page-foot">&copy; 2025 Trouble Sarthi. Connecting communities, solving problems.</p>
 </div><!-- /appContent -->
+
+<!-- Fallbacks so buttons still respond if the sign-in service is slow or unreachable.
+     The Firebase module below replaces these as soon as it loads. -->
+<script>
+(function () {
+    function offline() {
+        var a = document.getElementById('msgArea');
+        if (!a) return;
+        a.innerHTML = '<div class="php-message php-error" id="_m">Still connecting to the sign-in service. Check your internet connection and try again in a moment.</div>';
+    }
+    ['doLogin', 'doSignup', 'doGoogle', 'doFacebook', 'handleForgot'].forEach(function (fn) {
+        if (typeof window[fn] !== 'function') window[fn] = offline;
+    });
+})();
+</script>
 
 <!-- ════════════════════════════════
      FIREBASE (unchanged from original)
@@ -1170,37 +1254,78 @@ function showMsg(msg,type){
 
 <!-- UI JS -->
 <script>
-/* Navbar scroll */
-window.addEventListener('scroll', () => {
-    document.getElementById('mainHeader').classList.toggle('scrolled', window.scrollY > 60);
-});
+/* Loader: the Firebase check hides it. On a slow connection, don't keep people waiting —
+   show the form after 1.5 s anyway (a signed-in user is still redirected once the check finishes). */
+(function () {
+    var loader = document.getElementById('pageLoader');
+    function hideLoader() { if (loader && loader.style.display !== 'none') loader.classList.add('gone'); }
+    setTimeout(hideLoader, 1500);
+    window.addEventListener('load', function () { setTimeout(hideLoader, 600); });
+})();
 
-/* Mobile menu */
-function toggleMobileMenu(){
-    const menu=document.getElementById('mobileMenu'), icon=document.getElementById('menuIcon');
-    const isOpen=menu.classList.toggle('open');
-    icon.className = isOpen ? 'fas fa-times' : 'fas fa-bars';
-}
-function closeMobileMenu(){
-    document.getElementById('mobileMenu').classList.remove('open');
-    document.getElementById('menuIcon').className = 'fas fa-bars';
-}
-document.addEventListener('click', e => { if(!e.target.closest('header')) closeMobileMenu(); });
+
+/* Light switch: hover (or tap) the electrician's bulb, or use the bulb button in the top bar */
+(function () {
+    const scene = document.getElementById('lightScene');
+    const btn = document.getElementById('lightBtn');
+    let sticky = false;
+    function place() {
+        const b = scene && scene.querySelector('.el-bulb');
+        if (!b || getComputedStyle(scene).display === 'none') return;
+        const r = b.getBoundingClientRect();
+        document.body.style.setProperty('--lx', (r.left + r.width / 2) + 'px');
+        document.body.style.setProperty('--ly', (r.top + r.height / 2) + 'px');
+    }
+    function setLight(on) {
+        place();
+        document.body.classList.toggle('lights-on', on);
+        btn.setAttribute('aria-pressed', on ? 'true' : 'false');
+        btn.setAttribute('aria-label', on ? 'Switch the light off' : 'Switch the light on');
+    }
+    if (scene) {
+        scene.addEventListener('mouseenter', () => setLight(true));
+        scene.addEventListener('mouseleave', () => setLight(sticky));
+        scene.addEventListener('click', () => { sticky = !sticky; setLight(sticky); });
+    }
+    btn.addEventListener('click', () => { sticky = !document.body.classList.contains('lights-on'); setLight(sticky); });
+    window.addEventListener('resize', place);
+})();
+
+/* AI Sarthi: rotate a few helpful tips in the robot's speech bubble */
+(function () {
+    const tip = document.getElementById('botTip');
+    if (!tip) return;
+    const tips = [
+        'Need a hand signing in?',
+        'You can log in with your username or email.',
+        'Forgot it? Tap “Forgot password?”',
+        'New here? Sign up takes a minute.',
+        'Psst… hover the bulb up there.'
+    ];
+    let i = 0;
+    setInterval(() => {
+        if (document.hidden) return;
+        tip.classList.add('swap');
+        setTimeout(() => { i = (i + 1) % tips.length; tip.textContent = tips[i]; tip.classList.remove('swap'); }, 350);
+    }, 4200);
+})();
 
 /* Tab switch */
 function switchTab(tab){
     ['login','signup'].forEach(t => {
         document.getElementById(t+'Tab').classList.toggle('active', t===tab);
+        document.getElementById(t+'Tab').setAttribute('aria-selected', t===tab ? 'true' : 'false');
         document.getElementById(t+'Form').classList.toggle('active', t===tab);
     });
+    document.getElementById('authTabs').dataset.tab = tab;
     document.getElementById('msgArea').innerHTML = '';
 }
 
 /* Password toggle */
 function togglePassword(id, btn){
     const inp=document.getElementById(id), ic=btn.querySelector('i');
-    if(inp.type==='password'){ inp.type='text'; ic.classList.replace('fa-eye','fa-eye-slash'); }
-    else { inp.type='password'; ic.classList.replace('fa-eye-slash','fa-eye'); }
+    if(inp.type==='password'){ inp.type='text'; ic.classList.replace('fa-eye','fa-eye-slash'); btn.setAttribute('aria-label','Hide password'); }
+    else { inp.type='password'; ic.classList.replace('fa-eye-slash','fa-eye'); btn.setAttribute('aria-label','Show password'); }
 }
 
 /* Password strength */
@@ -1236,25 +1361,12 @@ function updateSignupBtn(){
     btn.disabled=!can; btn.style.opacity=can?'1':'0.6'; btn.style.cursor=can?'pointer':'not-allowed';
 }
 
-/* Newsletter */
-function handleNewsletter(e){
-    e.preventDefault();
-    const input=e.target.querySelector('input');
-    if(input.value && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(input.value)){
-        showNotification('Thank you for subscribing! 🎉','success'); input.value='';
-    } else { showNotification('Please enter a valid email address.','error'); }
-}
-function showNotification(msg,type){
-    document.querySelector('.notification')?.remove();
-    const n=document.createElement('div');
-    n.className=`notification notification-${type}`;
-    n.innerHTML=`<span>${msg}</span><button onclick="this.parentElement.remove()">×</button>`;
-    document.body.appendChild(n);
-    setTimeout(()=>n.remove(),5000);
-}
-
 /* Input validation */
 document.addEventListener('DOMContentLoaded',()=>{
+    // Open the Sign up tab straight away when arriving from a "Get started" link
+    if (new URLSearchParams(location.search).get('tab') === 'signup') switchTab('signup');
+    updateSignupBtn();
+
     document.getElementById('s_phone').addEventListener('input',function(){
         this.value=this.value.replace(/\D/g,'');
         if(this.value.length>10) this.value=this.value.slice(0,10);
@@ -1267,6 +1379,7 @@ document.addEventListener('DOMContentLoaded',()=>{
         this.style.borderColor=this.value?(ok?'var(--g-300)':'#ef5350'):'';
     });
     document.getElementById('l_password').addEventListener('keydown',e=>{if(e.key==='Enter') window.doLogin();});
+    document.getElementById('l_username').addEventListener('keydown',e=>{if(e.key==='Enter') document.getElementById('l_password').focus();});
     document.querySelectorAll('input[type="password"]').forEach(f=>{
         f.addEventListener('copy',e=>e.preventDefault());
         f.addEventListener('cut',e=>e.preventDefault());

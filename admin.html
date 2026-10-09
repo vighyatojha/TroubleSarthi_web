@@ -4,9 +4,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <title>Admin — Trouble Sarthi</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<!-- Fonts and icons are served from this site, so the panel stays quick on slow connections -->
+<link rel="stylesheet" href="assets/fonts.css">
+<link rel="stylesheet" href="assets/fa/css/all.min.css">
 <style>
 
    /* ── CONV SELECT MODE ── */
@@ -1462,13 +1462,366 @@ tr.updated{animation:rowFlash .5s ease;}
 }
 .pfch-title{font-size:.95rem;font-weight:700;color:var(--text-1);}
 .pfch-sub{font-size:.75rem;color:var(--text-2);margin-top:.18rem;}
+
+/* ════════════════════════════════════════════════════════════════
+   TROUBLE SARTHI — ADMIN REDESIGN LAYER
+   Sits on top of the original styles above. Only tokens, type and
+   presentation change; every class/ID the Firebase script uses is kept.
+   ════════════════════════════════════════════════════════════════ */
+
+/* — Dark (default) — deep forest green with marigold as the action colour — */
+:root {
+  --bg:          #0c2014;
+  --bg-card:     #12301c;
+  --bg-raised:   #1a3d25;
+  --bg-hover:    #1f4a2c;
+  --border:      rgba(207,229,180,0.10);
+  --border-mid:  rgba(207,229,180,0.18);
+  --text-1:      #eef5ea;
+  --text-2:      #b3c9b8;
+  --text-3:      #86a28e;
+  --brand:       #f2a516;
+  --on-brand:    #2a1a00;
+  --brand-dim:   rgba(242,165,22,0.14);
+  --brand-glow:  rgba(242,165,22,0.28);
+  --leaf:        #7cb342;
+  --success:     #4cc38a;
+  --success-dim: rgba(76,195,138,0.14);
+  --warn:        #f2a516;
+  --warn-dim:    rgba(242,165,22,0.14);
+  --info:        #5aa9f0;
+  --info-dim:    rgba(90,169,240,0.14);
+  --danger:      #ef5b5b;
+  --danger-dim:  rgba(239,91,91,0.14);
+  --shadow-sm:   0 1px 2px rgba(0,0,0,0.3), 0 4px 14px rgba(0,0,0,0.25);
+  --shadow-md:   0 10px 30px rgba(0,0,0,0.4);
+  --r: 10px; --r-lg: 14px; --r-xl: 20px;
+  --font-display:'Anek Latin', 'Arial Narrow', sans-serif;
+  --font-body:   'Plus Jakarta Sans', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --font-hindi:  'Yatra One', 'Anek Devanagari', sans-serif;
+
+  /* booking status series — validated palette (dark steps) */
+  --s-pending:   #3987e5;
+  --s-confirmed: #d95926;
+  --s-ongoing:   #199e70;
+  --s-completed: #c98500;
+  --s-cancelled: #d55181;
+  /* sequential (single hue) for magnitude */
+  --seq:         #7cb342;
+}
+
+/* — Light — paper and ink, green as the action colour — */
+[data-theme="light"] {
+  --bg:          #f3f5ef;
+  --bg-card:     #ffffff;
+  --bg-raised:   #eef3ea;
+  --bg-hover:    #e3ecdf;
+  --border:      rgba(36,82,54,0.12);
+  --border-mid:  rgba(36,82,54,0.22);
+  --text-1:      #13201a;
+  --text-2:      #3f5446;
+  --text-3:      #5d7064;
+  --brand:       #245236;
+  --on-brand:    #ffffff;
+  --brand-dim:   rgba(36,82,54,0.09);
+  --brand-glow:  rgba(36,82,54,0.18);
+  --success:     #1f8a52;
+  --success-dim: rgba(31,138,82,0.10);
+  --warn:        #b26b00;
+  --warn-dim:    rgba(242,165,22,0.16);
+  --info:        #1f6fc4;
+  --info-dim:    rgba(31,111,196,0.10);
+  --danger:      #c62828;
+  --danger-dim:  rgba(198,40,40,0.08);
+  --shadow-sm:   0 1px 2px rgba(23,61,34,0.06), 0 4px 14px rgba(23,61,34,0.06);
+  --shadow-md:   0 10px 30px rgba(23,61,34,0.12);
+
+  --s-pending:   #2a78d6;
+  --s-confirmed: #eb6834;
+  --s-ongoing:   #1baf7a;
+  --s-completed: #eda100;
+  --s-cancelled: #e87ba4;
+  --seq:         #2f6e47;
+}
+
+body { font-family: var(--font-body); background: var(--bg); }
+:focus-visible { outline: 3px solid var(--brand); outline-offset: 2px; }
+
+/* text that sits on the brand colour */
+.btn-primary, .nav-badge.amber, .conv-count, .conv-unread, .send-btn { color: var(--on-brand) !important; }
+.btn-primary:hover { filter: brightness(1.08); }
+.toggle-knob { color: var(--on-brand); }
+
+/* ── Loader ── */
+.ld-wordmark { font-family: 'SAMAN___', var(--font-display) !important; font-weight: normal !important; letter-spacing: 0 !important; }
+.ld-wordmark span { color: var(--brand); }
+
+/* ── Header ── */
+header { background: color-mix(in srgb, var(--bg-card) 92%, transparent) !important; -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); }
+.logo { font-family: var(--font-body); font-weight: normal; gap: 0.6rem; }
+.brand-mark {
+  width: 34px; height: 34px; border-radius: 9px;
+  display: grid; place-items: center;
+  background: var(--brand); color: var(--on-brand);
+  font-family: var(--font-hindi); font-size: 1rem; line-height: 1; padding-top: 0.15rem;
+  flex-shrink: 0;
+}
+.brand-word { font-family: 'SAMAN___', var(--font-display); font-size: 1.6rem; line-height: 1; color: var(--text-1); }
+.brand-tag {
+  font-family: var(--font-body);
+  font-size: 0.62rem; font-weight: 800; letter-spacing: 0.06em;
+  padding: 0.18rem 0.45rem; border-radius: 6px;
+  color: var(--brand); background: var(--brand-dim);
+  border: 1px solid var(--brand-glow);
+}
+
+/* ── Sidebar ── */
+.sidebar { background: var(--bg-card); }
+.sidebar-brand { display: flex; align-items: center; gap: 0.7rem; }
+.sidebar-brand .brand-mark { width: 38px; height: 38px; font-size: 1.1rem; }
+.sidebar-brand-title { font-family: var(--font-display); font-stretch: 85%; font-weight: 750; font-size: 1.15rem; letter-spacing: 0; text-transform: none; color: var(--text-1); }
+.sidebar-brand-sub { font-size: 0.74rem; color: var(--text-3); }
+.sidebar-nav { display: block; height: auto; padding: 0.4rem 0.7rem 1rem; }   /* undo the header's nav layout */
+.sidebar-section-label { letter-spacing: 0.04em; padding-left: 0.6rem; padding-right: 0.6rem; }
+.sidebar-nav a { border-radius: 10px; padding: 0.68rem 0.75rem; margin: 2px 0; }
+.sidebar-nav a.active::before { left: -0.7rem; }
+.sidebar-nav a.active { background: var(--brand-dim); color: var(--text-1); }
+.sidebar-nav a.active .nav-icon { color: var(--brand); }
+.status-dot { background: var(--success); }
+
+/* ── Page headers in the other sections ── */
+.page-hdr-title, .mob-page-hdr h1, .modal-content h2, .table-hdr h3, .pfch-title {
+  font-family: var(--font-display); font-stretch: 85%; letter-spacing: 0;
+}
+.page-hdr-title { font-size: clamp(1.7rem, 2.6vw, 2.2rem); font-weight: 800; }
+.page-hdr-eyebrow { color: var(--text-3); letter-spacing: 0.04em; }
+.table-hdr h3 { font-size: 1.15rem; font-weight: 750; }
+.modal-content h2 { font-size: 1.5rem; font-weight: 800; }
+
+/* tables, cards and controls pick up the new tokens; small polish */
+.data-table, .profile-avatar-card, .profile-form-card, .kyc-card, .request-card {
+  background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--r-lg);
+}
+th { letter-spacing: 0.03em; }
+.btn { border-radius: 9px; font-weight: 700; }
+.btn-large { border-radius: 10px; }
+.tab-btn.active { color: var(--text-1); border-bottom-color: var(--brand); }
+.profile-page-avatar, .admin-avatar { background: var(--brand) !important; color: var(--on-brand) !important; }
+
+/* ════════════════════════════════
+   DASHBOARD HOME
+   ════════════════════════════════ */
+#dashboard { max-width: 1240px; }
+
+.dx-hero {
+  position: relative; overflow: hidden;
+  display: flex; align-items: flex-end; justify-content: space-between; gap: 1.5rem; flex-wrap: wrap;
+  padding: 1.6rem 1.7rem;
+  margin-bottom: 1.6rem;
+  border-radius: var(--r-xl);
+  background: #173d22;
+  color: #fff;
+  isolation: isolate;
+}
+[data-theme="light"] .dx-hero { background: #173d22; }
+.dx-hero::before {
+  content: ''; position: absolute; inset: 0; z-index: -1;
+  background-image:
+    linear-gradient(rgba(255,255,255,0.05) 2px, transparent 2px),
+    linear-gradient(90deg, rgba(255,255,255,0.05) 2px, transparent 2px);
+  background-size: 64px 64px;
+  -webkit-mask-image: linear-gradient(100deg, transparent 30%, #000 85%);
+          mask-image: linear-gradient(100deg, transparent 30%, #000 85%);
+}
+.dx-date { font-size: 0.82rem; color: rgba(255,255,255,0.7); display: flex; align-items: center; gap: 0.45rem; margin-bottom: 0.4rem; }
+.dx-hello {
+  font-family: var(--font-display); font-stretch: 80%; font-weight: 800;
+  font-size: clamp(2rem, 3.6vw, 2.9rem); line-height: 1; letter-spacing: -0.01em;
+  margin-bottom: 0.45rem;
+}
+#dxName { color: #f2a516; }
+.dx-sub { color: rgba(255,255,255,0.75); font-size: 0.95rem; }
+.dx-actions { display: grid; grid-template-columns: repeat(4, auto); gap: 0.5rem; }
+.dx-act {
+  display: inline-flex; align-items: center; gap: 0.5rem;
+  padding: 0.62rem 0.9rem;
+  border-radius: 10px;
+  border: 1px solid rgba(255,255,255,0.16);
+  background: rgba(255,255,255,0.06);
+  color: #fff; font: inherit; font-size: 0.84rem; font-weight: 700;
+  cursor: pointer;
+  transition: background-color 0.2s, border-color 0.2s, transform 0.15s;
+}
+.dx-act i { color: #f2a516; }
+.dx-act:hover { background: rgba(255,255,255,0.14); border-color: rgba(255,255,255,0.3); }
+.dx-act:active { transform: translateY(1px); }
+
+.dx-label {
+  font-family: var(--font-body);
+  font-size: 0.8rem; font-weight: 700; color: var(--text-3);
+  letter-spacing: 0.03em;
+  margin: 0 0 0.7rem;
+}
+
+/* Needs attention */
+.dx-attn { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.9rem; margin-bottom: 1.7rem; }
+.dx-attn-card {
+  display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 0.9rem;
+  padding: 1rem 1.1rem;
+  text-align: left;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  color: var(--text-1); font: inherit;
+  cursor: pointer;
+  transition: border-color 0.2s, transform 0.2s, box-shadow 0.2s;
+}
+.dx-attn-card:hover { border-color: var(--brand-glow); transform: translateY(-2px); box-shadow: var(--shadow-sm); }
+.dx-attn-icon {
+  width: 44px; height: 44px; border-radius: 12px;
+  display: grid; place-items: center; font-size: 1.05rem;
+}
+.dx-attn-icon.warn { background: var(--warn-dim); color: var(--warn); }
+.dx-attn-icon.info { background: var(--info-dim); color: var(--info); }
+.dx-attn-icon.chat { background: var(--success-dim); color: var(--success); }
+.dx-attn-body { display: flex; flex-direction: column; min-width: 0; }
+.dx-attn-num { font-family: var(--font-display); font-stretch: 85%; font-weight: 800; font-size: 1.9rem; line-height: 1; font-variant-numeric: tabular-nums; transition: transform 0.18s; }
+.dx-attn-lbl { font-size: 0.84rem; color: var(--text-2); margin-top: 0.2rem; }
+.dx-attn-go { font-size: 0.8rem; font-weight: 700; color: var(--brand); white-space: nowrap; }
+.dx-attn-go i { font-size: 0.7rem; transition: transform 0.2s; }
+.dx-attn-card:hover .dx-attn-go i { transform: translateX(3px); }
+.dx-attn-card.is-zero .dx-attn-num { color: var(--text-3); }
+.dx-attn-card.is-zero .dx-attn-go { color: var(--text-3); }
+
+/* KPI row */
+.dx-kpis {
+  display: grid; grid-template-columns: repeat(4, 1fr);
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  margin-bottom: 1.7rem;
+  overflow: hidden;
+}
+.dx-kpi {
+  display: flex; flex-direction: column; gap: 0.5rem;
+  padding: 1.1rem 1.2rem;
+  border: none; border-left: 1px solid var(--border);
+  background: transparent; color: var(--text-1); font: inherit; text-align: left;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+.dx-kpi:first-child { border-left: none; }
+.dx-kpi:not(.static):hover { background: var(--bg-raised); }
+.dx-kpi.static { cursor: default; }
+.dx-kpi-lbl { font-size: 0.82rem; color: var(--text-2); display: flex; align-items: center; gap: 0.45rem; }
+.dx-kpi-lbl i { color: var(--text-3); font-size: 0.8rem; }
+.dx-kpi-num { font-family: var(--font-display); font-stretch: 80%; font-weight: 800; font-size: clamp(2.2rem, 3.2vw, 2.8rem); line-height: 1; font-variant-numeric: tabular-nums; }
+.dx-kpi-num > span, #d_users, #d_helpers, #d_bookings { display: inline-block; transition: transform 0.18s; }
+.dx-kpi-num small { font-size: 0.45em; color: var(--text-3); font-weight: 600; }
+
+/* Panels */
+.dx-panels { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+.dx-panel {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  padding: 1.15rem 1.25rem 1.25rem;
+  min-width: 0;
+}
+.dx-panel-wide { grid-column: 1 / -1; }
+.dx-panel-hdr { display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin-bottom: 1rem; }
+.dx-panel-hdr h3 { font-family: var(--font-display); font-stretch: 85%; font-weight: 750; font-size: 1.2rem; color: var(--text-1); }
+.dx-link { background: none; border: none; font: inherit; font-size: 0.8rem; font-weight: 700; color: var(--brand); cursor: pointer; }
+.dx-link i { font-size: 0.7rem; }
+.dx-hint { font-size: 0.75rem; color: var(--text-3); }
+
+/* stacked bar: one track, 2px surface gaps between segments, rounded ends */
+.dx-stack {
+  display: flex; height: 18px;
+  border-radius: 6px; overflow: hidden;
+  background: var(--bg-raised);
+  margin-bottom: 1rem;
+}
+.dx-seg { height: 100%; box-shadow: inset -2px 0 0 var(--bg-card); transition: width 0.8s cubic-bezier(0.2,0.8,0.2,1); }
+.dx-seg[style*="width: 0%"], .dx-seg[style*="width:0%"] { box-shadow: none; }
+.s-pending   { background: var(--s-pending); }
+.s-confirmed { background: var(--s-confirmed); }
+.s-ongoing   { background: var(--s-ongoing); }
+.s-completed { background: var(--s-completed); }
+.s-cancelled { background: var(--s-cancelled); }
+.dx-legend { display: block; width: 100%; min-width: 0; border-collapse: collapse; font-size: 0.88rem; }
+.dx-legend tbody { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 0.5rem; }
+.dx-legend tr { display: grid; grid-template-columns: 1fr auto; align-items: end; padding: 0.6rem 0.7rem; border-radius: 10px; border: 1px solid var(--border); min-width: 0; transition: background-color 0.2s; }
+.dx-legend tr:hover { background: var(--bg-raised); }
+.dx-legend th, .dx-legend td { padding: 0; border: none; background: none; text-transform: none; letter-spacing: 0; white-space: nowrap; min-width: 0; }
+.dx-legend th { grid-column: 1 / -1; display: flex; align-items: center; gap: 0.5rem; padding-bottom: 0.35rem; color: var(--text-2); font-size: 0.82rem; font-weight: 600; text-align: left; overflow: hidden; text-overflow: ellipsis; }
+.dx-key { width: 12px; height: 12px; border-radius: 3px; flex-shrink: 0; }
+.dx-legend .dx-n { font-family: var(--font-display); font-stretch: 85%; font-size: 1.6rem; font-weight: 800; line-height: 1; color: var(--text-1); font-variant-numeric: tabular-nums; }
+.dx-legend .dx-pct { color: var(--text-3); font-size: 0.8rem; text-align: right; font-variant-numeric: tabular-nums; }
+@media (max-width: 900px) { .dx-legend tbody { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+
+/* availability meter */
+.dx-avail { display: flex; align-items: flex-end; justify-content: space-between; gap: 1rem; margin-bottom: 0.8rem; }
+.dx-avail-big span { font-family: var(--font-display); font-stretch: 80%; font-weight: 800; font-size: 3rem; line-height: 0.9; color: var(--text-1); font-variant-numeric: tabular-nums; }
+.dx-avail-big small, .dx-avail-side small { display: block; font-size: 0.8rem; color: var(--text-2); margin-top: 0.25rem; }
+.dx-avail-side { text-align: right; }
+.dx-avail-side span { font-family: var(--font-display); font-stretch: 85%; font-weight: 750; font-size: 1.6rem; color: var(--text-2); font-variant-numeric: tabular-nums; }
+.dx-meter { height: 10px; border-radius: 6px; background: var(--bg-raised); overflow: hidden; }
+#ov_avail_bar { height: 100%; border-radius: 6px; background: var(--seq); transition: width 0.8s cubic-bezier(0.2,0.8,0.2,1); }
+.dx-meter-lbl { font-size: 0.78rem; color: var(--text-3); margin: 0.4rem 0 1rem; }
+.dx-kyc { display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem; }
+.dx-kyc > div { padding: 0.75rem 0.85rem; border-radius: 10px; background: var(--bg-raised); }
+.dx-kyc span { display: block; font-family: var(--font-display); font-stretch: 85%; font-weight: 800; font-size: 1.5rem; line-height: 1; color: var(--text-1); }
+.dx-kyc small { display: flex; align-items: center; gap: 0.35rem; font-size: 0.78rem; color: var(--text-2); margin-top: 0.3rem; }
+.dx-kyc > div:first-child small i { color: var(--warn); }
+.dx-kyc > div:last-child small i { color: var(--success); }
+
+/* categories: ranked bars, one hue (magnitude) */
+.dx-cats { display: flex; flex-direction: column; gap: 0.55rem; }
+.dx-cats .cat-pill {
+  position: relative;
+  display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 0.8rem;
+  padding: 0; margin: 0;
+  background: none; border: none; border-radius: 0;
+}
+.dx-cats .cat-pill::after {
+  content: ''; grid-column: 1 / -1;
+  height: 8px; border-radius: 0 4px 4px 0;
+  width: var(--w, 0%);
+  background: var(--seq);
+  transition: width 0.8s cubic-bezier(0.2,0.8,0.2,1);
+}
+.dx-cats .cat-pill-name { font-size: 0.86rem; color: var(--text-1); font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.dx-cats .cat-pill-count { font-size: 0.86rem; font-weight: 700; color: var(--text-2); background: none; padding: 0; font-variant-numeric: tabular-nums; }
+
+/* responsive */
+@media (max-width: 1100px) {
+  .dx-actions { grid-template-columns: repeat(2, auto); }
+}
+@media (max-width: 900px) {
+  .dx-attn { grid-template-columns: 1fr; }
+  .dx-kpis { grid-template-columns: 1fr 1fr; }
+  .dx-kpi:nth-child(3) { border-left: none; }
+  .dx-kpi:nth-child(n+3) { border-top: 1px solid var(--border); }
+  .dx-panels { grid-template-columns: 1fr; }
+}
+@media (max-width: 768px) {
+  .brand-word { font-size: 1.3rem; }
+  .brand-tag { display: none; }
+  .dx-hero { padding: 1.2rem; border-radius: 16px; margin-bottom: 1.2rem; }
+  .dx-actions { grid-template-columns: 1fr 1fr; width: 100%; }
+  .dx-act { justify-content: center; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .dx-seg, #ov_avail_bar, .dx-cats .cat-pill::after { transition: none; }
+}
 </style>
 <body>
 
 <div id="migrationToast"><i class="fa-solid fa-rotate" style="animation:spin 1s linear infinite;"></i> Syncing data…</div>
 
 <div id="pageLoader">
-  <div class="ld-wordmark">Trouble <span>Sarthi</span></div>
+  <div class="ld-wordmark">Trouble Sarthi<span>.</span></div>
   <div class="ld-bar"></div>
 </div>
 
@@ -1484,7 +1837,7 @@ tr.updated{animation:rowFlash .5s ease;}
 <!-- ══ HEADER ══ -->
 <header>
   <nav>
-    <a href="#" class="logo"><span class="logo-dot"></span>Trouble Sarthi</a>
+    <a href="#" class="logo" onclick="showSection('dashboard');mobNavActive(document.querySelector('[data-sec=dashboard]'));return false;" aria-label="Trouble Sarthi admin home"><span class="brand-mark" aria-hidden="true">सा</span><span class="brand-word">Trouble Sarthi</span><span class="brand-tag">ADMIN</span></a>
     <div class="nav-right">
       <button class="notif-btn" id="notifBtn" title="Notifications" onclick="toggleNotifPanel()">
         <i class="fa-solid fa-bell"></i>
@@ -1556,8 +1909,11 @@ tr.updated{animation:rowFlash .5s ease;}
   <!-- ══ SIDEBAR ══ -->
   <aside class="sidebar" id="sidebar">
     <div class="sidebar-brand">
-      <div class="sidebar-brand-title">Admin Panel</div>
-      <div class="sidebar-brand-sub">Trouble Sarthi Platform</div>
+      <span class="brand-mark" aria-hidden="true">सा</span>
+      <div>
+        <div class="sidebar-brand-title">Admin panel</div>
+        <div class="sidebar-brand-sub">Your companion in trouble</div>
+      </div>
     </div>
     <nav class="sidebar-nav">
       <ul>
@@ -1606,124 +1962,127 @@ tr.updated{animation:rowFlash .5s ease;}
 
     <!-- DASHBOARD -->
     <div id="dashboard" class="content-section active">
-      <div class="mob-page-hdr"><div class="mob-page-hdr-icon"><i class="fa-solid fa-gauge-high"></i></div><h1>Dashboard</h1></div>
-      <div class="page-hdr desk-only">
-        <div class="page-hdr-left">
-          <div class="page-hdr-eyebrow">Overview</div>
-          <div class="page-hdr-title">Dashboard</div>
-          <div class="page-hdr-sub">Platform metrics at a glance</div>
+
+      <!-- Greeting + quick actions -->
+      <section class="dx-hero">
+        <div class="dx-hero-text">
+          <p class="dx-date"><i class="fa-regular fa-clock" aria-hidden="true"></i> <span id="dashClock">—</span></p>
+          <h1 class="dx-hello"><span id="dxGreeting">Namaste</span>, <span id="dxName">Admin</span></h1>
+          <p class="dx-sub">Here's what needs you today across Trouble Sarthi.</p>
         </div>
-        <div style="display:flex;align-items:center;gap:.6rem;font-size:.8rem;color:var(--text-2);">
-          <i class="fa-regular fa-clock"></i>
-          <span id="dashClock">—</span>
+        <div class="dx-actions">
+          <button class="dx-act" onclick="openModal('addHelperModal')"><i class="fa-solid fa-user-gear"></i><span>Add helper</span></button>
+          <button class="dx-act" onclick="openModal('addUserModal')"><i class="fa-solid fa-user-plus"></i><span>Add user</span></button>
+          <button class="dx-act" onclick="showSection('contacts')"><i class="fa-solid fa-envelope-open-text"></i><span>Contact forms</span></button>
+          <button class="dx-act" onclick="showSection('support')"><i class="fa-solid fa-headset"></i><span>Helper support</span></button>
         </div>
+      </section>
+
+      <!-- Needs attention: the things an admin acts on -->
+      <h2 class="dx-label">Needs your attention</h2>
+      <div class="dx-attn">
+        <button class="dx-attn-card" onclick="showSection('helpers');mobNavActive(document.querySelector('[data-sec=helpers]'))">
+          <span class="dx-attn-icon warn"><i class="fa-solid fa-id-card"></i></span>
+          <span class="dx-attn-body">
+            <span class="dx-attn-num" id="d_kyc">0</span>
+            <span class="dx-attn-lbl">KYC checks waiting</span>
+          </span>
+          <span class="dx-attn-go">Review <i class="fa-solid fa-arrow-right"></i></span>
+        </button>
+        <button class="dx-attn-card" onclick="showSection('users');mobNavActive(document.querySelector('[data-sec=users]'))">
+          <span class="dx-attn-icon info"><i class="fa-solid fa-file-lines"></i></span>
+          <span class="dx-attn-body">
+            <span class="dx-attn-num" id="d_requests">0</span>
+            <span class="dx-attn-lbl">User requests</span>
+          </span>
+          <span class="dx-attn-go">Open <i class="fa-solid fa-arrow-right"></i></span>
+        </button>
+        <button class="dx-attn-card" onclick="showSection('messages');mobNavActive(document.querySelector('[data-sec=messages]'))">
+          <span class="dx-attn-icon chat"><i class="fa-solid fa-comments"></i></span>
+          <span class="dx-attn-body">
+            <span class="dx-attn-num" id="d_msgs">0</span>
+            <span class="dx-attn-lbl">Unread chats</span>
+          </span>
+          <span class="dx-attn-go">Reply <i class="fa-solid fa-arrow-right"></i></span>
+        </button>
       </div>
-      <div class="stat-grid">
-        <div class="stat-card" onclick="showSection('users');mobNavActive(document.querySelector('[data-sec=users]'))">
-          <div class="stat-icon si-amber"><i class="fa-solid fa-users"></i></div>
-          <div class="stat-num" id="d_users">—</div>
-          <div class="stat-lbl">Total Users</div>
-        </div>
-        <div class="stat-card" onclick="showSection('helpers');mobNavActive(document.querySelector('[data-sec=helpers]'))">
-          <div class="stat-icon si-green"><i class="fa-solid fa-screwdriver-wrench"></i></div>
-          <div class="stat-num" id="d_helpers">—</div>
-          <div class="stat-lbl">Active Helpers</div>
-        </div>
-        <div class="stat-card" onclick="showSection('bookings');mobNavActive(document.querySelector('[data-sec=bookings]'))">
-          <div class="stat-icon si-blue"><i class="fa-solid fa-calendar-check"></i></div>
-          <div class="stat-num" id="d_bookings">—</div>
-          <div class="stat-lbl">Total Bookings</div>
-        </div>
-        <div class="stat-card" onclick="showSection('messages');mobNavActive(document.querySelector('[data-sec=messages]'))">
-          <div class="stat-icon si-gold"><i class="fa-solid fa-comments"></i></div>
-          <div class="stat-num" id="d_msgs">0</div>
-          <div class="stat-lbl">Unread Msgs</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-icon si-orange"><i class="fa-solid fa-star"></i></div>
-          <div class="stat-num" id="d_rating">—</div>
-          <div class="stat-lbl">Avg Rating</div>
-        </div>
-        <div class="stat-card" onclick="showSection('helpers');mobNavActive(document.querySelector('[data-sec=helpers]'))">
-          <div class="stat-icon si-red"><i class="fa-solid fa-id-card"></i></div>
-          <div class="stat-num" id="d_kyc">0</div>
-          <div class="stat-lbl">KYC Pending</div>
-        </div>
-        <div class="stat-card" onclick="showSection('users');mobNavActive(document.querySelector('[data-sec=users]'))">
-          <div class="stat-icon si-violet"><i class="fa-solid fa-file-alt"></i></div>
-          <div class="stat-num" id="d_requests">0</div>
-          <div class="stat-lbl">User Requests</div>
+
+      <!-- Platform at a glance -->
+      <h2 class="dx-label">Platform at a glance</h2>
+      <div class="dx-kpis">
+        <button class="dx-kpi" onclick="showSection('users');mobNavActive(document.querySelector('[data-sec=users]'))">
+          <span class="dx-kpi-lbl"><i class="fa-solid fa-users"></i> Customers</span>
+          <span class="dx-kpi-num" id="d_users">—</span>
+        </button>
+        <button class="dx-kpi" onclick="showSection('helpers');mobNavActive(document.querySelector('[data-sec=helpers]'))">
+          <span class="dx-kpi-lbl"><i class="fa-solid fa-screwdriver-wrench"></i> Helpers available</span>
+          <span class="dx-kpi-num" id="d_helpers">—</span>
+        </button>
+        <button class="dx-kpi" onclick="showSection('bookings');mobNavActive(document.querySelector('[data-sec=bookings]'))">
+          <span class="dx-kpi-lbl"><i class="fa-solid fa-calendar-check"></i> Bookings</span>
+          <span class="dx-kpi-num" id="d_bookings">—</span>
+        </button>
+        <div class="dx-kpi static">
+          <span class="dx-kpi-lbl"><i class="fa-solid fa-star"></i> Avg helper rating</span>
+          <span class="dx-kpi-num"><span id="d_rating">—</span><small> / 5</small></span>
         </div>
       </div>
 
-      <!-- Overview Row -->
-      <div class="dash-grid" style="margin-bottom:1.1rem;">
-        <!-- Booking Status Breakdown -->
-        <div class="data-table">
-          <div class="table-hdr"><h3><i class="fa-solid fa-chart-pie"></i>Booking Status</h3></div>
-          <div style="padding:1rem 1.2rem;" id="bookingBreakdown">
-            <div class="ov-row"><div class="ov-label"><span class="ov-dot" style="background:#a78bfa;"></span>Pending</div><div class="ov-bar-wrap"><div class="ov-bar" id="bar_pending" style="background:rgba(167,139,250,.6);width:0%;"></div></div><div class="ov-val" id="bv_pending">0</div></div>
-            <div class="ov-row"><div class="ov-label"><span class="ov-dot" style="background:var(--info);"></span>Confirmed</div><div class="ov-bar-wrap"><div class="ov-bar" id="bar_confirmed" style="background:rgba(56,189,248,.6);width:0%;"></div></div><div class="ov-val" id="bv_confirmed">0</div></div>
-            <div class="ov-row"><div class="ov-label"><span class="ov-dot" style="background:var(--brand);"></span>Ongoing</div><div class="ov-bar-wrap"><div class="ov-bar" id="bar_ongoing" style="background:rgba(245,158,11,.6);width:0%;"></div></div><div class="ov-val" id="bv_ongoing">0</div></div>
-            <div class="ov-row"><div class="ov-label"><span class="ov-dot" style="background:var(--success);"></span>Completed</div><div class="ov-bar-wrap"><div class="ov-bar" id="bar_completed" style="background:rgba(52,211,153,.6);width:0%;"></div></div><div class="ov-val" id="bv_completed">0</div></div>
-            <div class="ov-row"><div class="ov-label"><span class="ov-dot" style="background:var(--danger);"></span>Cancelled</div><div class="ov-bar-wrap"><div class="ov-bar" id="bar_cancelled" style="background:rgba(239,68,68,.6);width:0%;"></div></div><div class="ov-val" id="bv_cancelled">0</div></div>
+      <div class="dx-panels">
+
+        <!-- Booking status: part-to-whole, one stacked bar + labelled legend -->
+        <section class="dx-panel dx-panel-wide">
+          <div class="dx-panel-hdr">
+            <h3>Bookings by status</h3>
+            <button class="dx-link" onclick="showSection('bookings');mobNavActive(document.querySelector('[data-sec=bookings]'))">All bookings <i class="fa-solid fa-arrow-right"></i></button>
           </div>
-        </div>
-        <!-- Top Categories -->
-        <div class="data-table">
-          <div class="table-hdr"><h3><i class="fa-solid fa-layer-group"></i>Top Service Categories</h3></div>
-          <div style="padding:.6rem 1rem 1rem;" id="topCategoriesPanel">
+          <div class="dx-stack" id="dxStack" role="img" aria-label="Share of bookings in each status">
+            <div class="dx-seg s-pending"   id="bar_pending"   style="width:0%;"></div>
+            <div class="dx-seg s-confirmed" id="bar_confirmed" style="width:0%;"></div>
+            <div class="dx-seg s-ongoing"   id="bar_ongoing"   style="width:0%;"></div>
+            <div class="dx-seg s-completed" id="bar_completed" style="width:0%;"></div>
+            <div class="dx-seg s-cancelled" id="bar_cancelled" style="width:0%;"></div>
+          </div>
+          <table class="dx-legend" id="bookingBreakdown">
+            <tbody>
+              <tr><th scope="row"><span class="dx-key s-pending"></span>Pending</th><td class="dx-n" id="bv_pending">0</td><td class="dx-pct" data-for="bv_pending">0%</td></tr>
+              <tr><th scope="row"><span class="dx-key s-confirmed"></span>Confirmed</th><td class="dx-n" id="bv_confirmed">0</td><td class="dx-pct" data-for="bv_confirmed">0%</td></tr>
+              <tr><th scope="row"><span class="dx-key s-ongoing"></span>Ongoing</th><td class="dx-n" id="bv_ongoing">0</td><td class="dx-pct" data-for="bv_ongoing">0%</td></tr>
+              <tr><th scope="row"><span class="dx-key s-completed"></span>Completed</th><td class="dx-n" id="bv_completed">0</td><td class="dx-pct" data-for="bv_completed">0%</td></tr>
+              <tr><th scope="row"><span class="dx-key s-cancelled"></span>Cancelled</th><td class="dx-n" id="bv_cancelled">0</td><td class="dx-pct" data-for="bv_cancelled">0%</td></tr>
+            </tbody>
+          </table>
+        </section>
+
+        <!-- Helper availability: a meter + KYC split -->
+        <section class="dx-panel">
+          <div class="dx-panel-hdr">
+            <h3>Helper availability</h3>
+            <button class="dx-link" onclick="showSection('helpers');mobNavActive(document.querySelector('[data-sec=helpers]'))">Helpers <i class="fa-solid fa-arrow-right"></i></button>
+          </div>
+          <div class="dx-avail">
+            <div class="dx-avail-big"><span id="ov_avail">0</span><small>available now</small></div>
+            <div class="dx-avail-side"><span id="ov_unavail">0</span><small>off duty</small></div>
+          </div>
+          <div class="dx-meter" role="img" aria-label="Share of helpers available"><div id="ov_avail_bar" style="width:0%;"></div></div>
+          <p class="dx-meter-lbl" id="ov_avail_pct">0% available</p>
+          <div class="dx-kyc" id="ov_kyc_row">
+            <div><span id="ov_kyc_p">0</span><small><i class="fa-solid fa-hourglass-half"></i> KYC pending</small></div>
+            <div><span id="ov_kyc_a">0</span><small><i class="fa-solid fa-circle-check"></i> KYC approved</small></div>
+          </div>
+        </section>
+
+        <!-- Top categories: magnitude, one hue, ranked -->
+        <section class="dx-panel">
+          <div class="dx-panel-hdr">
+            <h3>Helpers by category</h3>
+            <span class="dx-hint">Top 6</span>
+          </div>
+          <div class="dx-cats" id="topCategoriesPanel">
             <div class="empty-state"><i class="fa-solid fa-spinner fa-spin"></i></div>
           </div>
-        </div>
-      </div>
+        </section>
 
-      <!-- Platform Health Row -->
-      <div class="dash-grid">
-        <!-- Helper Availability -->
-        <div class="data-table">
-          <div class="table-hdr"><h3><i class="fa-solid fa-circle-check"></i>Helper Availability</h3></div>
-          <div style="padding:1rem 1.2rem;">
-            <div style="display:flex;align-items:center;gap:1.4rem;margin-bottom:1rem;">
-              <div style="text-align:center;">
-                <div style="font-size:2rem;font-weight:800;color:var(--success);" id="ov_avail">0</div>
-                <div style="font-size:.7rem;color:var(--text-3);font-weight:600;text-transform:uppercase;letter-spacing:.06em;">Available</div>
-              </div>
-              <div style="text-align:center;">
-                <div style="font-size:2rem;font-weight:800;color:var(--danger);" id="ov_unavail">0</div>
-                <div style="font-size:.7rem;color:var(--text-3);font-weight:600;text-transform:uppercase;letter-spacing:.06em;">Unavailable</div>
-              </div>
-              <div style="flex:1;">
-                <div style="height:8px;background:var(--bg-raised);border-radius:99px;overflow:hidden;margin-bottom:.4rem;">
-                  <div id="ov_avail_bar" style="height:100%;background:linear-gradient(90deg,var(--success),#6ee7b7);border-radius:99px;width:0%;transition:width .8s ease;"></div>
-                </div>
-                <div style="font-size:.72rem;color:var(--text-2);" id="ov_avail_pct">0% online</div>
-              </div>
-            </div>
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:.6rem;" id="ov_kyc_row">
-              <div style="background:var(--warn-dim);border:1px solid rgba(251,146,60,.2);border-radius:var(--r);padding:.65rem .9rem;">
-                <div style="font-size:1.3rem;font-weight:800;color:var(--warn);" id="ov_kyc_p">0</div>
-                <div style="font-size:.7rem;color:var(--text-2);font-weight:600;">KYC Pending</div>
-              </div>
-              <div style="background:var(--success-dim);border:1px solid rgba(52,211,153,.2);border-radius:var(--r);padding:.65rem .9rem;">
-                <div style="font-size:1.3rem;font-weight:800;color:var(--success);" id="ov_kyc_a">0</div>
-                <div style="font-size:.7rem;color:var(--text-2);font-weight:600;">KYC Approved</div>
-              </div>
-            </div>
-          </div>
-        </div>
-        <!-- Quick Links -->
-        <div class="data-table">
-          <div class="table-hdr"><h3><i class="fa-solid fa-bolt"></i>Quick Actions</h3></div>
-          <div style="padding:.8rem 1rem 1rem;display:grid;grid-template-columns:1fr 1fr;gap:.6rem;">
-            <button class="ql-btn" onclick="openModal('addUserModal')"><i class="fa-solid fa-user-plus"></i><span>Add User</span></button>
-            <button class="ql-btn" onclick="openModal('addHelperModal')"><i class="fa-solid fa-plus"></i><span>Add Helper</span></button>
-            <button class="ql-btn" onclick="showSection('messages');mobNavActive(document.querySelector('[data-sec=messages]'))"><i class="fa-solid fa-comments"></i><span>User Chats</span></button>
-            <button class="ql-btn" onclick="showSection('support')"><i class="fa-solid fa-headset"></i><span>Support</span></button>
-            <button class="ql-btn" onclick="showSection('contacts')"><i class="fa-solid fa-envelope"></i><span>Contacts</span></button>
-            <button class="ql-btn" onclick="showSection('bookings');mobNavActive(document.querySelector('[data-sec=bookings]'))"><i class="fa-solid fa-calendar-check"></i><span>Bookings</span></button>
-          </div>
-        </div>
       </div>
     </div>
 
@@ -3798,6 +4157,62 @@ window.addEventListener('resize',()=>{
 
 /* Close panels on outside click */
 document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeNotifPanel();closeProfilePanel();}});
+</script>
+
+<script>
+/* ── Dashboard presentation helpers (read what the Firebase script writes; never touch data) ── */
+(function () {
+  const $ = id => document.getElementById(id);
+  // Greeting by time of day + the admin's name from the header
+  function greet() {
+    const h = new Date().getHours();
+    $('dxGreeting').textContent = h < 5 ? 'Working late' : h < 12 ? 'Good morning' : h < 17 ? 'Good afternoon' : 'Good evening';
+    const n = (($('adminDisplayName')?.textContent || 'Admin').trim().split(' ')[0]) || 'Admin';
+    if ($('dxName').textContent !== n) $('dxName').textContent = n;
+  }
+  greet(); setInterval(greet, 60000);
+  new MutationObserver(greet).observe($('adminDisplayName'), { childList: true, characterData: true, subtree: true });
+
+  // Booking status: share % beside each count, and hover text on each segment
+  const STAT = ['pending', 'confirmed', 'ongoing', 'completed', 'cancelled'];
+  function shares() {
+    const n = STAT.map(s => parseInt($('bv_' + s)?.textContent || '0', 10) || 0);
+    const total = n.reduce((a, b) => a + b, 0);
+    STAT.forEach((s, i) => {
+      const pct = total ? Math.round((n[i] / total) * 100) : 0;
+      const cell = document.querySelector(`.dx-pct[data-for="bv_${s}"]`);
+      if (cell && cell.textContent !== pct + '%') cell.textContent = pct + '%';
+      const seg = $('bar_' + s);
+      const tip = `${s[0].toUpperCase() + s.slice(1)}: ${n[i]} booking${n[i] === 1 ? '' : 's'} (${pct}%)`;
+      if (seg && seg.title !== tip) seg.title = tip;
+    });
+    $('dxStack')?.setAttribute('aria-label', 'Bookings by status: ' + STAT.map((s, i) => `${s} ${n[i]}`).join(', '));
+  }
+  // watch only the count cells the Firebase script writes (not the % cells this helper writes)
+  STAT.forEach(st => new MutationObserver(shares).observe($('bv_' + st), { childList: true, characterData: true, subtree: true }));
+
+  // Categories: bar length relative to the biggest category
+  function cats() {
+    const pills = [...document.querySelectorAll('#topCategoriesPanel .cat-pill')];
+    const vals = pills.map(p => parseInt(p.querySelector('.cat-pill-count')?.textContent || '0', 10) || 0);
+    const max = Math.max(1, ...vals);
+    pills.forEach((p, i) => {
+      p.style.setProperty('--w', Math.max(4, (vals[i] / max) * 100) + '%');
+      p.title = `${p.querySelector('.cat-pill-name')?.textContent || ''}: ${vals[i]} helper${vals[i] === 1 ? '' : 's'}`;
+    });
+  }
+  new MutationObserver(cats).observe($('topCategoriesPanel'), { childList: true, subtree: true });
+
+  // "Needs attention" cards dim when there's nothing waiting
+  function attn() {
+    document.querySelectorAll('.dx-attn-card').forEach(card => {
+      const v = parseInt(card.querySelector('.dx-attn-num')?.textContent || '0', 10) || 0;
+      card.classList.toggle('is-zero', v === 0);
+    });
+  }
+  ['d_kyc', 'd_requests', 'd_msgs'].forEach(id => new MutationObserver(attn).observe($(id), { childList: true, characterData: true, subtree: true }));
+  attn(); shares();
+})();
 </script>
 </body>
 </html>
